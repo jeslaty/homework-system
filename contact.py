@@ -6,7 +6,7 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 級極致清透藍大卡片】與【100% 高對比純黑字體】設計
+# 🎨 注入【Apple 奢華旗艦：愛馬仕暖金卡片、黑巧克高對比粗框】頂級 UI 設計
 st.markdown(
     """
     <style>
@@ -15,57 +15,55 @@ st.markdown(
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 全局網頁背景：冰川高亮白 */
-    .stApp { background-color: #FFFFFF !important; }
+    /* 🍏 網頁大背景改為純淨象牙白，極致優雅 */
+    .stApp { background-color: #FAFAFA !important; }
     
-    /* 🍏 左側邊欄：內斂白灰色 */
-    [data-testid="stSidebar"] { background-color: #F1F5F9 !important; }
-    
-    /* 🍏 徹底隱藏任何會導致爆字的官方控制按鈕 */
-    button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
+    /* 🛑【徹底封鎖原廠側邊欄】全站不啟用 Sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
+    [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題簡約精緻化：太空灰高級感 */
+    /* 🍏 標題簡約精緻化：黑巧深色高級感，字體適中絕不爆字 */
     .apple-title { 
-        color: #0F172A !important; 
+        color: #451A03 !important; 
         font-size: 32px !important; 
         font-weight: 800 !important; 
-        margin-bottom: 15px !important; 
+        margin-bottom: 20px !important; 
         border-bottom: 3px solid #E2E8F0;
-        padding-bottom: 8px;
+        padding-bottom: 10px;
     }
     
-    /* 👤 學生姓名專用樣式：純黑、巨大化特粗字體，一秒對焦 */
+    /* 👤 學生姓名專用樣式：純黑、特粗體，大小適中且【強制不換行】，一排4人名字也絕對同一行、絕不切斷！ */
     .student-title-text {
         color: #000000 !important;
-        font-size: 26px !important;
+        font-size: 19px !important; 
         font-weight: 900 !important;
-        margin-bottom: 8px !important;
-        display: block !important;
+        margin-bottom: 10px !important;
+        white-space: nowrap !important; /* 🛑 強制文字不換行 */
+        overflow: hidden !important;
     }
     
     /* 📋 學校項目與備註標籤 */
     .item-label { 
-        color: #1E3A8A !important; 
-        font-size: 16px !important; 
+        color: #7C2D12 !important; 
+        font-size: 15px !important; 
         font-weight: 800 !important; 
         margin-top: 10px !important; 
         margin-bottom: 4px !important;
     }
 
-    /* 📋 全局選項與內文文字：加粗純黑高清晰 */
-    .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
+    /* 📋 全局文字高清晰純黑 */
+    .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
     
-    /* 📦 【Apple 3D 獨立實線大卡片框】強行拉開間距，底色加深為莫蘭迪亮藍，立體凸顯感達到最高峰！ */
+    /* 📦【3D 獨立實線大卡片框】底色加深為愛馬仕暖金，外框加上 3px 黑巧克力大粗框！ */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 3.5px solid #1E3A8A !important;   /* 3.5px 皇家海軍藍超清晰實線粗框 */
-        border-radius: 18px !important;         /* 大圓角，極具現代感 */
-        background-color: #E0F2FE !important;    /* 格子內底色 100% 成功變深為：清爽馬卡龍亮藍色 */
-        padding: 20px !important; 
-        margin: 18px !important;                 /* 強制拉開卡片間距，絕不黏在一起 */
-        box-shadow: 0 10px 20px rgba(30, 58, 138, 0.12) !important; /* 精緻立體陰影 */
+        border: 3px solid #451A03 !important;   /* 3px 超清晰實線粗框 */
+        border-radius: 16px !important;         /* 大圓角 */
+        background-color: #FFF7ED !important;    /* 100% 成功變深為：奢華愛馬仕暖金色 */
+        padding: 16px !important; 
+        margin: 12px !important;                 /* 強制拉開卡片間距 */
+        box-shadow: 0 10px 20px rgba(69, 26, 3, 0.08) !important; /* 立體感陰影 */
     }
     </style>
 """,
@@ -92,15 +90,7 @@ if not st.session_state["contact_logged_in"]:
 # ----------------- 系統主畫面 (登入後) -----------------
 st.markdown('<div class="apple-title">📝 801聯絡簿系統</div>', unsafe_allow_html=True)
 
-# 2. 📅 日期與管理放左側邊欄
-st.sidebar.header("📅 日期與管理")
-current_date = st.sidebar.date_input("選擇登記/查看日期：", datetime.now(), key="sb_date")
-date_str = current_date.strftime("%Y-%m-%d")
-
-if st.sidebar.button("🔒 安全登出"):
-    st.session_state["contact_logged_in"] = False
-    st.rerun()
-
+# 基礎數據加載設定
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
 student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
@@ -116,31 +106,64 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-df = load_data(date_str)
+# 建立左右 1:3 黃金分配佈局
+col_left_panel, col_right_students = st.columns([1, 3]) 
 
-def save_data(updated_df, target_date):
-    with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: updated_df.to_excel(w, sheet_name=target_date, index=False)
+with col_left_panel:
+    st.write("### 📅 班務管理與切換")
+    current_date = st.date_input("選擇登記/查看日期：", datetime.now(), key="main_date")
+    date_str = current_date.strftime("%Y-%m-%d")
+    
+    df = load_data(date_str)
+    extra_items = list(df.columns[5:])
+    
+    def save_data(updated_df, target_date):
+        with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: updated_df.to_excel(w, sheet_name=target_date, index=False)
 
-st.sidebar.markdown("---")
-new_item = st.sidebar.text_input("➕ 新增學校催收項目：", placeholder="例如：疫苗施打同意書", key="sb_item")
-if st.sidebar.button("建立催收欄位"):
-    if new_item and new_item not in df.columns:
-        df[new_item] = "未繳 ❌"
-        save_data(df, date_str)
+    new_item = st.text_input("➕ 新增學校催收項目：", placeholder="例如：疫苗施打同意書", key="main_item")
+    if st.button("建立催收欄位", use_container_width=True):
+        if new_item and new_item not in df.columns:
+            df[new_item] = "未繳 ❌"
+            save_data(df, date_str)
+            st.rerun()
+            
+    if st.button("🔒 安全登出系統", use_container_width=True):
+        st.session_state["contact_logged_in"] = False
         st.rerun()
 
-# 3. ⚖️ 左右主排版配置：左邊放紀錄登記區（75%），右邊放廣播台（25%）
-col_register_zone, col_broadcast_zone = st.columns([3, 1]) # 精準控制 3:1 比例
+    st.markdown("---")
+    st.write(f"### 📢 {date_str} 即時催繳廣播台")
+    
+    # A. 聯絡簿
+    df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
+    if not df_ns.empty:
+        t_s = f"【801班 {date_str} 聯絡簿未簽名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ns.iterrows()])
+        st.text_area("📋 複製傳至家長群組：", value=t_s, height=130, key="c_s")
+    else: st.success("🎉 本日聯絡簿全班皆已簽名！")
 
-with col_register_zone:
+    # B. 札記
+    df_nd = df[df["生活札記"] == "未寫 ❌"]
+    if not df_nd.empty:
+        t_d = f"【801班 {date_str} 札記未完成名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_nd.iterrows()])
+        st.text_area("📋 複製傳至班級群組：", value=t_d, height=130, key="c_d")
+
+    # C. 學校項目
+    if extra_items:
+        st.markdown("---")
+        for item in extra_items:
+            df_ni = df[df[item] == "未繳 ❌"]
+            if not df_ni.empty:
+                t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
+                st.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=130, key=f"c_{item}")
+            else: st.success(f"💯 {item} 皆已繳齊！")
+
+with col_right_students:
     st.write(f"### 📅 日期：{date_str} 紀錄登記區")
     st.write("")
 
-    extra_items = list(df.columns[5:])
-
-    # 四個一組進行一橫排排列
+    # 一橫排 4 個學生卡片
     for i in range(0, len(df), 4):
-        grid = st.columns(4)  # 一排切成 4 個格子
+        grid = st.columns(4)  
 
         for idx_grid in range(4):
             student_idx = i + idx_grid
@@ -151,9 +174,8 @@ with col_register_zone:
 
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                # 💡 回歸最安全、最穩定的原生大卡片框
                 with grid[idx_grid].container(border=True):
-                    # 獨立純黑大標題，絕對不被系統隱藏沒收
+                    # 獨立純黑標題，強制不換行，名字絕對同一行！
                     st.markdown(f'<div class="student-title-text">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
 
                     # 聯絡簿與札記單選鈕
@@ -188,7 +210,7 @@ with col_register_zone:
                                 st.rerun()
 
                     # 隨手備註欄
-                    st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="item-label">✍ *隨手備註：*</div>', unsafe_allow_html=True)
                     nm = st.text_input(
                         f"備註_{seat_num}",
                         value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]),
@@ -197,35 +219,6 @@ with col_register_zone:
                     if nm != ("" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])):
                         df.loc[df["座號"] == seat_num, "備註事項"] = nm
                         save_data(df, date_str)
-
-with col_broadcast_zone:
-    st.write(f"### 📢 即時催繳廣播台")
-    st.write("")
-
-    # A. 聯絡簿
-    df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
-    if not df_ns.empty:
-        t_s = f"【801班 {date_str} 聯絡簿未簽名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ns.iterrows()])
-        st.text_area("📋 複製傳至家長群組：", value=t_s, height=130, key="c_s")
-    else:
-        st.success("🎉 聯絡簿全班皆已簽名！")
-
-    # B. 札記
-    df_nd = df[df["生活札記"] == "未寫 ❌"]
-    if not df_nd.empty:
-        t_d = f"【801班 {date_str} 札記未完成名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_nd.iterrows()])
-        st.text_area("📋 複製傳至班級群組：", value=t_d, height=130, key="c_d")
-
-    # C. 學校項目
-    if extra_items:
-        st.markdown("---")
-        for item in extra_items:
-            df_ni = df[df[item] == "未繳 ❌"]
-            if not df_ni.empty:
-                t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
-                st.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=130, key=f"c_{item}")
-            else:
-                st.success(f"💯 {item} 皆已繳齊！")
 
 st.markdown("---")
 st.write(f"### 📊 801班 {date_str} 綜合班務總表（唯讀檢視）")
