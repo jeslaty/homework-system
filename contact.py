@@ -6,25 +6,25 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全站字體高對比優化（只留下 100% 穩定的 CSS，其餘交給官方原生彩色元件）
+# 🎨 注入全局 Apple 級高清字體優化，並強制拉開格子間距、加強文字清晰度
 st.markdown(
     """
     <style>
-    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
+    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體，在手機平板上最好看 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 網頁大背景改為純淨發亮白，徹底消滅暗沉 */
+    /* 🍏 全局大背景：改用純淨發亮白，徹底擺脫暗沉 */
     .stApp { background-color: #FFFFFF !important; }
     
-    /* 🛑【最關鍵：彻底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不會再跑出來！ */
+    /* 🛑【徹底拔除側邊欄功能】全站不啟用 Sidebar，怪字發源地直接消滅，永遠不可能再跑出來！ */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題精簡高級化：太空灰高級感，字體適中絕不爆字 */
+    /* 🍏 標題精簡高級化：曜石黑高級感，字體適中絕不爆字 */
     .apple-title { 
         color: #0F172A !important; 
         font-size: 32px !important; 
@@ -33,8 +33,8 @@ st.markdown(
         border-bottom: 3px solid #E2E8F0;
         padding-bottom: 10px;
     }
-    
-    /* 📋 學校項目與備註標籤 */
+
+    /* 📋 學校項目與備註標籤：海軍藍高清晰色調 */
     .item-label { 
         color: #1E3A8A !important; 
         font-size: 15px !important; 
@@ -43,17 +43,17 @@ st.markdown(
         margin-bottom: 4px !important;
     }
 
-    /* 📋 全局文字與選項：特粗、純黑高清晰 */
-    .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
+    /* 📋 全局文字與單選鈕選項：特粗、純黑，對比度拉到最高 */
+    .stText, p, span, label, div, .stWidgetLabel { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
     
-    /* 📦【3D 原生獨立卡片框設定】拉開格子間距，讓 4 欄排版極度整齊、凸顯 */
+    /* 📦【3D 獨立實線大卡片框】強制拉開每位學生格子的上下左右間距，不再黏在一起 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid #0F172A !important;   /* 曜石黑清晰實線邊框 */
+        border: 2.5px solid #0F172A !important; /* 2.5px 曜石黑超清晰實線外框 */
         border-radius: 16px !important;         /* 大圓角 */
-        background-color: #FFFFFF !important;    /* 卡片內部維持乾淨高亮白 */
+        background-color: #FFFFFF !important;    /* 卡片內部維持高亮白底 */
         padding: 16px !important; 
-        margin: 10px !important;                 /* 強制拉開卡片間距 */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.03) !important;
+        margin: 12px !important;                 /* 強制拆開格子 */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
     }
     </style>
 """,
@@ -96,14 +96,15 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【自訂黃金排版：左欄放管理與廣播，右邊放大畫面一排 4 人登記區】
-col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 比例
+# 🏛️ 【自訂黃金排版：左直欄放管理與廣播台，右邊放一橫排 4 人登記區】
+col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 完美版面比例
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
     current_date = st.date_input("選擇登記/查看日期：", datetime.now(), key="main_date")
     date_str = current_date.strftime("%Y-%m-%d")
     
+    # 讀取正確日期的資料
     df = load_data(date_str)
     extra_items = list(df.columns[5:])
     
@@ -122,38 +123,38 @@ with col_left_panel:
         st.rerun()
 
     st.markdown("---")
-    st.write(f"### 📢 {date_str} 即時催繳廣播台")
+    st.write(f"### 📢 {date_str} 即時廣播台")
     
-    # A. 聯絡簿
+    # A. 聯絡簿催繳
     df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
     if not df_ns.empty:
         t_s = f"【801班 {date_str} 聯絡簿未簽名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ns.iterrows()])
         st.text_area("📋 複製傳至家長群組：", value=t_s, height=130, key="c_s")
     else: st.success("🎉 本日聯絡簿全班皆已簽名！")
 
-    # B. 札記
+    # B. 札記催收
     df_nd = df[df["生活札記"] == "未寫 ❌"]
     if not df_nd.empty:
         t_d = f"【801班 {date_str} 札記未完成名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_nd.iterrows()])
         st.text_area("📋 複製傳至班級群組：", value=t_d, height=130, key="c_d")
 
-    # C. 學校項目
+    # C. 學校項目催收
     if extra_items:
         st.markdown("---")
         for item in extra_items:
             df_ni = df[df[item] == "未繳 ❌"]
             if not df_ni.empty:
                 t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
-                st.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=130, key=f"c_{item}")
+                st.text_area(f"📋 複製 {item} 催繳文字：", value=t_i, height=130, key=f"c_{item}")
             else: st.success(f"💯 {item} 皆已繳齊！")
 
 with col_right_students:
     st.write(f"### 📅 日期：{date_str} 紀錄登記區")
     st.write("")
 
-    # 四個一組進行迴圈排列 (一橫排 4 個學生卡片)
+    # 四個一組進行迴圈排列 (一橫排 4 個學生獨立方框卡片)
     for i in range(0, len(df), 4):
-        grid = st.columns(4)  
+        grid = st.columns(4)  # 一排切成 4 個大格子
 
         for idx_grid in range(4):
             student_idx = i + idx_grid
@@ -162,59 +163,49 @@ with col_right_students:
                 seat_num = int(row_s["座號"])
                 name_s = row_s["姓名"]
 
+                # 🌸 換上高質感日系植物符號 (1~15是櫻花女生，16~28是幸運草男生)
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                with grid[idx_grid].container(border=True):
+                # 💡 原生折疊大框框（預設直接展開），100% 絕對相容，永不崩潰！
+                with grid[idx_grid].expander(f"{gender_icon} {seat_num}號 {name_s}", expanded=True):
                     
-                    # 💡【必成功原生美化招】利用 100% 無法被系統封鎖的官方原色彩色狀態字卡，強制注入層次感！
-                    if seat_num <= 15:
-                        # 女生：使用 warning 框（強迫秀出極度醒目、高對比的馬卡龍愛馬仕橘金色卡片名牌）
-                        with st.status(f"{gender_icon} {seat_num}號 {name_s}", expanded=False, state="warning"):
-                            st.write("801班 女生成員")
-                    else:
-                        # 男生：使用 info 框（強迫秀出極度醒目、清透好看的馬卡龍極光亮藍色卡片名牌）
-                        with st.status(f"{gender_icon} {seat_num}號 {name_s}", expanded=False, state="info"):
-                            st.write("801班 男生成員")
-
-                    # 聯絡簿與札記單選鈕（文字特粗純黑，姓名保證大而醒目且絕對不會被切斷換行）
-                    ns = st.radio(
-                        f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"],
-                        index=(["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0),
-                        horizontal=True, key=f"s_{seat_num}_{date_str}"
-                    )
-                    nd = st.radio(
-                        f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"],
-                        index=(["已寫 🗒️", "未寫 ❌"].index(row_s["生活札記"]) if row_s["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0),
-                        horizontal=True, key=f"d_{seat_num}_{date_str}"
-                    )
-
-                    if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
-                        df.loc[df["座號"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
+                    # 聯絡簿單選鈕
+                    current_sign = row_s["聯絡簿簽名"]
+                    sign_opts = ["已簽 📝", "未簽 ❌"]
+                    s_idx = sign_opts.index(current_sign) if current_sign in sign_opts else 0
+                    ns = st.radio(f"聯絡簿_{seat_num}", sign_opts, index=s_idx, horizontal=True, key=f"s_{seat_num}_{date_str}")
+                    
+                    # 生活札記單選鈕
+                    current_diary = row_s["生活札記"]
+                    diary_opts = ["已寫 🗒️", "未寫 ❌"]
+                    d_idx = diary_opts.index(current_diary) if current_diary in diary_opts else 0
+                    nd = st.radio(f"札記_{seat_num}", diary_opts, index=d_idx, horizontal=True, key=f"d_{seat_num}_{date_str}")
+                    
+                    # 當狀態變更時，即時寫入 Excel
+                    if ns != current_sign or nd != current_diary:
+                        df.loc[df["座號"] == seat_num, "聯絡簿簽名"] = ns
+                        df.loc[df["座號"] == seat_num, "生活札記"] = nd
                         save_data(df, date_str)
                         st.rerun()
-
-                    # 自訂項目
+                    
+                    # 學校自訂收發項目 (如果有建立的話)
                     if extra_items:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
-                            ni = st.radio(
-                                f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
-                                index=(["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1),
-                                horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed"
-                            )
-                            if ni != row_s[item]:
+                            current_item_status = row_s[item]
+                            item_opts = ["已繳 ✅", "未繳 ❌"]
+                            i_idx = item_opts.index(current_item_status) if current_item_status in item_opts else 1
+                            ni = st.radio(f"{item}_{seat_num}", item_opts, index=i_idx, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
+                            if ni != current_item_status: 
                                 df.loc[df["座號"] == seat_num, item] = ni
                                 save_data(df, date_str)
                                 st.rerun()
-
+                    
                     # 隨手備註欄
-                    st.markdown('<div class="item-label">✍ *隨手備註：*</div>', unsafe_allow_html=True)
-                    nm = st.text_input(
-                        f"備註_{seat_num}",
-                        value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]),
-                        placeholder="輸入日常備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}"
-                    )
-                    if nm != ("" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])):
+                    st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
+                    current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
+                    nm = st.text_input(f"備註_{seat_num}", value=current_memo, placeholder="輸入日常備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}")
+                    if nm != current_memo: 
                         df.loc[df["座號"] == seat_num, "備註事項"] = nm
                         save_data(df, date_str)
 
