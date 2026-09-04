@@ -6,10 +6,15 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全局高對比度美化
+# 🎨 注入全局高對比度美化，並【強制將全網頁字體改為標楷體】
 st.markdown(
     """
     <style>
+    /* 📜 全局強制使用標楷體 (BiauKai / DFKai-SB) */
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
+        font-family: "DFKai-SB", "BiauKai", "標楷體", "Microsoft JhengHei", sans-serif !important;
+    }
+    
     /* 全局背景：頂級冷霧灰 */
     .stApp { background-color: #F8FAFC !important; }
     /* 左側邊欄：沉穩石墨灰 */
@@ -20,7 +25,6 @@ st.markdown(
         color: #1A365D !important; 
         font-size: 44px !important; 
         font-weight: 900 !important; 
-        font-family: "Noto Sans TC", sans-serif; 
         margin-bottom: 25px !important; 
     }
     
@@ -34,7 +38,7 @@ st.markdown(
     }
 
     /* 📋 全局文字高對比純黑 */
-    .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
+    .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
     
     /* 📦 強制讓原生的實線框外框變明顯，圓角加大 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
@@ -166,14 +170,15 @@ for i in range(0, len(df), 4):
             seat_num = int(row_s["座號"])
             name_s = row_s["姓名"]
 
-            # 💡 利用原生資訊框強迫上色，這絕對無法被雲端封鎖！
+            # 🌸 換上日系植物符號 (1~15是櫻花，16~28是幸運草)
+            gender_icon = "🌸" if seat_num <= 15 else "🍀"
+
+            # 💡 原生大方框卡片
             with grid[idx_grid].container(border=True):
                 if seat_num <= 15:
-                    # 🌸 女生使用 error 框（顯示高飽和度、極度明顯的莫蘭迪粉紅色卡片）
-                    st.error(f"### 🌸 {seat_num}號 {name_s}")
+                    st.error(f"### {gender_icon} {seat_num}號 {name_s}")
                 else:
-                    # 🍀 男生使用 success 框（顯示高飽和度、極度明顯的莫蘭迪青綠色卡片）
-                    st.success(f"### 🍀 {seat_num}號 {name_s}")
+                    st.success(f"### {gender_icon} {seat_num}號 {name_s}")
 
                 # 聯絡簿與札記單選鈕
                 ns = st.radio(
