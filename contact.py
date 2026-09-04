@@ -34,6 +34,16 @@ st.markdown(
         padding-bottom: 10px;
     }
     
+    /* 👤 學生姓名專用樣式：純黑、特粗體，大小適中且【強制不換行】，一排4人名字也絕對同一行、絕不切斷！ */
+    .student-title-text {
+        color: #000000 !important;
+        font-size: 19px !important; 
+        font-weight: 900 !important;
+        margin-bottom: 10px !important;
+        white-space: nowrap !important; /* 🛑 強制文字不換行關鍵指令 */
+        overflow: hidden !important;
+    }
+    
     /* 📋 學校項目與備註標籤 */
     .item-label { 
         color: #1E3A8A !important; 
@@ -96,8 +106,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【自訂黃金排版：左直欄放管理與廣播台，右邊放一橫排 4 人登記區】
-col_left_panel, col_right_students = st.columns() # 精準分配 1:3 完美排版比例
+# 🏛️ 【自訂黃金排版：修復成功！精準分配 1:3 完美排版比例】
+col_left_panel, col_right_students = st.columns([1, 3]) 
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -167,8 +177,8 @@ with col_right_students:
 
                 # 使用 100% 相容的原生黑邊框大卡片框
                 with grid[idx_grid].container(border=True):
-                    # 名字採用特粗巨大字體呈現，字體大且絕對待在同一行，徹底擺對比太弱的問題
-                    st.write(f"### {gender_icon} {seat_num}號 {name_s}")
+                    # 名字採用特粗巨大字體呈現，字體大且絕對待在同一行，徹底擺脫對比太弱的問題
+                    st.markdown(f'<div class="student-title-text">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
                     
                     # 聯絡簿單選鈕
                     current_sign = row_s["聯絡簿簽名"]
