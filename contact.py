@@ -6,14 +6,14 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【莫蘭迪馬卡龍水果色】與【原創按鈕 3D 懸浮變色特效】
+# 🎨 注入全局高對比度美化
 st.markdown(
     """
     <style>
-    /* 全局背景：乾淨的暖白 */
-    .stApp { background-color: #FAFAFA !important; }
-    /* 左側邊欄：溫柔的灰藍 */
-    [data-testid="stSidebar"] { background-color: #F1F5F9 !important; }
+    /* 全局背景：頂級冷霧灰 */
+    .stApp { background-color: #F8FAFC !important; }
+    /* 左側邊欄：沉穩石墨灰 */
+    [data-testid="stSidebar"] { background-color: #E2E8F0 !important; }
     
     /* 🌊 主標題：超巨大、高對比的深海藍字體 */
     .giant-title { 
@@ -24,61 +24,25 @@ st.markdown(
         margin-bottom: 25px !important; 
     }
     
-    /* 👤 學生姓名專用樣式：超大、純黑粗體，一秒對焦 */
-    .student-title { 
-        color: #000000 !important; 
-        font-size: 24px !important; 
-        font-weight: 900 !important; 
-        margin-bottom: 12px !important; 
-    }
-    
     /* 📋 學校項目與備註標籤 */
     .item-label { 
-        color: #1E293B !important; 
+        color: #0F172A !important; 
         font-size: 16px !important; 
         font-weight: 800 !important; 
         margin-top: 12px !important; 
         margin-bottom: 4px !important;
     }
 
-    /* ========================================================
-       ✨✨【原創按鈕懸浮特效】直接對網頁的單選紐按鈕進行馬卡龍色美化 ✨✨
-       ======================================================== */
+    /* 📋 全局文字高對比純黑 */
+    .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
     
-    /* 讓所有單選鈕按鈕的外殼帶有平滑的動態過渡效果 */
-    div[data-testid="stMarkdownContainer"] p, label, .stWidgetLabel {
-        font-size: 16px !important;
-        font-weight: 700 !important;
-    }
-    
-    /* 🍏 幫所有「已簽、已寫、已繳」按鈕元件注入青蘋果綠 */
-    div[data-idx="0"] label {
-        background-color: #E6F4EA !important;
-        border: 2px solid #137333 !important;
-        border-radius: 8px !important;
-        padding: 6px 12px !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    /* 🍏 當滑鼠移到「已繳/已簽」上時，按鈕浮起放大 */
-    div[data-idx="0"] label:hover {
-        background-color: #CEEAD6 !important;
-        transform: translateY(-3px) scale(1.05) !important;
-        box-shadow: 0 4px 8px rgba(19, 115, 51, 0.2) !important;
-    }
-
-    /* 🍓 幫所有「未簽、未寫、未繳」按鈕元件注入草莓粉紅 */
-    div[data-idx="1"] label {
-        background-color: #FCE8E6 !important;
-        border: 2px solid #C5221F !important;
-        border-radius: 8px !important;
-        padding: 6px 12px !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    /* 🍓 當滑鼠移到「未繳/未簽」上時，按鈕浮起放大 */
-    div[data-idx="1"] label:hover {
-        background-color: #FAD2CF !important;
-        transform: translateY(-3px) scale(1.05) !important;
-        box-shadow: 0 4px 8px rgba(197, 34, 31, 0.2) !important;
+    /* 📦 強制讓原生的實線框外框變明顯，圓角加大 */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border: 2.5px solid #0F172A !important; /* 2.5px 曜石黑超明顯粗邊框 */
+        border-radius: 16px !important;
+        background-color: #FFFFFF !important; /* 卡片內部維持高亮白 */
+        padding: 16px !important; margin-bottom: 12px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
     }
     </style>
 """,
@@ -202,12 +166,14 @@ for i in range(0, len(df), 4):
             seat_num = int(row_s["座號"])
             name_s = row_s["姓名"]
 
-            # 🌸 換上日系櫻花與幸運草符號
-            gender_icon = "🌸" if seat_num <= 15 else "🍀"
-
-            # 💡 原生大方框，改用資訊框特徵，100% 絕對成功，永不報錯
+            # 💡 利用原生資訊框強迫上色，這絕對無法被雲端封鎖！
             with grid[idx_grid].container(border=True):
-                st.markdown(f'<div class="student-title">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
+                if seat_num <= 15:
+                    # 🌸 女生使用 error 框（顯示高飽和度、極度明顯的莫蘭迪粉紅色卡片）
+                    st.error(f"### 🌸 {seat_num}號 {name_s}")
+                else:
+                    # 🍀 男生使用 success 框（顯示高飽和度、極度明顯的莫蘭迪青綠色卡片）
+                    st.success(f"### 🍀 {seat_num}號 {name_s}")
 
                 # 聯絡簿與札記單選鈕
                 ns = st.radio(
