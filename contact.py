@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Mac 經典深色暗黑模式 UI 視覺設計】
+# 🎨 注入【Mac 經典深色暗黑模式 UI 視覺設計 - 全文字亮化清透版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
@@ -11,10 +11,10 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 全局大背景加深：改用經典莫蘭迪深藍灰，讓純白卡片完美凸顯 */
+    /* 🍏 全局大背景加深：莫蘭迪深藍灰 */
     .stApp { background-color: #1E293B !important; }
     
-    /* 🛑【最關鍵：彻底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
+    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
@@ -25,26 +25,24 @@ st.markdown("""
         margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px;
     }
     
-    /* 📋 學校項目與備註標籤：耀眼皇家藍 */
+    /* 📋 學校項目與備註標籤：耀眼亮藍色 */
     .item-label { 
-        color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; 
+        color: #60A5FA !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; 
     }
     
-    /* 📋 主畫面上的所有大標題（含管理區與紀錄區字樣一律變純白） */
-    h3 { color: #FFFFFF !important; font-weight: 800 !important; }
+    /* 📋 主畫面上的所有大標題字樣（含管理區與紀錄區）一律變純白 */
+    h3, h2, h1 { color: #FFFFFF !important; font-weight: 800 !important; }
     
-    /* 📋 白底卡片內部的選項文字：一律維持高清晰純黑，黑白分明 */
-    div[data-testid="stVerticalBlockBorderWrapper"] p, 
-    div[data-testid="stVerticalBlockBorderWrapper"] span, 
-    div[data-testid="stVerticalBlockBorderWrapper"] label { 
-        color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; 
+    /* 🌟【最關鍵：全網頁原生文字、單選鈕標籤、選單字體全面強制轉為高清晰發光白】 */
+    .stText, p, span, label, div, .stWidgetLabel p, [data-testid="stWidgetLabel"] { 
+        color: #FFFFFF !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 📦【3D 實體發光獨立大卡片框】卡片內部使用 100% 純白，與深色背景形成終極強烈對比，立體感達到最高峰！ */
+    /* 📦【3D 實體發光獨立大卡片框】卡片底色與大背景拉開，使用內斂的深太空灰，配上曜石黑明顯外框 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid #0F172A !important; border-radius: 16px !important;
-        background-color: #FFFFFF !important; padding: 16px !important; margin: 10px !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+        border: 2.5px solid #0F172A !important; border-radius: 16px !important;
+        background-color: #1E293B !important; padding: 16px !important; margin: 10px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -129,7 +127,7 @@ with col_left_panel:
             else: st.success(f"💯 {item} 皆已繳齊！")
 
 with col_right_students:
-    st.write(f"### 📅 日期：{date_str} 紀錄登記區")
+    st.write("### 📅 紀錄登記區")
     st.write("")
 
     for i in range(0, len(df), 4):
@@ -160,7 +158,7 @@ with col_right_students:
                     if extra_items:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
-                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["開設 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
+                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                     
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
