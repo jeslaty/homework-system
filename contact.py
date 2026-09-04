@@ -6,7 +6,7 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入 Apple 經典全站字體優化（徹底拔除會被阻擋的 CSS 外框，改用正統內嵌小字卡技術）
+# 🎨 注入全站字體高對比優化（只留下 100% 穩定的 CSS，其餘交給官方原生彩色元件）
 st.markdown(
     """
     <style>
@@ -15,27 +15,46 @@ st.markdown(
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 網頁大背景：亮眼冰川白 */
+    /* 🍏 網頁大背景改為純淨發亮白，徹底消滅暗沉 */
     .stApp { background-color: #FFFFFF !important; }
     
-    /* 🛑【徹底拔除側邊欄】怪字發源地直接消失，永遠不可能再跑出來 */
+    /* 🛑【最關鍵：彻底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不會再跑出來！ */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題簡約精緻化：太空灰高級感 */
+    /* 🍏 標題精簡高級化：太空灰高級感，字體適中絕不爆字 */
     .apple-title { 
-        color: #451A03 !important; 
+        color: #0F172A !important; 
         font-size: 32px !important; 
         font-weight: 800 !important; 
         margin-bottom: 20px !important; 
         border-bottom: 3px solid #E2E8F0;
         padding-bottom: 10px;
     }
+    
+    /* 📋 學校項目與備註標籤 */
+    .item-label { 
+        color: #1E3A8A !important; 
+        font-size: 15px !important; 
+        font-weight: 800 !important; 
+        margin-top: 10px !important; 
+        margin-bottom: 4px !important;
+    }
 
-    /* 📋 全局文字高清晰純黑 */
+    /* 📋 全局文字與選項：特粗、純黑高清晰 */
     .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
+    
+    /* 📦【3D 原生獨立卡片框設定】拉開格子間距，讓 4 欄排版極度整齊、凸顯 */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border: 2px solid #0F172A !important;   /* 曜石黑清晰實線邊框 */
+        border-radius: 16px !important;         /* 大圓角 */
+        background-color: #FFFFFF !important;    /* 卡片內部維持乾淨高亮白 */
+        padding: 16px !important; 
+        margin: 10px !important;                 /* 強制拉開卡片間距 */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.03) !important;
+    }
     </style>
 """,
     unsafe_allow_html=True,
@@ -77,8 +96,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 建立左右 1:3 黃金分配佈局（左側放管理廣播，右側大畫面一排4人登記區）
-col_left_panel, col_right_students = st.columns([1, 3]) 
+# 🏛️ 【自訂黃金排版：左欄放管理與廣播，右邊放大畫面一排 4 人登記區】
+col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 比例
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -132,7 +151,7 @@ with col_right_students:
     st.write(f"### 📅 日期：{date_str} 紀錄登記區")
     st.write("")
 
-    # 一橫排 4 個學生卡片
+    # 四個一組進行迴圈排列 (一橫排 4 個學生卡片)
     for i in range(0, len(df), 4):
         grid = st.columns(4)  
 
@@ -145,31 +164,19 @@ with col_right_students:
 
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                # 💡 100% 成功的原生存放方框
                 with grid[idx_grid].container(border=True):
                     
-                    # 🍎【終極秘密武器：正統 HTML 內嵌小字卡】
-                    # 透過系統無法阻擋的 HTML 語法，在名字周圍強行灌入愛馬仕橘金底色與巧克力粗外框，實現超強 3D 浮雕懸浮感！
-                    st.markdown(f"""
-                        <div style="
-                            background-color: #FFEDD5 !important; 
-                            border: 2px solid #451A03 !important; 
-                            border-radius: 10px !important; 
-                            padding: 10px !important; 
-                            margin-bottom: 12px !important; 
-                            box-shadow: 0 4px 6px rgba(69, 26, 3, 0.15) !important;
-                            text-align: center !important;
-                        ">
-                            <span style="
-                                color: #000000 !important; 
-                                font-size: 20px !important; 
-                                font-weight: 900 !important; 
-                                white-space: nowrap !important;
-                            ">{gender_icon} {seat_num}號 {name_s}</span>
-                        </div>
-                    """, unsafe_allow_html=True)
+                    # 💡【必成功原生美化招】利用 100% 無法被系統封鎖的官方原色彩色狀態字卡，強制注入層次感！
+                    if seat_num <= 15:
+                        # 女生：使用 warning 框（強迫秀出極度醒目、高對比的馬卡龍愛馬仕橘金色卡片名牌）
+                        with st.status(f"{gender_icon} {seat_num}號 {name_s}", expanded=False, state="warning"):
+                            st.write("801班 女生成員")
+                    else:
+                        # 男生：使用 info 框（強迫秀出極度醒目、清透好看的馬卡龍極光亮藍色卡片名牌）
+                        with st.status(f"{gender_icon} {seat_num}號 {name_s}", expanded=False, state="info"):
+                            st.write("801班 男生成員")
 
-                    # 聯絡簿與札記單選鈕
+                    # 聯絡簿與札記單選鈕（文字特粗純黑，姓名保證大而醒目且絕對不會被切斷換行）
                     ns = st.radio(
                         f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"],
                         index=(["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0),
@@ -189,7 +196,7 @@ with col_right_students:
                     # 自訂項目
                     if extra_items:
                         for item in extra_items:
-                            st.write(f"📋 **學校收發：{item}**")
+                            st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
                             ni = st.radio(
                                 f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
                                 index=(["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1),
@@ -201,7 +208,7 @@ with col_right_students:
                                 st.rerun()
 
                     # 隨手備註欄
-                    st.write("✍ *隨手備註：*")
+                    st.markdown('<div class="item-label">✍ *隨手備註：*</div>', unsafe_allow_html=True)
                     nm = st.text_input(
                         f"備註_{seat_num}",
                         value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]),
