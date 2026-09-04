@@ -6,64 +6,67 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【3D實體懸浮卡片】與【莫蘭迪高對比深色背景】設計，徹底解決黏在一起沒有立體感的問題
+# 🎨 注入【Apple 官網極致清透美學】設計
 st.markdown(
     """
     <style>
-    /* 🌊 全局強制使用頂級 App 專用無襯線字體，乾淨、不嚴肅、不死板 */
+    /* 🍏 強制使用 Apple 系統經典無襯線字體，乾淨、高雅、絕不死板 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "SF Pro Text", "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
     
-    /* 1. 網頁大背景加深：使用高質感的莫蘭迪霧灰藍，強迫純白卡片跳出來 */
-    .stApp { background-color: #E2E8F0 !important; }
+    /* 🍏 Apple 冰川極光白大背景：讓整個網頁亮眼、清透、不暗沉 */
+    .stApp { background-color: #F8FAFC !important; }
     
-    /* 2. 左側邊欄：溫柔的灰藍色 */
+    /* 🍏 左側邊欄：純淨白灰色 */
     [data-testid="stSidebar"] { background-color: #F1F5F9 !important; }
     
-    /* 3. 徹底移除邊欄最上方可能導致系統漏字爆程式碼的折疊箭頭樣式 */
-    button[data-testid="collapsedControl"] { display: none !important; }
-    
-    /* 🌊 主標題：曜石黑巨大字體 */
-    .giant-title { 
-        color: #0F172A !important; 
-        font-size: 42px !important; 
-        font-weight: 900 !important; 
-        margin-bottom: 25px !important; 
+    /* 🍏 徹底阻斷任何可能噴出系統圖示怪字的官方按鈕與樣式 */
+    button[data-testid="collapsedControl"], .sidebar .sidebar-collapse-button { 
+        display: none !important; 
+        visibility: hidden !important; 
     }
     
-    /* 👤 學生姓名專用樣式：純黑、巨大粗體 */
+    /* 🍏 標題微調縮小：展現 Apple 經典的精緻精品感 */
+    .apple-title { 
+        color: #0F172A !important; /* 太空灰 */
+        font-size: 34px !important; /* 縮小字體更精緻 */
+        font-weight: 800 !important; 
+        margin-bottom: 20px !important; 
+        border-bottom: 2px solid #E2E8F0;
+        padding-bottom: 10px;
+    }
+    
+    /* 👤 學生姓名純黑大字體 */
     .student-title {
         color: #000000 !important;
-        font-size: 24px !important;
-        font-weight: 900 !important;
-        margin-bottom: 12px !important;
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        margin-bottom: 10px !important;
     }
     
-    /* 📋 學校項目與備註標籤 */
+    /* 📋 學校項目與備註標籤：高雅深藍 */
     .item-label { 
-        color: #1E3A8A !important; 
-        font-size: 16px !important; 
-        font-weight: 800 !important; 
-        margin-top: 12px !important; 
+        color: #1E40AF !important; 
+        font-size: 15px !important; 
+        font-weight: 700 !important; 
+        margin-top: 10px !important; 
         margin-bottom: 4px !important;
     }
 
-    /* 📋 全局文字高對比純黑 */
+    /* 📋 全局文字高清晰純黑 */
     .stText, p, span, label { color: #000000 !important; font-weight: 700 !important; font-size: 15px !important; }
     
-    /* 📦 【3D實體懸浮大卡片】強行拉開間距(Margin)並注入雙層重陰影，強迫卡片浮出螢幕！ */
+    /* 📦 【Apple 視窗立體卡片】拉開格子間距，搭配天空藍精緻框線與柔和陰影 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #1A365D !important; /* 2.5px 海軍藍實線框線 */
-        border-radius: 16px !important;         /* 圓角 */
-        background-color: #FFFFFF !important;    /* 卡片內部維持極亮純白，形成超強烈黑白對比 */
-        padding: 20px !important;                /* 內留白放大，更寬敞舒適 */
+        border: 2px solid #3B82F6 !important;   /* Apple 經典清透天空藍實線細框 */
+        border-radius: 14px !important;         /* 圓角 */
+        background-color: #FFFFFF !important;    /* 純白底色卡片 */
+        padding: 18px !important; 
+        margin: 16px !important;                 /* 格子完全拆開，大排面不擁擠 */
         
-        /* 💡 徹底解決沒有立體感的關鍵：強制讓格子與格子之間，在上下左右都空出 20 像素的實體距離！ */
-        margin: 20px !important; 
-        
-        /* 💡 注入頂級商用 3D 懸浮陰影，讓純白卡片在灰藍背景上完美「飄浮」 */
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2), 0 8px 10px -6px rgba(15, 23, 42, 0.2) !important;
+        /* Mac 視窗專用的精緻清透陰影 */
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.08), 0 4px 6px -2px rgba(59, 130, 246, 0.04) !important;
     }
     </style>
 """,
@@ -75,7 +78,7 @@ if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
 
 if not st.session_state["contact_logged_in"]:
-    st.markdown('<div class="giant-title">🔒 801 導師班務管理系統</div>', unsafe_allow_html=True)
+    st.markdown('<div class="apple-title">🔒 801 導師班務管理系統</div>', unsafe_allow_html=True)
     with st.form("login_form"):
         u = st.text_input("教師帳號：")
         p = st.text_input("登入密碼：", type="password")
@@ -88,8 +91,10 @@ if not st.session_state["contact_logged_in"]:
     st.stop()
 
 # ----------------- 系統主畫面 (登入後) -----------------
-st.markdown('<div class="giant-title">📝 801聯絡簿管理系統</div>', unsafe_allow_html=True)
+# 1. 簡約精緻的主標題
+st.markdown('<div class="apple-title">📝 801聯絡簿管理系統</div>', unsafe_allow_html=True)
 
+# 2. 📅 日期與管理
 st.sidebar.header("📅 日期與管理")
 current_date = st.sidebar.date_input("選擇登記/查看日期：", datetime.now())
 date_str = current_date.strftime("%Y-%m-%d")
@@ -189,7 +194,6 @@ for i in range(0, len(df), 4):
 
             gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-            # 💡 100% 成功的原生大卡片框
             with grid[idx_grid].container(border=True):
                 st.markdown(f'<div class="student-title">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
 
