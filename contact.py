@@ -6,13 +6,13 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全局高對比度美化，並【強制將全網頁字體改為標楷體】
+# 🎨 注入【質感無襯線字體】美化，並採用高級黑白高對比框線設計
 st.markdown(
     """
     <style>
-    /* 📜 全局強制使用標楷體 (BiauKai / DFKai-SB) */
+    /* 🌊 全局強制使用現代感、不嚴肅的微軟正黑體與蘋方字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
-        font-family: "DFKai-SB", "BiauKai", "標楷體", "Microsoft JhengHei", sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
     /* 全局背景：頂級冷霧灰 */
@@ -23,14 +23,22 @@ st.markdown(
     /* 🌊 主標題：超巨大、高對比的深海藍字體 */
     .giant-title { 
         color: #1A365D !important; 
-        font-size: 44px !important; 
+        font-size: 42px !important; 
         font-weight: 900 !important; 
         margin-bottom: 25px !important; 
     }
     
+    /* 👤 學生姓名專用樣式：純黑、超大粗體，一秒對焦 */
+    .student-title {
+        color: #000000 !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        margin-bottom: 12px !important;
+    }
+    
     /* 📋 學校項目與備註標籤 */
     .item-label { 
-        color: #0F172A !important; 
+        color: #1E3A8A !important; 
         font-size: 16px !important; 
         font-weight: 800 !important; 
         margin-top: 12px !important; 
@@ -38,15 +46,15 @@ st.markdown(
     }
 
     /* 📋 全局文字高對比純黑 */
-    .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
+    .stText, p, span, label { color: #000000 !important; font-weight: 700 !important; font-size: 15px !important; }
     
-    /* 📦 強制讓原生的實線框外框變明顯，圓角加大 */
+    /* 📦 【高級海軍藍粗邊框】讓卡片在冷霧灰背景上極度分明，絕不看錯 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #0F172A !important; /* 2.5px 曜石黑超明顯粗邊框 */
+        border: 2.5px solid #1A365D !important; /* 2.5px 海軍藍實線框 */
         border-radius: 16px !important;
-        background-color: #FFFFFF !important; /* 卡片內部維持高亮白 */
-        padding: 16px !important; margin-bottom: 12px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+        background-color: #FFFFFF !important;  /* 卡片內部維持乾淨高亮白 */
+        padding: 18px !important; margin-bottom: 12px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
     }
     </style>
 """,
@@ -155,7 +163,7 @@ if extra_items:
         else:
             st.sidebar.success(f"💯 {item} 皆已繳齊！")
 
-# 🎴 主畫面：四欄網格登記區
+# 🎴 主畫面：一橫排 4 個學生的格子排版
 st.write(f"### 📅 日期：{date_str} 紀錄登記區")
 st.write("")
 
@@ -170,15 +178,11 @@ for i in range(0, len(df), 4):
             seat_num = int(row_s["座號"])
             name_s = row_s["姓名"]
 
-            # 🌸 換上日系植物符號 (1~15是櫻花，16~28是幸運草)
             gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-            # 💡 原生大方框卡片
+            # 💡 原生大方框卡片，改回純白底配深海藍框線，高雅又極度好讀
             with grid[idx_grid].container(border=True):
-                if seat_num <= 15:
-                    st.error(f"### {gender_icon} {seat_num}號 {name_s}")
-                else:
-                    st.success(f"### {gender_icon} {seat_num}號 {name_s}")
+                st.markdown(f'<div class="student-title">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
 
                 # 聯絡簿與札記單選鈕
                 ns = st.radio(
