@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【3D立體懸浮・極簡黑白高對比】外加【滑鼠懸停變色凸顯特效】
+# 🎨 注入【強效型 3D 懸浮變色卡片特效】
 st.markdown("""
     <style>
     /* 全局背景：頂級冷霧灰 */
@@ -11,39 +11,36 @@ st.markdown("""
     /* 左側邊欄：沉穩石墨灰 */
     [data-testid="stSidebar"] { background-color: #E2E8F0 !important; }
     
-    /* 🖤 標題層級：曜石黑、極高魄力主標題 */
-    .giant-title { color: #0F172A !important; font-size: 42px !important; font-weight: 900 !important; font-family: "Noto Sans TC", sans-serif; margin-bottom: 20px !important; }
-    h2 { color: #1E293B !important; font-size: 24px !important; font-weight: 800 !important; }
-    h3 { color: #334155 !important; font-size: 20px !important; font-weight: 800 !important; }
+    /* 🖤 巨大化深海藍主標題 */
+    .giant-title { color: #0D47A1 !important; font-size: 42px !important; font-weight: 900 !important; font-family: "Noto Sans TC", sans-serif; margin-bottom: 20px !important; }
     
-    /* 👤 學生姓名專用樣式 */
-    .student-name { color: #000000 !important; font-size: 22px !important; font-weight: 900 !important; margin-bottom: 6px !important; }
+    /* ✨✨ 強效型學生獨立卡片樣式 (Hover) ✨✨ */
+    .custom-student-card {
+        border: 3px solid #0F172A !important;
+        border-radius: 14px !important;
+        background-color: #FFFFFF !important; /* 預設純白高對比底色 */
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 4px 6px rgba(15, 23, 42, 0.05) !important;
+        transition: all 0.25s ease-in-out !important; /* 平滑動畫 */
+    }
     
-    /* 📋 學校項目與備註樣式 */
+    /* 當滑鼠移入、或是手指點選時，強迫底色變深藍、3D浮起、外框變色 */
+    .custom-student-card:hover {
+        background-color: #E0F2FE !important; /* 100% 變深為馬卡龍亮粉藍 */
+        border: 3px solid #0D47A1 !important;   /* 邊框變皇家深藍 */
+        transform: translateY(-5px) scale(1.02) !important; /* 向上彈起並微放大 */
+        box-shadow: 0 15px 25px rgba(13, 71, 161, 0.2) !important; /* 陰影強烈爆發 */
+    }
+    
+    /* 👤 學生姓名純黑大字體 */
+    .student-title { color: #000000 !important; font-size: 22px !important; font-weight: 900 !important; margin-bottom: 8px !important; }
+    /* 當懸浮時，名字也跟著變成深海藍色，視覺極佳 */
+    .custom-student-card:hover .student-title { color: #0D47A1 !important; }
+    
+    /* 📋 選項文字高對比純黑 */
     .item-label { color: #0F172A !important; font-size: 16px !important; font-weight: 800 !important; }
-    
-    /* 📋 選項純黑高對比字體 */
     .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
-    
-    /* 🖤 【3D立體懸浮卡片框】預設為高質感白底黑框，並加入平滑動畫過渡效果 */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 3px solid #0F172A !important; 
-        border-radius: 14px !important;       
-        background-color: #FFFFFF !important;  
-        padding: 16px !important; margin-bottom: 12px !important;
-        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06) !important;
-        /* 💡 讓顏色與陰影的變化像動畫一樣平滑（動態質感關鍵） */
-        transition: all 0.25s ease-in-out !important; 
-    }
-    
-    /* ✨✨【滑鼠移過去 / 手指觸碰時的強烈凸顯特效】✨✨ */
-    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-        border: 3px solid #0D47A1 !important;        /* 邊框一秒變皇家深藍 */
-        background-color: #E0F2FE !important;       /* 卡片底色變深，換成高質感亮淺藍 */
-        transform: translateY(-4px) scale(1.01) !important; /* 讓格子微微往上彈起、放大，呈現 3D 浮出感 */
-        /* 加深加厚下方的影子，讓立體感強烈爆發 */
-        box-shadow: 0 20px 25px -5px rgba(13, 71, 161, 0.2), 0 10px 10px -5px rgba(13, 71, 161, 0.2) !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -63,10 +60,8 @@ if not st.session_state["contact_logged_in"]:
     st.stop()
 
 # ----------------- 系統主畫面 (登入後) -----------------
-# 1. 巨大主標題呈現
 st.markdown('<div class="giant-title">📝 801聯絡簿管理系統</div>', unsafe_allow_html=True)
 
-# 2. 📅 日期與登出功能放邊欄最上方
 st.sidebar.header("📅 日期與管理")
 current_date = st.sidebar.date_input("選擇登記/查看日期：", datetime.now())
 date_str = current_date.strftime("%Y-%m-%d")
@@ -95,7 +90,6 @@ df = load_data(date_str)
 def save_data(updated_df, target_date):
     with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: updated_df.to_excel(w, sheet_name=target_date, index=False)
 
-# 3. ⚙️ 左側邊欄：新增收發項目
 st.sidebar.markdown("---")
 new_item = st.sidebar.text_input("➕ 新增學校催收項目：", placeholder="例如：疫苗施打同意書")
 if st.sidebar.button("建立催收欄位"):
@@ -104,7 +98,7 @@ if st.sidebar.button("建立催收欄位"):
         save_data(df, date_str)
         st.rerun()
 
-# 4. 📢 【催繳廣播台整合至左側邊欄】
+# 📢 催繳廣播台整合至左側邊欄
 st.sidebar.markdown("---")
 st.sidebar.subheader(f"📢 {date_str} 即時催繳廣播台")
 
@@ -128,13 +122,13 @@ if extra_items:
             st.sidebar.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=110, key=f"c_{item}")
         else: st.sidebar.success(f"💯 {item} 皆已繳齊！")
 
-# 5. 🎴 主畫面：一橫排 4 個學生的格子排版 (超省空間設計)
+# 🎴 主畫面：四欄網格登記區
 st.subheader(f"📅 日期：{date_str} 紀錄登記區")
 st.write("")
 
-# 四個一組進行迴圈排列
+# 四個一組進行手動 HTML 卡片串接，確保懸浮與底色加深 100% 成功！
 for i in range(0, len(df), 4):
-    grid = st.columns(4) # 一排切成 4 個格子
+    grid = st.columns(4)
     
     for idx_grid in range(4):
         student_idx = i + idx_grid
@@ -142,14 +136,17 @@ for i in range(0, len(df), 4):
             row_s = df.iloc[student_idx]
             seat_num = int(row_s["座號"])
             name_s = row_s["姓名"]
-            
-            # 👧 判斷男女生圖案 (1~15是女生，16~28是男生)
             gender_icon = "👧" if seat_num <= 15 else "👦"
             
-            with grid[idx_grid].container(border=True):
-                st.markdown(f'<div class="student-name">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
+            # 使用自訂的 custom-student-card 樣式包裹整格
+            with grid[idx_grid]:
+                st.markdown(f"""
+                    <div class="custom-student-card">
+                        <div class="student-title">{gender_icon} {seat_num}號 {name_s}</div>
+                    </div>
+                """, unsafe_allow_html=True)
                 
-                # 聯絡簿與札記
+                # 將點選元件緊跟在有懸浮特效的標牌下方
                 ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{seat_num}_{date_str}")
                 nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=["已寫 🗒️", "未寫 ❌"].index(row_s["生活札記"]) if row_s["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0, horizontal=True, key=f"d_{seat_num}_{date_str}")
                 
@@ -157,14 +154,12 @@ for i in range(0, len(df), 4):
                     df.loc[df["座號"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
                     save_data(df, date_str); st.rerun()
                 
-                # 自訂學校收發項目
                 if extra_items:
                     for item in extra_items:
                         st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
                         ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                         if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                 
-                # 隨手備註欄
                 nm = st.text_input(f"備註_{seat_num}", value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]), placeholder="✍️ 隨手備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}")
                 if nm != ("" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])): df.loc[df["座號"] == seat_num, "備註事項"] = nm; save_data(df, date_str)
 
