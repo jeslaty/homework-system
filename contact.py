@@ -3,10 +3,10 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【3D立體懸浮・極簡黑白高對比】頂級商用 UI 設計
+# 🎨 注入【3D立體懸浮・極簡黑白高對比】外加【滑鼠懸停變色凸顯特效】
 st.markdown("""
     <style>
-    /* 全局背景：頂級冷霧灰，讓卡片完美浮現 */
+    /* 全局背景：頂級冷霧灰 */
     .stApp { background-color: #F8FAFC !important; }
     /* 左側邊欄：沉穩石墨灰 */
     [data-testid="stSidebar"] { background-color: #E2E8F0 !important; }
@@ -16,7 +16,7 @@ st.markdown("""
     h2 { color: #1E293B !important; font-size: 24px !important; font-weight: 800 !important; }
     h3 { color: #334155 !important; font-size: 20px !important; font-weight: 800 !important; }
     
-    /* 👤 學生姓名專用樣式：極致純黑、大字粗體 */
+    /* 👤 學生姓名專用樣式 */
     .student-name { color: #000000 !important; font-size: 22px !important; font-weight: 900 !important; margin-bottom: 6px !important; }
     
     /* 📋 學校項目與備註樣式 */
@@ -25,14 +25,24 @@ st.markdown("""
     /* 📋 選項純黑高對比字體 */
     .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
     
-    /* 🖤 【3D立體懸浮黑框卡片】透過超強雙層陰影，強迫卡片在視覺上「浮出來」 */
+    /* 🖤 【3D立體懸浮卡片框】預設為高質感白底黑框，並加入平滑動畫過渡效果 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 3px solid #0F172A !important; /* 3px 曜石黑超明顯粗邊框 */
-        border-radius: 14px !important;       /* 優雅的大圓角 */
-        background-color: #FFFFFF !important;  /* 內部格子用極亮白，對比度拉到最高 */
+        border: 3px solid #0F172A !important; 
+        border-radius: 14px !important;       
+        background-color: #FFFFFF !important;  
         padding: 16px !important; margin-bottom: 12px !important;
-        /* 💡 頂級懸浮陰影密碼：讓卡片立體浮出的關鍵 */
-        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.15), 0 4px 6px -4px rgba(15, 23, 42, 0.15) !important;
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06) !important;
+        /* 💡 讓顏色與陰影的變化像動畫一樣平滑（動態質感關鍵） */
+        transition: all 0.25s ease-in-out !important; 
+    }
+    
+    /* ✨✨【滑鼠移過去 / 手指觸碰時的強烈凸顯特效】✨✨ */
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        border: 3px solid #0D47A1 !important;        /* 邊框一秒變皇家深藍 */
+        background-color: #E0F2FE !important;       /* 卡片底色變深，換成高質感亮淺藍 */
+        transform: translateY(-4px) scale(1.01) !important; /* 讓格子微微往上彈起、放大，呈現 3D 浮出感 */
+        /* 加深加厚下方的影子，讓立體感強烈爆發 */
+        box-shadow: 0 20px 25px -5px rgba(13, 71, 161, 0.2), 0 10px 10px -5px rgba(13, 71, 161, 0.2) !important;
     }
     </style>
 """, unsafe_allow_html=True)
