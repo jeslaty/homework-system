@@ -22,12 +22,12 @@ st.markdown("""
     /* 📋 學校項目與備註樣式：中等清晰 */
     .item-label { color: #2D3748 !important; font-size: 16px !important; font-weight: 700 !important; }
     
-    /* ⚙️ 選項文字樣式：精緻標準 */
+    /* 📋 選項文字樣式：精緻標準 */
     .stText, p, span, label { color: #4A5568 !important; font-weight: 600 !important; font-size: 15px !important; }
     
     /* 🌊 【高質感海軍藍粗邊框卡片】與網頁背景形成強烈對比 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid #1A365D !important; /* 2.5px 皇家海軍藍 */
+        border: 2px solid #1A365D !important; 
         border-radius: 12px !important;
         background-color: #FFFFFF !important; /* 純白底色卡片 */
         padding: 16px !important; margin-bottom: 12px !important;
@@ -118,9 +118,9 @@ with col_main:
             r_r = df.iloc[i + 1]
             s_r = int(r_r["座號"])
             with g_r.container(border=True):
-                st.markdown(f'<div class="student-name">👤 {s_r}號 {r_r["姓名"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="student-name">👤 {s_r}號 {r_r['姓名']}</div>', unsafe_allow_html=True)
                 c1, c2 = st.columns(2)
-                ns_r = c1.radio(f"聯絡簿_{s_r}", ["已簽 📝", "未簽 ❌"], index=["建設 📝", "未簽 ❌"].index(r_r["聯絡簿簽名"]) if r_r["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{s_r}_{date_str}")
+                ns_r = c1.radio(f"聯絡簿_{s_r}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(r_r["聯絡簿簽名"]) if r_r["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{s_r}_{date_str}")
                 nd_r = c2.radio(f"札記_{s_r}", ["已寫 🗒️", "未寫 ❌"], index=["已寫 🗒️", "未寫 ❌"].index(r_r["生活札記"]) if r_r["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0, horizontal=True, key=f"d_{s_r}_{date_str}")
                 if ns_r != r_r["聯絡簿簽名"] or nd_r != r_r["生活札記"]:
                     df.loc[df["座號"] == s_r, "聯絡簿簽名"], df.loc[df["座號"] == s_r, "生活札記"] = ns_r, nd_r
