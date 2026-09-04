@@ -6,7 +6,7 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 奢華旗艦：愛馬仕暖金卡片、黑巧克高對比粗框】頂級 UI 設計
+# 🎨 注入 Apple 經典全站字體優化（徹底拔除會被阻擋的 CSS 外框，改用正統內嵌小字卡技術）
 st.markdown(
     """
     <style>
@@ -15,16 +15,16 @@ st.markdown(
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 網頁大背景改為純淨象牙白，極致優雅 */
-    .stApp { background-color: #FAFAFA !important; }
+    /* 🍏 網頁大背景：亮眼冰川白 */
+    .stApp { background-color: #FFFFFF !important; }
     
-    /* 🛑【徹底封鎖原廠側邊欄】全站不啟用 Sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
+    /* 🛑【徹底拔除側邊欄】怪字發源地直接消失，永遠不可能再跑出來 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題簡約精緻化：黑巧深色高級感，字體適中絕不爆字 */
+    /* 🍏 標題簡約精緻化：太空灰高級感 */
     .apple-title { 
         color: #451A03 !important; 
         font-size: 32px !important; 
@@ -33,38 +33,9 @@ st.markdown(
         border-bottom: 3px solid #E2E8F0;
         padding-bottom: 10px;
     }
-    
-    /* 👤 學生姓名專用樣式：純黑、特粗體，大小適中且【強制不換行】，一排4人名字也絕對同一行、絕不切斷！ */
-    .student-title-text {
-        color: #000000 !important;
-        font-size: 19px !important; 
-        font-weight: 900 !important;
-        margin-bottom: 10px !important;
-        white-space: nowrap !important; /* 🛑 強制文字不換行 */
-        overflow: hidden !important;
-    }
-    
-    /* 📋 學校項目與備註標籤 */
-    .item-label { 
-        color: #7C2D12 !important; 
-        font-size: 15px !important; 
-        font-weight: 800 !important; 
-        margin-top: 10px !important; 
-        margin-bottom: 4px !important;
-    }
 
     /* 📋 全局文字高清晰純黑 */
     .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
-    
-    /* 📦【3D 獨立實線大卡片框】底色加深為愛馬仕暖金，外框加上 3px 黑巧克力大粗框！ */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 3px solid #451A03 !important;   /* 3px 超清晰實線粗框 */
-        border-radius: 16px !important;         /* 大圓角 */
-        background-color: #FFF7ED !important;    /* 100% 成功變深為：奢華愛馬仕暖金色 */
-        padding: 16px !important; 
-        margin: 12px !important;                 /* 強制拉開卡片間距 */
-        box-shadow: 0 10px 20px rgba(69, 26, 3, 0.08) !important; /* 立體感陰影 */
-    }
     </style>
 """,
     unsafe_allow_html=True,
@@ -106,7 +77,7 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 建立左右 1:3 黃金分配佈局
+# 建立左右 1:3 黃金分配佈局（左側放管理廣播，右側大畫面一排4人登記區）
 col_left_panel, col_right_students = st.columns([1, 3]) 
 
 with col_left_panel:
@@ -174,9 +145,29 @@ with col_right_students:
 
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
+                # 💡 100% 成功的原生存放方框
                 with grid[idx_grid].container(border=True):
-                    # 獨立純黑標題，強制不換行，名字絕對同一行！
-                    st.markdown(f'<div class="student-title-text">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
+                    
+                    # 🍎【終極秘密武器：正統 HTML 內嵌小字卡】
+                    # 透過系統無法阻擋的 HTML 語法，在名字周圍強行灌入愛馬仕橘金底色與巧克力粗外框，實現超強 3D 浮雕懸浮感！
+                    st.markdown(f"""
+                        <div style="
+                            background-color: #FFEDD5 !important; 
+                            border: 2px solid #451A03 !important; 
+                            border-radius: 10px !important; 
+                            padding: 10px !important; 
+                            margin-bottom: 12px !important; 
+                            box-shadow: 0 4px 6px rgba(69, 26, 3, 0.15) !important;
+                            text-align: center !important;
+                        ">
+                            <span style="
+                                color: #000000 !important; 
+                                font-size: 20px !important; 
+                                font-weight: 900 !important; 
+                                white-space: nowrap !important;
+                            ">{gender_icon} {seat_num}號 {name_s}</span>
+                        </div>
+                    """, unsafe_allow_html=True)
 
                     # 聯絡簿與札記單選鈕
                     ns = st.radio(
@@ -198,7 +189,7 @@ with col_right_students:
                     # 自訂項目
                     if extra_items:
                         for item in extra_items:
-                            st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
+                            st.write(f"📋 **學校收發：{item}**")
                             ni = st.radio(
                                 f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
                                 index=(["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1),
@@ -210,7 +201,7 @@ with col_right_students:
                                 st.rerun()
 
                     # 隨手備註欄
-                    st.markdown('<div class="item-label">✍ *隨手備註：*</div>', unsafe_allow_html=True)
+                    st.write("✍ *隨手備註：*")
                     nm = st.text_input(
                         f"備註_{seat_num}",
                         value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]),
