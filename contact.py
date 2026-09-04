@@ -32,7 +32,7 @@ st.markdown(
 )
 
 # 🔑 帳號密碼設定
-USER_USERNAME = "tseng"
+USER_USERNAME = "Tseng"
 USER_PASSWORD = "12345"
 
 if "contact_logged_in" not in st.session_state:
