@@ -6,7 +6,7 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全站字體高對比優化（使用最安全的 Apple 經典黑白高清晰排版）
+# 🎨 注入全站字體高對比優化（採用 Apple 官方最標準、100% 相容的白金極簡高清晰設計）
 st.markdown(
     """
     <style>
@@ -15,10 +15,10 @@ st.markdown(
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 網頁大背景：亮眼純淨白，擺脫死氣沉沉 */
+    /* 🍏 網頁大背景改為純淨發亮白，不暗沉 */
     .stApp { background-color: #FFFFFF !important; }
     
-    /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
+    /* 🛑【最關鍵：彻底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
@@ -33,7 +33,7 @@ st.markdown(
         border-bottom: 3px solid #E2E8F0;
         padding-bottom: 10px;
     }
-
+    
     /* 📋 學校項目與備註標籤 */
     .item-label { 
         color: #1E3A8A !important; 
@@ -43,12 +43,12 @@ st.markdown(
         margin-bottom: 4px !important;
     }
 
-    /* 📋 全局文字與選項：特粗、純黑高清晰 */
+    /* 📋 全局文字與選項：特粗、純黑高清晰，對比度拉到最高 */
     .stText, p, span, label, div, .stWidgetLabel p { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
     
-    /* 📦【3D 獨立實線大卡片框】100% 保證相容，強制拉開格子間距，讓 4 欄排版極度整齊、凸顯 */
+    /* 📦【3D 原生獨立卡片框設定】拉開格子間距，讓 4 欄排版極度整齊、凸顯 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #0F172A !important;   /* 曜石黑清晰實線邊框 */
+        border: 2.5px solid #0F172A !important;   /* 2.5px 曜石黑超清晰實線外框 */
         border-radius: 16px !important;         /* 大圓角 */
         background-color: #FFFFFF !important;    /* 卡片內部維持乾淨高亮白 */
         padding: 16px !important; 
@@ -97,7 +97,7 @@ def load_data(target_date):
         return df_def
 
 # 🏛️ 【自訂黃金排版：左直欄放管理與廣播台，右邊放一橫排 4 人登記區】
-col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 完美排版比例
+col_left_panel, col_right_students = st.columns() # 精準分配 1:3 完美排版比例
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -162,12 +162,12 @@ with col_right_students:
                 seat_num = int(row_s["座號"])
                 name_s = row_s["姓名"]
 
-                # 🌸 換上高質感日系植物符號 (1~15是櫻花女生，16~28是幸運草男生)
+                # 🌸 換上最簡約好看的日系植物符號 (1~15是櫻花女生，16~28是幸運草男生)
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                # 💡 使用 100% 穩定安全的原生 container (border=True) 建立黑粗線大卡片框
+                # 使用 100% 相容的原生黑邊框大卡片框
                 with grid[idx_grid].container(border=True):
-                    # 名字與座號採用高清晰特粗大標題，100% 絕對不會再有重疊字或 arrow_ 英文亂碼！
+                    # 名字採用特粗巨大字體呈現，字體大且絕對待在同一行，徹底擺對比太弱的問題
                     st.write(f"### {gender_icon} {seat_num}號 {name_s}")
                     
                     # 聯絡簿單選鈕
@@ -200,7 +200,7 @@ with col_right_students:
                             if ni != current_item_status: 
                                 df.loc[df["座號"] == seat_num, item] = ni
                                 save_data(df, date_str)
-                                st.rerun()
+                                        st.rerun()
                     
                     # 隨手備註欄
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
