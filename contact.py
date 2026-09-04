@@ -3,35 +3,36 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【莫蘭迪高級藍】視覺美化與【巨大化標題、四欄網格】設計
+# 🎨 注入【3D立體懸浮・極簡黑白高對比】頂級商用 UI 設計
 st.markdown("""
     <style>
-    /* 全局背景：莫蘭迪霧藍色 */
-    .stApp { background-color: #F0F4F8 !important; }
-    /* 左側邊欄：莫蘭迪灰藍色 */
-    [data-testid="stSidebar"] { background-color: #E1E8F0 !important; }
+    /* 全局背景：頂級冷霧灰，讓卡片完美浮現 */
+    .stApp { background-color: #F8FAFC !important; }
+    /* 左側邊欄：沉穩石墨灰 */
+    [data-testid="stSidebar"] { background-color: #E2E8F0 !important; }
     
-    /* 🌊 標題層級：巨大化、充滿魄力的深海藍主標題 */
-    .giant-title { color: #1A365D !important; font-size: 42px !important; font-weight: 900 !important; font-family: "Noto Sans TC", sans-serif; margin-bottom: 20px !important; }
-    h2 { color: #2C5282 !important; font-size: 24px !important; font-weight: 700 !important; }
-    h3 { color: #2B6CB0 !important; font-size: 20px !important; font-weight: 700 !important; }
+    /* 🖤 標題層級：曜石黑、極高魄力主標題 */
+    .giant-title { color: #0F172A !important; font-size: 42px !important; font-weight: 900 !important; font-family: "Noto Sans TC", sans-serif; margin-bottom: 20px !important; }
+    h2 { color: #1E293B !important; font-size: 24px !important; font-weight: 800 !important; }
+    h3 { color: #334155 !important; font-size: 20px !important; font-weight: 800 !important; }
     
-    /* 👤 學生姓名專用樣式：大字粗體，易於點選 */
-    .student-name { color: #000000 !important; font-size: 20px !important; font-weight: 800 !important; margin-bottom: 6px !important; }
+    /* 👤 學生姓名專用樣式：極致純黑、大字粗體 */
+    .student-name { color: #000000 !important; font-size: 22px !important; font-weight: 900 !important; margin-bottom: 6px !important; }
     
     /* 📋 學校項目與備註樣式 */
-    .item-label { color: #2D3748 !important; font-size: 15px !important; font-weight: 700 !important; }
+    .item-label { color: #0F172A !important; font-size: 16px !important; font-weight: 800 !important; }
     
-    /* 📋 選項標準文字 */
-    .stText, p, span, label { color: #4A5568 !important; font-weight: 600 !important; font-size: 14px !important; }
+    /* 📋 選項純黑高對比字體 */
+    .stText, p, span, label { color: #000000 !important; font-weight: 800 !important; font-size: 15px !important; }
     
-    /* 🌊 【精緻四欄海軍藍卡片】 */
+    /* 🖤 【3D立體懸浮黑框卡片】透過超強雙層陰影，強迫卡片在視覺上「浮出來」 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid #1A365D !important; 
-        border-radius: 12px !important;
-        background-color: #FFFFFF !important; 
-        padding: 12px !important; margin-bottom: 8px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
+        border: 3px solid #0F172A !important; /* 3px 曜石黑超明顯粗邊框 */
+        border-radius: 14px !important;       /* 優雅的大圓角 */
+        background-color: #FFFFFF !important;  /* 內部格子用極亮白，對比度拉到最高 */
+        padding: 16px !important; margin-bottom: 12px !important;
+        /* 💡 頂級懸浮陰影密碼：讓卡片立體浮出的關鍵 */
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.15), 0 4px 6px -4px rgba(15, 23, 42, 0.15) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -93,7 +94,7 @@ if st.sidebar.button("建立催收欄位"):
         save_data(df, date_str)
         st.rerun()
 
-# 4. 📢 【催繳廣播台整合至左側邊欄】（實現老師希望把廣播搬移、主畫面極大化的想法）
+# 4. 📢 【催繳廣播台整合至左側邊欄】
 st.sidebar.markdown("---")
 st.sidebar.subheader(f"📢 {date_str} 即時催繳廣播台")
 
@@ -117,9 +118,8 @@ if extra_items:
             st.sidebar.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=110, key=f"c_{item}")
         else: st.sidebar.success(f"💯 {item} 皆已繳齊！")
 
-# 5. 🎴 主畫面：實現一橫排 4 個學生的格子排版 (超省空間設計)
+# 5. 🎴 主畫面：一橫排 4 個學生的格子排版 (超省空間設計)
 st.subheader(f"📅 日期：{date_str} 紀錄登記區")
-st.caption("【高效四欄網格】1~15號為女生(👧)，16~28號為男生(👦)。")
 st.write("")
 
 # 四個一組進行迴圈排列
