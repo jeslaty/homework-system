@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Mac 經典深色暗黑模式 UI 視覺設計 - 全文字亮化清透版】
+# 🎨 注入【Mac 經典深色暗黑模式 UI - 姓名特粗純黑・超高對比對焦版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
@@ -25,20 +25,29 @@ st.markdown("""
         margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px;
     }
     
-    /* 📋 學校項目與備註標籤：耀眼亮藍色 */
+    /* 📋 學校項目與備註標籤：清爽亮藍色 */
     .item-label { 
-        color: #60A5FA !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; 
+        color: #38BDF8 !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; 
     }
     
-    /* 📋 主畫面上的所有大標題字樣（含管理區與紀錄區）一律變純白 */
+    /* 📋 深色背景上的管理區與紀錄區大標題：一律變純白 */
     h3, h2, h1 { color: #FFFFFF !important; font-weight: 800 !important; }
     
-    /* 🌟【最關鍵：全網頁原生文字、單選鈕標籤、選單字體全面強制轉為高清晰發光白】 */
+    /* 🌟【大背景上的文字與選項文字轉為高清晰發光白】 */
     .stText, p, span, label, div, .stWidgetLabel p, [data-testid="stWidgetLabel"] { 
         color: #FFFFFF !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 📦【3D 實體發光獨立大卡片框】卡片底色與大背景拉開，使用內斂的深太空灰，配上曜石黑明顯外框 */
+    /* 🎨【最核心修正：強制將粉紅、粉藍名牌內部的字體，一律死死鎖定為特粗純黑色（#000000），拒絕隱形字！】 */
+    .student-badge-text {
+        color: #000000 !important;
+        font-size: 21px !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* 📦【3D 原生獨立卡片框設定】卡片底色與大背景拉開，維持黑白分明 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 2.5px solid #0F172A !important; border-radius: 16px !important;
         background-color: #1E293B !important; padding: 16px !important; margin: 10px !important;
@@ -81,8 +90,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【維持完美黃金比例：左欄 25%, 右欄 75%】
-col_left_panel, col_right_students = st.columns([1, 3])
+# 🏛️ 【自訂黃金排版：左直欄 25%, 右直欄 75%】
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -140,10 +149,11 @@ with col_right_students:
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
+                # 💡 利用系統最標準安全的 HTML 注入技術，將名牌底部的字體強制調成【純黑色特粗字】！
                 if seat_num <= 15:
-                    html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(225,29,72,0.06);"><span style="color:#991B1B;font-size:21px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>'
+                    html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(225,29,72,0.06);"><span class="student-badge-text">{gender_icon} {seat_num}號 {name_s}</span></div>'
                 else:
-                    html_badge = f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(37,99,236,0.06);"><span style="color:#1E40AF;font-size:21px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>'
+                    html_badge = f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(37,99,236,0.06);"><span class="student-badge-text">{gender_icon} {seat_num}號 {name_s}</span></div>'
 
                 with grid[idx_grid].container(border=True):
                     st.markdown(html_badge, unsafe_allow_html=True)
