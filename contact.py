@@ -3,18 +3,35 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入馬卡龍「淺藍」與「深藍」高對比度美化樣式
+# 🎨 注入【莫蘭迪高級藍】視覺美化與【清晰文字層級】設計
 st.markdown("""
     <style>
-    .stApp { background-color: #E3F2FD !important; }
-    [data-testid="stSidebar"] { background-color: #E1F5FE !important; }
-    h1, h2, h3 { color: #0D47A1 !important; font-weight: 800 !important; font-family: "Noto Sans TC", sans-serif; }
-    .stText, p, span, label, div { color: #000000 !important; font-weight: 600 !important; font-size: 16px !important; }
-    div[data-testid="stWidgetLabel"] p { color: #000000 !important; font-weight: 700 !important; }
+    /* 全局背景：莫蘭迪霧藍色，極度舒適好讀 */
+    .stApp { background-color: #F0F4F8 !important; }
+    /* 左側邊欄：莫蘭迪灰藍色 */
+    [data-testid="stSidebar"] { background-color: #E1E8F0 !important; }
+    
+    /* 🌊 標題層級：巨大且優雅的深海藍 */
+    h1 { color: #1A365D !important; font-size: 32px !important; font-weight: 800 !important; font-family: "Noto Sans TC", sans-serif; }
+    h2 { color: #2C5282 !important; font-size: 24px !important; font-weight: 700 !important; }
+    h3 { color: #2B6CB0 !important; font-size: 20px !important; font-weight: 700 !important; }
+    
+    /* 👤 學生姓名專用樣式：放大加粗，一秒對焦 */
+    .student-name { color: #000000 !important; font-size: 22px !important; font-weight: 800 !important; margin-bottom: 8px !important; }
+    
+    /* 📋 學校項目與備註樣式：中等清晰 */
+    .item-label { color: #2D3748 !important; font-size: 16px !important; font-weight: 700 !important; }
+    
+    /* ⚙️ 選項文字樣式：精緻標準 */
+    .stText, p, span, label { color: #4A5568 !important; font-weight: 600 !important; font-size: 15px !important; }
+    
+    /* 🌊 【高質感海軍藍粗邊框卡片】與網頁背景形成強烈對比 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 3px solid #0D47A1 !important; border-radius: 14px !important;
-        background-color: #FFFFFF !important; padding: 16px !important; margin-bottom: 12px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.08) !important;
+        border: 2px solid #1A365D !important; /* 2.5px 皇家海軍藍 */
+        border-radius: 12px !important;
+        background-color: #FFFFFF !important; /* 純白底色卡片 */
+        padding: 16px !important; margin-bottom: 12px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -24,7 +41,7 @@ if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
 
 if not st.session_state["contact_logged_in"]:
-    st.title("🔒 歡迎使用 801 導師班務管理系統")
+    st.title("🔒 801 導師班務管理系統")
     with st.form("login_form"):
         u, p = st.text_input("教師帳號："), st.text_input("登入密碼：", type="password")
         if st.form_submit_button("確認登入"):
@@ -82,7 +99,7 @@ with col_main:
             r_l = df.iloc[i]
             s_l = int(r_l["座號"])
             with g_l.container(border=True):
-                st.markdown(f"### 👤 {s_l}號 {r_l['姓名']}")
+                st.markdown(f'<div class="student-name">👤 {s_l}號 {r_l["姓名"]}</div>', unsafe_allow_html=True)
                 c1, c2 = st.columns(2)
                 ns_l = c1.radio(f"聯絡簿_{s_l}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(r_l["聯絡簿簽名"]) if r_l["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{s_l}_{date_str}")
                 nd_l = c2.radio(f"札記_{s_l}", ["已寫 🗒️", "未寫 ❌"], index=["已寫 🗒️", "未寫 ❌"].index(r_l["生活札記"]) if r_l["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0, horizontal=True, key=f"d_{s_l}_{date_str}")
@@ -91,27 +108,29 @@ with col_main:
                     save_data(df, date_str); st.rerun()
                 if extra_items:
                     for item in extra_items:
-                        ni_l = st.radio(f"{item}_{s_l}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(r_l[item]) if r_l[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{s_l}_{date_str}")
+                        st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
+                        ni_l = st.radio(f"{item}_{s_l}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(r_l[item]) if r_l[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{s_l}_{date_str}", label_visibility="collapsed")
                         if ni_l != r_l[item]: df.loc[df["座號"] == s_l, item] = ni_l; save_data(df, date_str); st.rerun()
-                nm_l = st.text_input(f"備註_{s_l}", value="" if pd.isna(r_l["備註事項"]) else str(r_l["備註事項"]), placeholder="✍️ 隨手備註...", label_visibility="collapsed", key=f"m_{s_l}_{date_str}")
+                nm_l = st.text_input(f"備註_{s_l}", value="" if pd.isna(r_l["備註事項"]) else str(r_l["備註事項"]), placeholder="✍️ 輸入日常備註...", label_visibility="collapsed", key=f"m_{s_l}_{date_str}")
                 if nm_l != ("" if pd.isna(r_l["備註事項"]) else str(r_l["備註事項"])): df.loc[df["座號"] == s_l, "備註事項"] = nm_l; save_data(df, date_str)
         # 右邊學生
         if i + 1 < len(df):
             r_r = df.iloc[i + 1]
             s_r = int(r_r["座號"])
             with g_r.container(border=True):
-                st.markdown(f"### 👤 {s_r}號 {r_r['姓名']}")
+                st.markdown(f'<div class="student-name">👤 {s_r}號 {r_r["姓名"]}</div>', unsafe_allow_html=True)
                 c1, c2 = st.columns(2)
-                ns_r = c1.radio(f"聯絡簿_{s_r}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(r_r["聯絡簿簽名"]) if r_r["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{s_r}_{date_str}")
+                ns_r = c1.radio(f"聯絡簿_{s_r}", ["已簽 📝", "未簽 ❌"], index=["建設 📝", "未簽 ❌"].index(r_r["聯絡簿簽名"]) if r_r["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{s_r}_{date_str}")
                 nd_r = c2.radio(f"札記_{s_r}", ["已寫 🗒️", "未寫 ❌"], index=["已寫 🗒️", "未寫 ❌"].index(r_r["生活札記"]) if r_r["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0, horizontal=True, key=f"d_{s_r}_{date_str}")
                 if ns_r != r_r["聯絡簿簽名"] or nd_r != r_r["生活札記"]:
                     df.loc[df["座號"] == s_r, "聯絡簿簽名"], df.loc[df["座號"] == s_r, "生活札記"] = ns_r, nd_r
                     save_data(df, date_str); st.rerun()
                 if extra_items:
                     for item in extra_items:
-                        ni_r = st.radio(f"{item}_{s_r}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(r_r[item]) if r_r[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{s_r}_{date_str}")
+                        st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
+                        ni_r = st.radio(f"{item}_{s_r}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(r_r[item]) if r_r[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{s_r}_{date_str}", label_visibility="collapsed")
                         if ni_r != r_r[item]: df.loc[df["座號"] == s_r, item] = ni_r; save_data(df, date_str); st.rerun()
-                nm_r = st.text_input(f"備註_{s_r}", value="" if pd.isna(r_r["備註事項"]) else str(r_r["備註事項"]), placeholder="✍️ 隨手備註...", label_visibility="collapsed", key=f"m_{s_r}_{date_str}")
+                nm_r = st.text_input(f"備註_{s_r}", value="" if pd.isna(r_r["備註事項"]) else str(r_r["備註事項"]), placeholder="✍️ 輸入日常備註...", label_visibility="collapsed", key=f"m_{s_r}_{date_str}")
                 if nm_r != ("" if pd.isna(r_r["備註事項"]) else str(r_r["備註事項"])): df.loc[df["座號"] == s_r, "備註事項"] = nm_r; save_data(df, date_str)
 
 with col_radio:
