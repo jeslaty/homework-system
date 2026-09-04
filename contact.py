@@ -6,16 +6,16 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 官網白金美學】全文字體優化
+# 🎨 注入【Apple 級極致清透藍大卡片】與【100% 高對比純黑字體】設計
 st.markdown(
     """
     <style>
-    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體，線條最流暢舒服 */
+    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 網頁大背景改為純淨發亮白，徹底消滅暗沉黑底 */
+    /* 🍏 全局網頁背景：冰川高亮白 */
     .stApp { background-color: #FFFFFF !important; }
     
     /* 🍏 左側邊欄：內斂白灰色 */
@@ -27,14 +27,45 @@ st.markdown(
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題精簡精緻化：字體適中（28px），展現 Apple 簡約精品感，絕不爆字 */
+    /* 🍏 標題簡約精緻化：太空灰高級感 */
     .apple-title { 
         color: #0F172A !important; 
-        font-size: 28px !important; 
+        font-size: 32px !important; 
         font-weight: 800 !important; 
         margin-bottom: 15px !important; 
-        border-bottom: 2px solid #E2E8F0;
+        border-bottom: 3px solid #E2E8F0;
         padding-bottom: 8px;
+    }
+    
+    /* 👤 學生姓名專用樣式：純黑、巨大化特粗字體，一秒對焦 */
+    .student-title-text {
+        color: #000000 !important;
+        font-size: 26px !important;
+        font-weight: 900 !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+    }
+    
+    /* 📋 學校項目與備註標籤 */
+    .item-label { 
+        color: #1E3A8A !important; 
+        font-size: 16px !important; 
+        font-weight: 800 !important; 
+        margin-top: 10px !important; 
+        margin-bottom: 4px !important;
+    }
+
+    /* 📋 全局選項與內文文字：加粗純黑高清晰 */
+    .stText, p, span, label, div { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
+    
+    /* 📦 【Apple 3D 獨立實線大卡片框】強行拉開間距，底色加深為莫蘭迪亮藍，立體凸顯感達到最高峰！ */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border: 3.5px solid #1E3A8A !important;   /* 3.5px 皇家海軍藍超清晰實線粗框 */
+        border-radius: 18px !important;         /* 大圓角，極具現代感 */
+        background-color: #E0F2FE !important;    /* 格子內底色 100% 成功變深為：清爽馬卡龍亮藍色 */
+        padding: 20px !important; 
+        margin: 18px !important;                 /* 強制拉開卡片間距，絕不黏在一起 */
+        box-shadow: 0 10px 20px rgba(30, 58, 138, 0.12) !important; /* 精緻立體陰影 */
     }
     </style>
 """,
@@ -59,7 +90,6 @@ if not st.session_state["contact_logged_in"]:
     st.stop()
 
 # ----------------- 系統主畫面 (登入後) -----------------
-# 1. 簡約俐落的全新主標題
 st.markdown('<div class="apple-title">📝 801聯絡簿系統</div>', unsafe_allow_html=True)
 
 # 2. 📅 日期與管理放左側邊欄
@@ -100,7 +130,7 @@ if st.sidebar.button("建立催收欄位"):
         st.rerun()
 
 # 3. ⚖️ 左右主排版配置：左邊放紀錄登記區（75%），右邊放廣播台（25%）
-col_register_zone, col_broadcast_zone = st.columns([3, 1])
+col_register_zone, col_broadcast_zone = st.columns([3, 1]) # 精準控制 3:1 比例
 
 with col_register_zone:
     st.write(f"### 📅 日期：{date_str} 紀錄登記區")
@@ -121,9 +151,11 @@ with col_register_zone:
 
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                # 💡【大滿貫絕招】改用 100% 絕對成功變色、對比度最強的原生深色框（st.info）
-                with grid[idx_grid].info(f"{gender_icon} {seat_num}號 {name_s}"):
-                    
+                # 💡 回歸最安全、最穩定的原生大卡片框
+                with grid[idx_grid].container(border=True):
+                    # 獨立純黑大標題，絕對不被系統隱藏沒收
+                    st.markdown(f'<div class="student-title-text">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
+
                     # 聯絡簿與札記單選鈕
                     ns = st.radio(
                         f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"],
@@ -141,9 +173,10 @@ with col_register_zone:
                         save_data(df, date_str)
                         st.rerun()
 
+                    # 自訂項目
                     if extra_items:
                         for item in extra_items:
-                            st.write(f"📋 **學校收發：{item}**")
+                            st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
                             ni = st.radio(
                                 f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
                                 index=(["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1),
@@ -154,7 +187,8 @@ with col_register_zone:
                                 save_data(df, date_str)
                                 st.rerun()
 
-                    st.write("✍️ **隨手備註：**")
+                    # 隨手備註欄
+                    st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
                     nm = st.text_input(
                         f"備註_{seat_num}",
                         value="" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"]),
@@ -189,7 +223,7 @@ with col_broadcast_zone:
             df_ni = df[df[item] == "未繳 ❌"]
             if not df_ni.empty:
                 t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
-                st.text_area(f"📋 {item} 催繳：", value=t_i, height=130, key=f"c_{item}")
+                st.text_area(f"📋 複製 {item} 催繳：", value=t_i, height=130, key=f"c_{item}")
             else:
                 st.success(f"💯 {item} 皆已繳齊！")
 
