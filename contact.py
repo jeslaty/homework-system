@@ -6,25 +6,25 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全局 Apple 級高清字體優化，並強制拉開格子間距、加強文字清晰度
+# 🎨 注入全站字體高對比優化（使用最安全的 Apple 經典黑白高清晰排版）
 st.markdown(
     """
     <style>
-    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體，在手機平板上最好看 */
+    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
     
-    /* 🍏 全局大背景：改用純淨發亮白，徹底擺脫暗沉 */
+    /* 🍏 網頁大背景：亮眼純淨白，擺脫死氣沉沉 */
     .stApp { background-color: #FFFFFF !important; }
     
-    /* 🛑【徹底拔除側邊欄功能】全站不啟用 Sidebar，怪字發源地直接消滅，永遠不可能再跑出來！ */
+    /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; 
         visibility: hidden !important; 
     }
     
-    /* 🍏 標題精簡高級化：曜石黑高級感，字體適中絕不爆字 */
+    /* 🍏 標題精簡高級化：太空灰高級感，字體適中絕不爆字 */
     .apple-title { 
         color: #0F172A !important; 
         font-size: 32px !important; 
@@ -34,25 +34,25 @@ st.markdown(
         padding-bottom: 10px;
     }
 
-    /* 📋 學校項目與備註標籤：海軍藍高清晰色調 */
+    /* 📋 學校項目與備註標籤 */
     .item-label { 
         color: #1E3A8A !important; 
         font-size: 15px !important; 
         font-weight: 800 !important; 
-        margin-top: 10px !important; 
+        margin-top: 12px !important; 
         margin-bottom: 4px !important;
     }
 
-    /* 📋 全局文字與單選鈕選項：特粗、純黑，對比度拉到最高 */
-    .stText, p, span, label, div, .stWidgetLabel { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
+    /* 📋 全局文字與選項：特粗、純黑高清晰 */
+    .stText, p, span, label, div, .stWidgetLabel p { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
     
-    /* 📦【3D 獨立實線大卡片框】強制拉開每位學生格子的上下左右間距，不再黏在一起 */
+    /* 📦【3D 獨立實線大卡片框】100% 保證相容，強制拉開格子間距，讓 4 欄排版極度整齊、凸顯 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #0F172A !important; /* 2.5px 曜石黑超清晰實線外框 */
+        border: 2.5px solid #0F172A !important;   /* 曜石黑清晰實線邊框 */
         border-radius: 16px !important;         /* 大圓角 */
-        background-color: #FFFFFF !important;    /* 卡片內部維持高亮白底 */
+        background-color: #FFFFFF !important;    /* 卡片內部維持乾淨高亮白 */
         padding: 16px !important; 
-        margin: 12px !important;                 /* 強制拆開格子 */
+        margin: 10px !important;                 /* 強制拉開卡片間距 */
         box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
     }
     </style>
@@ -97,14 +97,13 @@ def load_data(target_date):
         return df_def
 
 # 🏛️ 【自訂黃金排版：左直欄放管理與廣播台，右邊放一橫排 4 人登記區】
-col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 完美版面比例
+col_left_panel, col_right_students = st.columns([1, 3]) # 精準分配 1:3 完美排版比例
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
     current_date = st.date_input("選擇登記/查看日期：", datetime.now(), key="main_date")
     date_str = current_date.strftime("%Y-%m-%d")
     
-    # 讀取正確日期的資料
     df = load_data(date_str)
     extra_items = list(df.columns[5:])
     
@@ -152,7 +151,7 @@ with col_right_students:
     st.write(f"### 📅 日期：{date_str} 紀錄登記區")
     st.write("")
 
-    # 四個一組進行迴圈排列 (一橫排 4 個學生獨立方框卡片)
+    # 一橫排 4 個學生卡片
     for i in range(0, len(df), 4):
         grid = st.columns(4)  # 一排切成 4 個大格子
 
@@ -166,8 +165,10 @@ with col_right_students:
                 # 🌸 換上高質感日系植物符號 (1~15是櫻花女生，16~28是幸運草男生)
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-                # 💡 原生折疊大框框（預設直接展開），100% 絕對相容，永不崩潰！
-                with grid[idx_grid].expander(f"{gender_icon} {seat_num}號 {name_s}", expanded=True):
+                # 💡 使用 100% 穩定安全的原生 container (border=True) 建立黑粗線大卡片框
+                with grid[idx_grid].container(border=True):
+                    # 名字與座號採用高清晰特粗大標題，100% 絕對不會再有重疊字或 arrow_ 英文亂碼！
+                    st.write(f"### {gender_icon} {seat_num}號 {name_s}")
                     
                     # 聯絡簿單選鈕
                     current_sign = row_s["聯絡簿簽名"]
