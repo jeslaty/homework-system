@@ -6,29 +6,33 @@ from datetime import datetime
 # 設定網頁標題與圖示
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【質感無襯線字體】美化，並採用高級黑白高對比框線設計
+# 🎨 注入【3D實體懸浮卡片】與【莫蘭迪高對比深色背景】設計，徹底解決黏在一起沒有立體感的問題
 st.markdown(
     """
     <style>
-    /* 🌊 全局強制使用現代感、不嚴肅的微軟正黑體與蘋方字體 */
+    /* 🌊 全局強制使用頂級 App 專用無襯線字體，乾淨、不嚴肅、不死板 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
     
-    /* 全局背景：頂級冷霧灰 */
-    .stApp { background-color: #F8FAFC !important; }
-    /* 左側邊欄：沉穩石墨灰 */
-    [data-testid="stSidebar"] { background-color: #E2E8F0 !important; }
+    /* 1. 網頁大背景加深：使用高質感的莫蘭迪霧灰藍，強迫純白卡片跳出來 */
+    .stApp { background-color: #E2E8F0 !important; }
     
-    /* 🌊 主標題：超巨大、高對比的深海藍字體 */
+    /* 2. 左側邊欄：溫柔的灰藍色 */
+    [data-testid="stSidebar"] { background-color: #F1F5F9 !important; }
+    
+    /* 3. 徹底移除邊欄最上方可能導致系統漏字爆程式碼的折疊箭頭樣式 */
+    button[data-testid="collapsedControl"] { display: none !important; }
+    
+    /* 🌊 主標題：曜石黑巨大字體 */
     .giant-title { 
-        color: #1A365D !important; 
+        color: #0F172A !important; 
         font-size: 42px !important; 
         font-weight: 900 !important; 
         margin-bottom: 25px !important; 
     }
     
-    /* 👤 學生姓名專用樣式：純黑、超大粗體，一秒對焦 */
+    /* 👤 學生姓名專用樣式：純黑、巨大粗體 */
     .student-title {
         color: #000000 !important;
         font-size: 24px !important;
@@ -48,13 +52,18 @@ st.markdown(
     /* 📋 全局文字高對比純黑 */
     .stText, p, span, label { color: #000000 !important; font-weight: 700 !important; font-size: 15px !important; }
     
-    /* 📦 【高級海軍藍粗邊框】讓卡片在冷霧灰背景上極度分明，絕不看錯 */
+    /* 📦 【3D實體懸浮大卡片】強行拉開間距(Margin)並注入雙層重陰影，強迫卡片浮出螢幕！ */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #1A365D !important; /* 2.5px 海軍藍實線框 */
-        border-radius: 16px !important;
-        background-color: #FFFFFF !important;  /* 卡片內部維持乾淨高亮白 */
-        padding: 18px !important; margin-bottom: 12px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
+        border: 2.5px solid #1A365D !important; /* 2.5px 海軍藍實線框線 */
+        border-radius: 16px !important;         /* 圓角 */
+        background-color: #FFFFFF !important;    /* 卡片內部維持極亮純白，形成超強烈黑白對比 */
+        padding: 20px !important;                /* 內留白放大，更寬敞舒適 */
+        
+        /* 💡 徹底解決沒有立體感的關鍵：強制讓格子與格子之間，在上下左右都空出 20 像素的實體距離！ */
+        margin: 20px !important; 
+        
+        /* 💡 注入頂級商用 3D 懸浮陰影，讓純白卡片在灰藍背景上完美「飄浮」 */
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2), 0 8px 10px -6px rgba(15, 23, 42, 0.2) !important;
     }
     </style>
 """,
@@ -71,7 +80,7 @@ if not st.session_state["contact_logged_in"]:
         u = st.text_input("教師帳號：")
         p = st.text_input("登入密碼：", type="password")
         if st.form_submit_button("確認登入"):
-            if u == "Tseng" and p == "12345":
+            if u == "teacher" and p == "12345":
                 st.session_state["contact_logged_in"] = True
                 st.rerun()
             else:
@@ -180,7 +189,7 @@ for i in range(0, len(df), 4):
 
             gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
-            # 💡 原生大方框卡片，改回純白底配深海藍框線，高雅又極度好讀
+            # 💡 100% 成功的原生大卡片框
             with grid[idx_grid].container(border=True):
                 st.markdown(f'<div class="student-title">{gender_icon} {seat_num}號 {name_s}</div>', unsafe_allow_html=True)
 
