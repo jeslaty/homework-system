@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # 設定網頁標題與圖示
-st.set_page_config(page_title="801班導師班務管理系統", page_icon="📝", layout="wide")
+st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
 # 🎨 注入馬卡龍淡綠、淡黃色美化（導師溫馨風格）
 st.markdown("""
@@ -16,7 +16,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🔑 帳號密碼設定
-USER_USERNAME = "Tseng"
+USER_USERNAME = "teacher"
 USER_PASSWORD = "12345"
 
 if "contact_logged_in" not in st.session_state:
@@ -39,7 +39,7 @@ if not st.session_state["contact_logged_in"]:
     st.stop()
 
 # ----------------- 系統主畫面 (登入後) -----------------
-st.title("📝 801班 聯絡簿與班務物資管理系統")
+st.title("📝 801聯絡簿管理系統")
 
 if st.sidebar.button("🔒 安全登出"):
     st.session_state["contact_logged_in"] = False
@@ -84,8 +84,8 @@ if st.sidebar.button("建立催收欄位"):
     else:
         st.sidebar.warning("⚠️ 請輸入項目名稱")
 
-# 主畫面切換欄位佈局
-col1, col_space, col2 = st.columns()
+# 💡 主畫面配置：開啟左右兩欄排版
+col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📋 每日聯絡簿與班務資料登記")
@@ -99,11 +99,12 @@ with col1:
         
         st.markdown(f"**📍 {seat}號 {name}**")
         
-        # 根據是否有新增其他收發欄位，動態調整每列的按鈕配置
-        extra_items = list(df.columns[5:]) # 抓出從第6欄開始的所有自訂學校項目
+        # 抓出從第6欄開始的所有自訂學校項目
+        extra_items = list(df.columns[5:]) 
         
-        # 1. 聯絡簿簽名登記
+        # 1. 聯絡簿與札記：在單行內精準切割成兩欄
         c1, c2 = st.columns(2)
+        
         current_sign = row["聯絡簿簽名"]
         sign_opts = ["已簽 📝", "未簽 ❌"]
         s_idx = sign_opts.index(current_sign) if current_sign in sign_opts else 0
@@ -113,7 +114,6 @@ with col1:
             df.to_excel(FILE_NAME, index=False)
             st.rerun()
             
-        # 2. 生活札記登記
         current_diary = row["生活札記"]
         diary_opts = ["已寫 🗒️", "未寫 ❌"]
         d_idx = diary_opts.index(current_diary) if current_diary in diary_opts else 0
@@ -123,14 +123,13 @@ with col1:
             df.to_excel(FILE_NAME, index=False)
             st.rerun()
             
-        # 3. 學校自訂收發項目登記 (如果有建立的話)
+        # 2. 學校自訂收發項目登記 (如果有建立的話)
         if extra_items:
             for item in extra_items:
                 current_item_status = row[item]
                 item_opts = ["已繳 ✅", "未繳 ❌"]
                 i_idx = item_opts.index(current_item_status) if current_item_status in item_opts else 1
                 
-                # 橫向呈現自訂項目
                 st.write(f"👉 學校收發：{item}")
                 new_item_status = st.radio(f"{item}_{seat}", item_opts, index=i_idx, horizontal=True, key=f"item_{item}_{seat}", label_visibility="collapsed")
                 if new_item_status != current_item_status:
@@ -138,13 +137,12 @@ with col1:
                     df.to_excel(FILE_NAME, index=False)
                     st.rerun()
                     
-        # 4. 隨手備註事項
+        # 3. 隨手備註事項
         current_memo = "" if pd.isna(row["備註事項"]) else str(row["備註事項"])
         new_memo = st.text_input(f"備註_{seat}", value=current_memo, placeholder="常規紀錄/請假/特殊狀況備註", label_visibility="collapsed", key=f"memo_{seat}")
         if new_memo != current_memo:
             df.loc[df["座號"] == seat, "備註事項"] = new_memo
             df.to_excel(FILE_NAME, index=False)
-            # 備註輸入完按 Enter 會存檔，不強制 rerun 以防打字中斷
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -169,7 +167,7 @@ with col2:
         st.warning(f"❌ 今日隨筆札記未完成 ({len(no_diary_df)} 人)：")
         diary_text = "【801班 今日札記未完成催收名單】\n"
         for _, row in no_diary_df.iterrows():
-            diary_text += f"{int(row['座號'])}號 {row['姓名']}\n"
+            diary_text += f"{int(row['box_2d'] if 'box_2d' in row else row['座號'])}號 {row['姓名']}\n"
         st.text_area("可複製傳至班級群組：", value=diary_text, height=120, key="copy_diary")
         
     # C. 學校各類項目未繳名單 (動態生成)
