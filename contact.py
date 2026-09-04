@@ -200,7 +200,7 @@ with col_right_students:
                             if ni != current_item_status: 
                                 df.loc[df["座號"] == seat_num, item] = ni
                                 save_data(df, date_str)
-                                        st.rerun()
+                                st.rerun()
                     
                     # 隨手備註欄
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
