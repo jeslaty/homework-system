@@ -32,14 +32,14 @@ st.markdown("""
 if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
 
-# 🔒 帳號密碼登入機制（完全修正後台變數，確保輸入 teacher 與 12345 順暢秒進）
+# 🔒 帳號密碼登入機制（加入 .strip() 自動清洗空白，確保輸入無誤，流暢秒進）
 if not st.session_state["contact_logged_in"]:
     st.markdown('<div class="apple-title">🔒 801 導師班務管理系統</div>', unsafe_allow_html=True)
     with st.form("login_form"):
         u = st.text_input("教師帳號：")
         p = st.text_input("登入密碼：", type="password")
         if st.form_submit_button("確認登入"):
-            if u == "teacher" and p == "12345":
+            if u.strip() == "teacher" and p.strip() == "12345":
                 st.session_state["contact_logged_in"] = True
                 st.rerun()
             else: st.error("❌ 帳號或密碼錯誤。")
@@ -121,7 +121,6 @@ with col_right_students:
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
-                # 💡 100% 官方原生防封鎖顯色技術（文字形式注入草莓粉與青蘋果綠）
                 if seat_num <= 15:
                     html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(225,29,72,0.06);"><span style="color:#991B1B;font-size:21px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>'
                 else:
