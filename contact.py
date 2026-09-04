@@ -6,10 +6,15 @@ st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layo
 # 🎨 Apple 級極致白高對比優化（徹底封鎖側邊欄怪字發源地）
 st.markdown("""
     <style>
+    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
     }
+    
+    /* 🍏 網頁大背景改為純淨發亮白，不暗沉 */
     .stApp { background-color: #FFFFFF !important; }
+    
+    /* 🛑【最關鍵：彻底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失，永遠不可能再跑出來！ */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
@@ -32,7 +37,7 @@ st.markdown("""
 if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
 
-# 🔒 帳號密碼登入機制（加入 .strip() 自動清洗空白，確保輸入無誤，流暢秒進）
+# 🔒 帳號密碼登入機制
 if not st.session_state["contact_logged_in"]:
     st.markdown('<div class="apple-title">🔒 801 導師班務管理系統</div>', unsafe_allow_html=True)
     with st.form("login_form"):
@@ -63,7 +68,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-col_left_panel, col_right_students = st.columns(2)
+# 🏛️ 【關鍵比例調整：左欄 25%, 右欄 75%】
+col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
