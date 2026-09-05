@@ -5,7 +5,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
 
-# 精準 CSS 樣式，隱藏側邊欄並修正輸入框邊界
+# 精準 CSS 樣式，隱藏側邊欄
 st.markdown("""
     <style>
     html, body, [class*="st-"], .stApp {
@@ -40,8 +40,7 @@ if not st.session_state["page_contact_auth"]:
             else:
                 st.error("❌ 密碼錯誤。")
     if st.button("⬅️ 返回管理主控台", use_container_width=True):
-        try: st.switch_page("main.py")
-        except: st.switch_page("app.py")
+        st.switch_page("main.py")
     st.stop()
 
 col_top_title, col_top_back = st.columns([0.80, 0.20])
@@ -49,8 +48,7 @@ with col_top_title:
     st.write("# 📝 801 每日聯絡簿與歷史紀錄系統")
 with col_top_back: 
     if st.button("🏛️ 返回管理主控台", use_container_width=True):
-        try: st.switch_page("main.py")
-        except: st.switch_page("app.py")
+        st.switch_page("main.py")
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
@@ -278,8 +276,6 @@ with tab_history:
                 
         with col_h2:
             st.write("#### 👤 特定學生歷史紀錄追蹤")
-            
-            # 使用「座號+姓名」選單，避免同名同姓學生無法精準區分的問題
             student_options = [f"{seat_list[i]}號 {student_names[i]}" for i in range(len(student_names))]
             selected_student_opt = st.selectbox("選擇學生：", student_options)
             
