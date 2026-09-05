@@ -3,15 +3,15 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 旗艦暗黑模式：100% 永久鎖定曜石黑背景、姓名特粗同一行絕不切斷】
+# 🎨 注入【Mac 經典深色暗黑模式 UI - 登入標籤與全站文字 100% 發光純白高對比版】
 st.markdown("""
     <style>
-    /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
+    /* 🍏 全局強制使用現代無襯線字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
     
-    /* 🍏 1. 物理強制大背景：100% 鎖定曜石極黑色，任何無痕或重整都絕對不會白回來！ */
+    /* 🍏 1. 物理強制大背景：100% 鎖定曜石極黑色，絕不白回來 */
     .stApp { background-color: #0F172A !important; }
     
     /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
@@ -19,38 +19,31 @@ st.markdown("""
         display: none !important; visibility: hidden !important; 
     }
     
-    /* 🍏 標題文字：在深色背景下強制使用高對比純白字體 */
-    .apple-title { 
-        color: #FFFFFF !important; font-size: 32px !important; font-weight: 800 !important; 
-        margin-bottom: 20px !important; border-bottom: 3px solid #1E293B; padding-bottom: 10px;
+    # 🌟【終極修正：強迫登入畫面標籤、主畫面大標題與全局提示文字一律轉為高清晰發光純白（#FFFFFF）！】
+    .apple-title, h3, h2, h1, label, p, span, .stText, [data-testid="stWidgetLabel"] p { 
+        color: #FFFFFF !important; font-weight: 800 !important;
+    }
+    .apple-title {
+        font-size: 32px !important; margin-bottom: 20px !important; border-bottom: 3px solid #1E293B; padding-bottom: 10px;
     }
     
-    /* 📋 學校項目與備註標籤：耀眼皇家藍 */
-    .item-label { 
-        color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; 
-    }
+    /* 📋 學校項目與備註標籤：耀眼亮藍色 */
+    .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     
-    /* 📋 深色背景上的管理區與紀錄區大標題：一律變發光純白 */
-    h3, h2, h1 { color: #FFFFFF !important; font-weight: 800 !important; }
-    
-    /* 🎯【左欄白底框黑字特徵】強制讓左欄所有輸入框內文字、日期一律鎖定為純黑色（#000000）！】 */
+    /* 🎯【白底框黑字特徵】強制讓左欄與學生卡片內的所有白底輸入框、日期、點選選項一律鎖定為純黑色（#000000）！】 */
     input, select, textarea, button, div[data-baseweb="date-picker"] input, div[data-baseweb="input"] input,
     .stDateInput input, .stTextInput input, .stButton button p {
         color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important;
     }
     ::placeholder, .stTextInput input::placeholder { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
     
-    /* 👤【200% 核心大修正：強制學生姓名與座號特粗、純黑、且【絕對禁止換行切斷】！】 */
+    /* 👤【學生姓名與座號：特粗、純黑、且絕對禁止換行切斷】 */
     .student-name-title {
-        color: #000000 !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        white-space: nowrap !important;  /* 🛑 核心防切斷關鍵：強制文字絕對同一行 */
-        display: block !important;
-        margin-bottom: 12px !important;
+        color: #000000 !important; font-size: 20px !important; font-weight: 900 !important;
+        white-space: nowrap !important; display: block !important; margin-bottom: 12px !important;
     }
     
-    /* 📋 白底卡片內部的選項文字：一律維持高清晰純黑，黑白分明 */
+    /* 📦【學生卡片內部文字強制改回純黑】黑白分明 */
     div[data-testid="stVerticalBlockBorderWrapper"] p, 
     div[data-testid="stVerticalBlockBorderWrapper"] span, 
     div[data-testid="stVerticalBlockBorderWrapper"] label,
@@ -58,9 +51,9 @@ st.markdown("""
         color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 📦【3D 原生獨立卡片框設定】卡片內部維持 100% 純白，與深黑背景形成終極強烈對比，立體感達到最高峰！ */
+    /* 📦【3D 原生獨立卡片框設定】卡片內部維持 100% 純白，與深黑背景形成終極強烈對比 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid #1E293B !important; border-radius: 16px !important;
+        border: 2.5px solid #1E293B !important; border-radius: 16px !important;
         background-color: #FFFFFF !important; padding: 16px !important; margin: 8px !important;
         box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
     }
@@ -161,7 +154,6 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
 
                 with grid[idx_grid].container(border=True):
-                    # 💡【大功告成核心】使用自訂不換行標籤，名字與櫻花、幸運草絕對穩穩排在同一行，100% 絕不切斷！
                     st.markdown(f'<span class="student-name-title">{gender_icon} {seat_num}號 {name_s}</span>', unsafe_allow_html=True)
                     
                     ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{seat_num}_{date_str}")
@@ -174,7 +166,7 @@ with col_right_students:
                     if extra_items:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
-                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
+                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["橫排 ✅", "已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                     
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
@@ -183,5 +175,5 @@ with col_right_students:
                     if nm != current_memo: df.loc[df["座號"] == seat_num, "備註事項"] = nm; save_data(df, date_str)
 
 st.markdown("---")
-st.write("### 📊 綜合班務總表（唯讀檢視）")
+st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 綜合班務總表（唯讀檢視）</h3>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
