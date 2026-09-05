@@ -22,22 +22,12 @@ st.write("# 🏛️ 801 班級事務管理主控台")
 st.write("---")
 st.write("### 📅 請選擇今日要處理的獨立班務項目：")
 
-# 頁面路徑設定 (請依據你的實際檔案名稱調整)
-p1 = "pages/01_聯絡簿管理.py" 
+# 嘗試自動偵測子頁面檔名與位置
+target_page = "pages/01_聯絡簿管理.py"
+if not os.path.exists(target_page):
+    target_page = "01_聯絡簿管理.py"
 
-# 若你的子頁面就在 pages 資料夾下，可以使用安全的 query_params 帶入驗證狀態
-if os.path.exists(p1):
-    st.page_link(
-        p1, 
-        label="📝 01_聯絡簿管理系統", 
-        use_container_width=True, 
-        query_params={"auth": "passed"}
-    )
-else:
-    # 備用路徑 (若檔案未放在 pages 資料夾內)
-    st.page_link(
-        "01_聯絡簿管理.py", 
-        label="📝 01_聯絡簿管理系統", 
-        use_container_width=True, 
-        query_params={"auth": "passed"}
-    )
+if st.button("📝 01_聯絡簿管理系統", use_container_width=True):
+    # 傳送已驗證狀態給目標頁面
+    st.query_params["auth"] = "passed"
+    st.switch_page(target_page)
