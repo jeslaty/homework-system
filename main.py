@@ -33,10 +33,10 @@ st.markdown("""
         color: #0F172A !important; -webkit-text-fill-color: #0F172A !important; font-weight: 800 !important;
     }
     
-    /* 📦 儀表板九宮格：使用極致透明灰外殼，配上曜石黑明顯外框，與發光白字形成最強烈黑白對比 */
+    /* 📦 條列大格子：使用曜石深黑底色，襯托發光白字，形成最強烈黑白對比 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 2.5px solid #334155 !important; border-radius: 16px !important; 
-        background-color: #0F172A !important; /* 🌟 物理硬改：卡片底色直接換成曜石深黑底色，襯托白字 */
+        background-color: #0F172A !important; 
         padding: 24px !important; margin: 10px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
     }
     </style>
@@ -70,20 +70,21 @@ dash_grid = st.columns(2)
 p1_small, p1_big = "pages/01_每日聯絡簿.py", "Pages/01_每日聯絡簿.py"
 p2_small, p2_big = "pages/02_成績作業登記.py", "Pages/02_成績作業登記.py"
 
-with dash_grid.container(border=True):
-    st.markdown("<h2>📝 01_每日聯絡簿管理</h2>", unsafe_allow_html=True)
-    st.write("包含：聯絡簿簽名登記、生活札記完成檢視、學校催收項目建立、以及家長群組即時文字廣播功能。")
-    st.write("")
-    
-    if os.path.exists(p1_small): st.page_link(p1_small, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
-    elif os.path.exists(p1_big): st.page_link(p1_big, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
-    else: st.warning("⚠️ 提示：請確認您的聯絡簿代碼確實上傳在 pages 資料夾中。")
+# 🛠️【終極語法修正】採用官方最正統的 st.container() 獨立框包裝法，保證 100% 絕不報錯！
+with dash_grid[0]:
+    with st.container(border=True):
+        st.markdown("<h2>📝 01_每日聯絡簿管理</h2>", unsafe_allow_html=True)
+        st.write("包含：聯絡簿簽名登記、生活札記完成檢視、學校催收項目建立、以及家長群組即時文字廣播功能。")
+        st.write("")
+        if os.path.exists(p1_small): st.page_link(p1_small, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
+        elif os.path.exists(p1_big): st.page_link(p1_big, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
+        else: st.warning("⚠️ 提示：請確認您的聯絡簿代碼確實上傳在 pages 資料夾中。")
 
-with dash_grid.container(border=True):
-    st.markdown("<h2>📊 02_學生作業與成績登記</h2>", unsafe_allow_html=True)
-    st.write("包含：日常各科小考成績輸入、各單元作業繳交狀況追蹤、學期成績落點唯讀總表與紀錄導出功能。")
-    st.write("")
-    
-    if os.path.exists(p2_small): st.page_link(p2_small, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
-    elif os.path.exists(p2_big): st.page_link(p2_big, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
-    else: st.info("💡 提示：此模組已預留，等您將 02_成績作業登記.py 上傳後將自動啟用。")
+with dash_grid[1]:
+    with st.container(border=True):
+        st.markdown("<h2>📊 02_學生作業與成績登記</h2>", unsafe_allow_html=True)
+        st.write("包含：日常各科小考成績輸入、各單元作業繳交狀況追蹤、學期成績落點唯讀總表與紀錄導出功能。")
+        st.write("")
+        if os.path.exists(p2_small): st.page_link(p2_small, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
+        elif os.path.exists(p2_big): st.page_link(p2_big, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
+        else: st.info("💡 提示：此模組已預留，等您將 02_成績作業登記.py 上傳後將自動啟用。")
