@@ -5,32 +5,17 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
 
-# 徹底修復密碼輸入框殘字（visibili）問題的專屬 CSS
+# 簡潔安全的 CSS
 st.markdown("""
     <style>
-    /* 全域字體設定 */
     html, body, [class*="st-"], .stApp {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important;
     }
-    
-    /* 精準隱藏側邊欄與頁首 Header */
     [data-testid="stSidebar"], 
     button[data-testid="collapsedControl"], 
     header[data-testid="stHeader"] {
         display: none !important;
     }
-    
-    /* 核心修復：強制隱藏密碼框右側引發殘字的按鈕文字與標籤 */
-    div[data-baseweb="input"] button,
-    div[data-baseweb="input"] button * {
-        font-size: 0px !important;
-        color: transparent !important;
-        visibility: hidden !important;
-        width: 0px !important;
-        height: 0px !important;
-        overflow: hidden !important;
-    }
-
     .item-label { 
         color: #1E40AF !important; 
         font-size: 15px !important; 
@@ -47,7 +32,8 @@ if "page_contact_auth" not in st.session_state:
 if not st.session_state["page_contact_auth"]:
     st.write("### 🔒 教師安全驗證專區")
     with st.form("page_auth_form"):
-        p = st.text_input("請輸入 5 位數導師密碼：", type="password")
+        # 移除 type="password"，徹底避免 Streamlit 密碼按鈕導致的 visibili 殘字 Bug
+        p = st.text_input("請輸入 5 位數導師密碼：")
         if st.form_submit_button("確認通行"):
             if p.strip() == "12345":
                 st.session_state["page_contact_auth"] = True
