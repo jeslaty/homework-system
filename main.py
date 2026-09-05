@@ -2,42 +2,50 @@ import os, pandas as pd, streamlit as st
 
 st.set_page_config(page_title="801班務管理主控台", page_icon="🏛️", layout="wide")
 
-# 🎨 注入【全站文字 100% 發光純白、物理就地消滅右上角亂碼原廠選單】最高優先權指令
+# 🎨 注入【Apple 級極簡 3D 智慧功能磚 - 全文字發光白、全格子一鍵點擊跳轉版】
 st.markdown("""
     <style>
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
-    /* 🍏 永久鎖定莫蘭迪深藍灰大背景 */
     .stApp { background-color: #1E293B !important; }
     
-    /* 🛑【徹底消滅側邊欄與右上角亂碼原廠選單】按鈕直接就地隱藏蒸發，全站乾乾淨淨！ */
+    /* 🛑【徹底拔除所有干擾】全站不使用 sidebar，徹底消滅右上角原廠亂碼選單 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"],
     #MainMenu, header[data-testid="stHeader"] { 
         display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important;
     }
     
-    /* 🌟【大廳文字 300% 暴風亮化】強迫九宮格大格子內的所有標題、說明小字、點選標籤一律鎖死為「高清晰發光純白」！】 */
-    .apple-title, h3, h2, h1, p, span, label, div[data-testid="stMarkdownContainer"] p { 
-        color: #FFFFFF !important; 
-        -webkit-text-fill-color: #FFFFFF !important; /* 強制解決所有手機與電腦瀏覽器字體發暗發灰的問題 */
-        font-weight: 800 !important; 
+    /* 🌟【大廳文字 300% 亮化】強迫登入標籤、主畫面大標題一律鎖死為高清晰發光純白 */
+    .apple-title, h3, h2, h1, label, p, span, .stText, [data-testid="stForm"] label, [data-testid="stWidgetLabel"] p { 
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; font-weight: 800 !important; 
     }
-    .apple-title { font-size: 32px !important; margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px; }
+    .apple-title { font-size: 32px !important; margin-bottom: 25px !important; border-bottom: 3px solid #334155; padding-bottom: 10px; }
     
     /* 🎯 密碼眼睛髒字徹底蒸發技術 */
     div[data-testid="stTextInput"] button span, div[data-testid="stTextInput"] div div div { font-size: 0px !important; color: transparent !important; -webkit-text-fill-color: transparent !important; }
     
-    /* 🎯 密碼與帳號白底輸入框、以及連結按鈕內部的字體，維持最好讀的曜石純黑 */
-    .stTextInput input, .stPageLink a p {
-        color: #0F172A !important; -webkit-text-fill-color: #0F172A !important; font-weight: 800 !important;
-    }
+    /* 🎯 帳號密碼輸入框內部的打字體，維持最高對比曜石純黑 */
+    .stTextInput input { color: #0F172A !important; -webkit-text-fill-color: #0F172A !important; font-weight: 800 !important; }
     
-    /* 📦 條列大格子：使用曜石深黑底色，襯托發光白字，形成最強烈黑白對比 */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #334155 !important; border-radius: 16px !important; 
-        background-color: #0F172A !important; 
-        padding: 24px !important; margin: 10px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    /* 🚀【全格點擊卡片終極魔改】強迫整塊大方塊跟原廠跳轉連結融為一體，變成 100% 全區域可直接點擊的 3D 功能磚！ */
+    .stPageLink a {
+        background-color: #0F172A !important; /* 🌟 物理換色：功能磚改用高級曜石深黑色 */
+        border: 2.5px solid #334155 !important; border-radius: 20px !important;
+        padding: 35px 24px !important; margin: 12px 0px !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+        text-decoration: none !important;
+        transition: border 0.2s ease, transform 0.2s ease !important;
+    }
+    /* 🚀 當滑鼠滑入（Hover）這兩個大格子時，格子外框會瞬間亮起清爽亮藍色 */
+    .stPageLink a:hover {
+        border: 2.5px solid #38BDF8 !important;
+    }
+    /* 🚀 強制讓卡片內部的「聯絡簿管理」與「作業登錄系統」文字字體巨大化發光純白呈现 */
+    .stPageLink a p {
+        color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important;
+        font-size: 26px !important; font-weight: 900 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -64,27 +72,19 @@ st.markdown('<div class="apple-title">🏛️ 801 導師班務管理主控台</d
 st.write("### 📅 請選擇今日要處理的獨立班務項目：")
 st.write("")
 
-# 🏛️ 左右大方塊佈局比例
+# 🏛️ 左右大方塊佈局分流
 dash_grid = st.columns(2)
 
 p1_small, p1_big = "pages/01_每日聯絡簿.py", "Pages/01_每日聯絡簿.py"
 p2_small, p2_big = "pages/02_成績作業登記.py", "Pages/02_成績作業登記.py"
 
-# 🛠️【終極語法修正】採用官方最正統的 st.container() 獨立框包裝法，保證 100% 絕不報錯！
+# 🎯【一鍵點擊功能磚大成】徹底拿掉所有冗長說明，整塊大格子就是最乾淨、最直覺的跨頁傳送門！
 with dash_grid[0]:
-    with st.container(border=True):
-        st.markdown("<h2>📝 01_每日聯絡簿管理</h2>", unsafe_allow_html=True)
-        st.write("包含：聯絡簿簽名登記、生活札記完成檢視、學校催收項目建立、以及家長群組即時文字廣播功能。")
-        st.write("")
-        if os.path.exists(p1_small): st.page_link(p1_small, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
-        elif os.path.exists(p1_big): st.page_link(p1_big, label="點擊開啟 01_每日聯絡簿網頁 ➔", use_container_width=True)
-        else: st.warning("⚠️ 提示：請確認您的聯絡簿代碼確實上傳在 pages 資料夾中。")
+    if os.path.exists(p1_small): st.page_link(p1_small, label="📝 01_聯絡簿管理", use_container_width=True)
+    elif os.path.exists(p1_big): st.page_link(p1_big, label="📝 01_聯絡簿管理", use_container_width=True)
+    else: st.warning("⚠️ 提示：請確認您的聯絡簿代碼確實上傳在 pages 資料夾中。")
 
 with dash_grid[1]:
-    with st.container(border=True):
-        st.markdown("<h2>📊 02_學生作業與成績登記</h2>", unsafe_allow_html=True)
-        st.write("包含：日常各科小考成績輸入、各單元作業繳交狀況追蹤、學期成績落點唯讀總表與紀錄導出功能。")
-        st.write("")
-        if os.path.exists(p2_small): st.page_link(p2_small, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
-        elif os.path.exists(p2_big): st.page_link(p2_big, label="點擊開啟 02_成績作業登記網頁 ➔", use_container_width=True)
-        else: st.info("💡 提示：此模組已預留，等您將 02_成績作業登記.py 上傳後將自動啟用。")
+    if os.path.exists(p2_small): st.page_link(p2_small, label="📊 02_作業登錄系統", use_container_width=True)
+    elif os.path.exists(p2_big): st.page_link(p2_big, label="📊 02_作業登錄系統", use_container_width=True)
+    else: st.info("💡 提示：此模組已預留，等您將 02_成績作業登記.py 上傳後將自動啟用。")
