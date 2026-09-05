@@ -30,10 +30,11 @@ with col_top_back:
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "魏辰恩", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
+# 🎯【終極精準校正】移除末尾重複多出的魏辰恩，嚴格核對並固定為標準的 28 人名單！
+student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
 seat_list = [int(x) for x in seats_str.split(",")]
 
-# 🚀 終極修復：鋼筋水泥級 Excel 跨日期自動尋軌安全防護網
+# 🚀 鋼筋水泥級 Excel 跨日期自動尋軌安全防護網
 def load_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
     
@@ -113,7 +114,7 @@ with col_left_panel:
         for item in extra_items:
             df_ni = df[df[item] == "未繳 ❌"]
             if not df_ni.empty:
-                t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['造號'] if '造號' in r else r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
+                t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
                 st.text_area(f"📋 複製 {item} 催繳文字：", value=t_i, height=120, key=f"c_{item}")
             else: st.success(f"💯 {item} 皆已繳齊！")
 
@@ -151,7 +152,6 @@ with col_right_students:
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]:
                                 df.loc[df["座號"] == seat_num, item] = ni
-                                # 🎯 鋼筋水泥級跨日寫入：將繳交進度 100% 同步覆蓋到 Excel 的所有分頁中，永久連動！
                                 try:
                                     sheets_data = {}
                                     if os.path.exists(FILE_NAME):
