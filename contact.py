@@ -46,7 +46,7 @@ st.markdown("""
     .stDateInput input, .stTextInput input,
     .stButton button p {
         color: #0F172A !important;
-        -webkit-text-fill-color: #0F172A !important; /* 💡 強制解決手機 Safari/Chrome 的輸入框文字發白問題 */
+        -webkit-text-fill-color: #0F172A !important; /* 強制解決手機 Safari/Chrome 的輸入框文字發白問題 */
         font-weight: 800 !important;
     }
     
@@ -109,8 +109,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
-col_left_panel, col_right_students = st.columns()
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 修正鎖定！】
+col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
