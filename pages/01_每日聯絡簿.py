@@ -5,23 +5,24 @@ st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layo
 
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", sans-serif !important; }
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important; }
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important; }
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     </style>
 """, unsafe_allow_html=True)
 
-if "contact_logged_in" not in st.session_state:
-    st.session_state["contact_logged_in"] = False
+if "page_contact_auth" not in st.session_state:
+    st.session_state["page_contact_auth"] = False
 
-# 🎯【核心修正】精準補上 () 括號，徹底解決網址通行證讀取崩潰
-q_params = st.query_parameters()
-if q_params.get("auth") == "passed":
-    st.session_state["contact_logged_in"] = True
-
-if not st.session_state["contact_logged_in"]:
-    st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
-    if st.button("⬅️ 返回主控台登入頁面", use_container_width=True): st.switch_page("main.py")
+if not st.session_state["page_contact_auth"]:
+    st.write("### 🔒 教師安全驗證專區（此頁首次開啟需驗證）")
+    with st.form("page_auth_form"):
+        p = st.text_input("請輸入 5 位數導師密碼：", type="password")
+        if st.form_submit_button("確認通行"):
+            if p.strip() == "12345":
+                st.session_state["page_contact_auth"] = True; st.rerun()
+            else: st.error("❌ 密碼錯誤。")
+    if st.button("⬅️ 返回管理主控台", use_container_width=True): st.switch_page("main.py")
     st.stop()
 
 col_top_title, col_top_back = st.columns([0.82, 0.18])
@@ -89,7 +90,6 @@ with col_left_panel:
     st.write("### 📅 班務管理與項目切換")
     current_date = st.date_input("選擇聯絡簿登記日期：", datetime.now(), key="main_date")
     date_str = current_date.strftime("%Y-%m-%d")
-    
     df_daily = load_daily_data(date_str)
     
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
