@@ -14,7 +14,8 @@ st.markdown("""
 if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
 
-q_params = st.query_parameters
+# 🎯【核心修正】精準補上 () 括號，徹底解決網址通行證讀取崩潰
+q_params = st.query_parameters()
 if q_params.get("auth") == "passed":
     st.session_state["contact_logged_in"] = True
 
@@ -163,7 +164,7 @@ with col_right_students:
                     if current_view == "📝 每日聯絡簿與札記":
                         row_s = df_daily.iloc[student_idx]
                         ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=(0 if row_s["聯絡簿簽名"] == "已簽 📝" else 1), horizontal=True, key=f"s_{seat_num}_{date_str}")
-                        nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "Macro已寫 🗒️" or row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
+                        nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
                         if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
                             df_daily.loc[df_daily["座號"] == seat_num, "聯絡簿簽名"], df_daily.loc[df_daily["座號"] == seat_num, "生活札記"] = ns, nd
                             save_daily_data(df_daily, date_str); st.rerun()
