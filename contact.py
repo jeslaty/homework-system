@@ -3,26 +3,54 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入全站字體高對比優化（只用最乾淨、絕不爆字數斷框的底層指令）
+# 🎨 注入【Mac 經典深色暗黑模式大背景 - 25:75 比例、左欄輸入框純黑字、右欄白底高對比卡片】
 st.markdown("""
     <style>
+    /* 🍏 全局強制使用現代無襯線字體 */
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
-    .stApp { background-color: #FFFFFF !important; }
+    
+    /* 🍏 網頁大背景改回老師最愛的：經典莫蘭迪深藍灰 */
+    .stApp { background-color: #1E293B !important; }
+    
+    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
-    .apple-title { 
-        color: #0F172A !important; font-size: 30px !important; font-weight: 800 !important; 
-        margin-bottom: 20px !important; border-bottom: 3px solid #E2E8F0; padding-bottom: 10px;
+    
+    /* 🍏 主標題與大背景上的所有大標題：在深色背景下強制使用高對比純白字體 */
+    .apple-title, h3, h2, h1 { 
+        color: #FFFFFF !important; font-weight: 800 !important;
     }
+    .apple-title {
+        font-size: 32px !important; margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px;
+    }
+    
+    /* 📋 學校項目與備註標籤：耀眼亮藍色 */
     .item-label { color: #1E3A8A !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
-    .stText, p, span, label, div, .stWidgetLabel p { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
+    
+    /* 🎯【左欄白底框黑字特徵】強制讓左欄所有輸入框內文字、日期、按鈕文字一律鎖定為純黑色（#000000）！】 */
+    div[col-label="left"] input, div[col-label="left"] select, div[col-label="left"] textarea, div[col-label="left"] button,
+    div[data-baseweb="date-picker"] input, div[data-baseweb="input"] input, div[data-baseweb="select"] div,
+    .stDateInput input, .stTextInput input, .stButton button p {
+        color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important;
+    }
+    ::placeholder, .stTextInput input::placeholder { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+    
+    /* 📦【3D 原生獨立卡片框內文字】強迫學生格子內部（白底）的所有選項、文字一律維持最大對比的「純黑色」 */
+    div[data-testid="stVerticalBlockBorderWrapper"] p, 
+    div[data-testid="stVerticalBlockBorderWrapper"] span, 
+    div[data-testid="stVerticalBlockBorderWrapper"] label,
+    div[data-testid="stVerticalBlockBorderWrapper"] div { 
+        color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; 
+    }
+    
+    /* 📦【3D 原生獨立卡片框設定】拉開格子間距，卡片內部維持乾淨高亮白底，形成最強烈對比 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 2.5px solid #0F172A !important; border-radius: 16px !important;
         background-color: #FFFFFF !important; padding: 16px !important; margin: 8px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.03) !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -61,10 +89,11 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：🎯 25% : 75% 參數精準鎖死鎖定，絕不再報錯崩潰！】
-col_left_panel, col_right_students = st.columns([1, 3])
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
+    st.markdown('<div col-label="left">', unsafe_allow_html=True)
     st.write("### 📅 班務管理與切換")
     current_date = st.date_input("選擇登記/查看日期：", datetime.now(), key="main_date")
     date_str = current_date.strftime("%Y-%m-%d")
@@ -84,7 +113,7 @@ with col_left_panel:
         st.session_state["contact_logged_in"] = False; st.rerun()
 
     st.markdown("---")
-    st.write(f"### 📢 {date_str} 即時催繳廣播台")
+    st.write(f"### 📢 {date_str} 即時廣播台")
     
     df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
     if not df_ns.empty:
@@ -105,6 +134,7 @@ with col_left_panel:
                 t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
                 st.text_area(f"📋 複製 {item} 催繳文字：", value=t_i, height=120, key=f"c_{item}")
             else: st.success(f"💯 {item} 皆已繳齊！")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right_students:
     st.write("### 📅 紀錄登記區")
@@ -121,6 +151,7 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
+                    # 名字與座號採用加粗純黑大字呈現，100% 黑白分明，絕對不會再有隱形字！
                     st.write(f"### {gender_icon} {seat_num}號 {name_s}")
                     
                     ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{seat_num}_{date_str}")
@@ -133,7 +164,7 @@ with col_right_students:
                     if extra_items:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
-                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["開設 ✅", "已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
+                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                     
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
@@ -142,5 +173,5 @@ with col_right_students:
                     if nm != current_memo: df.loc[df["座號"] == seat_num, "備註事項"] = nm; save_data(df, date_str)
 
 st.markdown("---")
-st.write("### 📊 綜合班務總表（唯讀檢視）")
+st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 綜合班務總表（唯讀檢視）</h3>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
