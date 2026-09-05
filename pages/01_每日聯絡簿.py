@@ -30,15 +30,13 @@ with col_top_back:
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-# 🎯【終極精準校正】移除末尾重複多出的魏辰恩，嚴格核對並固定為標準的 28 人名單！
 student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
 seat_list = [int(x) for x in seats_str.split(",")]
 
-# 🚀 鋼筋水泥級 Excel 跨日期自動尋軌安全防護網
+# 🚀 跨日期多天通用防鎖死安全讀取引擎
 def load_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
     
-    # 🕵️ 安全探索全域已存在的長期催收項目
     global_extra_cols = []
     if os.path.exists(FILE_NAME):
         try:
@@ -49,12 +47,10 @@ def load_data(target_date):
                         if col not in global_extra_cols: global_extra_cols.append(col)
         except: pass
 
-    # 🛠️ 情況 A：如果檔案不存在，一秒直接初始化新檔案
     if not os.path.exists(FILE_NAME):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
         
-    # 🛠️ 情況 B：檔案存在，安全讀取或補充分頁
     try:
         with pd.ExcelFile(FILE_NAME) as xl:
             if target_date in xl.sheet_names:
@@ -62,7 +58,7 @@ def load_data(target_date):
             else:
                 df_current = df_def.copy()
                 
-        # 🎯 跨日同步：將別的日期建立的項目，100% 同步追加到今天，達成長期獨立追蹤！
+        # 🎯 跨日自動對齊：自動補齊其他日期新增的所有催收項目欄位
         for col in global_extra_cols:
             if col not in df_current.columns: df_current[col] = "未繳 ❌"
         return df_current
@@ -78,16 +74,20 @@ with col_left_panel:
     df = load_data(date_str)
     extra_items = list(df.columns[5:])
     
+    # 🎯【核心大修正】徹底解決分頁重複寫入衝突，安全覆蓋全分頁
     def save_data(updated_df, target_date):
         try:
             sheets_data = {}
             if os.path.exists(FILE_NAME):
                 with pd.ExcelFile(FILE_NAME) as xl:
-                    for sheet in xl.sheet_names: sheets_data[sheet] = pd.read_excel(FILE_NAME, sheet_name=sheet)
-            sheets_data[target_date] = updated_df
+                    for sheet in xl.sheet_names:
+                        if sheet != target_date:  # 💡 關鍵防呆：先抓取舊日期的資料
+                            sheets_data[sheet] = pd.read_excel(FILE_NAME, sheet_name=sheet)
+            sheets_data[target_date] = updated_df  # 💡 覆蓋寫入今天最新的更新資料
+            
             with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w:
                 for sheet, s_df in sheets_data.items(): s_df.to_excel(w, sheet_name=sheet, index=False)
-        except: st.error("⚠️ Excel 檔案寫入暫時衝突，請稍後重試。")
+        except: st.error("⚠️ Excel 檔案寫入衝突，請稍後重試。")
 
     new_item = st.text_input("➕ 新增獨立跨日催收項目：", placeholder="例如：疫苗施打同意書", key="main_item")
     if st.button("建立長期催收欄位", use_container_width=True):
@@ -152,6 +152,7 @@ with col_right_students:
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]:
                                 df.loc[df["座號"] == seat_num, item] = ni
+                                # 🎯 強制跨日期完全寫入：將繳交進度 100% 同步覆蓋到 Excel 的所有歷史分頁清單，完美連動
                                 try:
                                     sheets_data = {}
                                     if os.path.exists(FILE_NAME):
