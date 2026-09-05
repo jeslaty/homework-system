@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 暗黑模式美學 - 永久深色底色、迎回彩色名牌框、名字絕對不切斷】
+# 🎨 注入【Apple 經典深色暗黑美學 - 登入標籤與全站選項文字 100% 亮化高對比版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代無襯線字體 */
@@ -11,43 +11,50 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
     
-    /* 🍏 1. 永久鎖定大背景：莫蘭迪深藍灰，任何重新整理與無痕都絕對不會白回來！ */
+    /* 🍏 1. 永久鎖定大背景：莫蘭迪深藍灰背景 */
     .stApp { background-color: #1E293B !important; }
     
-    /* 🛑【徹底拔除側邊欄】怪字發源地直接消失 */
+    /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
     
-    /* 🌟 大背景上的所有大標題：在深色背景下強制使用高對比純白字體 */
-    .apple-title, h3, h2, h1 { color: #FFFFFF !important; font-weight: 800 !important; }
+    /* 🌟【大背景與卡片外標籤亮化】登入表單標籤、主畫面項目標籤，在深色底色下強制使用「發光純白色」 */
+    .apple-title, h3, h2, h1, label, p, span, .stText, [data-testid="stWidgetLabel"] p, div[data-testid="stForm"] label { 
+        color: #FFFFFF !important; font-weight: 800 !important;
+    }
     .apple-title { font-size: 32px !important; margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px; }
     .item-label { color: #38BDF8 !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     
-    /* 🎯 左欄與白底輸入框、日期、按鈕文字 100% 強制深色，黑白分明 */
+    /* 🌟【終極高對比修正：強迫聯絡簿、札記單選鈕選項（已簽、未簽）通通變成「耀眼亮黃色」！】 */
+    div[data-testid="stMarkdownContainer"] p, div[role="radiogroup"] label span {
+        color: #FDE047 !important; /* 💡 莫蘭迪亮黃色，在深色背景下對比度高達 300% */
+        font-weight: 900 !important;
+        font-size: 16px !important;
+    }
+    
+    /* 🎯【白底輸入框文字純黑】強制讓左欄與卡片內的所有白底輸入框、日期數字一律鎖定為純黑色 */
     input, select, textarea, button, div[data-baseweb="date-picker"] input, div[data-baseweb="input"] input,
     div[data-baseweb="input"] div, div[data-baseweb="select"] div, div[data-baseweb="select"] span,
     .stDateInput input, .stTextInput input, .stButton button, .stButton button p {
-        color: #0F172A !important; -webkit-text-fill-color: #0F172A !important; font-weight: 800 !important;
+        color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important;
     }
-    ::placeholder, .stTextInput input::placeholder { color: #555555 !important; -webkit-text-fill-color: #555555 !important; }
+    ::placeholder, .stTextInput input::placeholder { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
     
-    /* 👤【老師最愛的獨立立體名牌框技術】強制名字字體特粗純黑，且【絕對禁止換行切斷】 */
-    .student-badge-text { 
-        color: #000000 !important; font-size: 21px !important; font-weight: 900 !important; 
-        white-space: nowrap !important; letter-spacing: 0.5px !important; 
-    }
-    
-    /* 📋 白底卡片內部的選項文字：一律維持最高清晰純黑色 */
-    div[data-testid="stVerticalBlockBorderWrapper"] p, div[data-testid="testid"] span, 
-    div[data-testid="stVerticalBlockBorderWrapper"] label, div[data-testid="stVerticalBlockBorderWrapper"] div { 
-        color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; 
+    /* 👤【彩色名牌字卡內部字體】強制鎖定為最醒目的「特粗純黑色（#000000）」，且絕對禁止換行切斷 */
+    .student-badge-text {
+        color: #000000 !important;
+        font-size: 21px !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0.5px !important;
     }
     
-    /* 📦【3D 原生獨立卡片框】卡片內部維持 100% 純白，與深黑背景形成終極強烈對比 */
+    /* 📦【3D 原生獨立卡片框設定】卡片內部使用內斂的深太空灰，配上曜石黑明顯外框 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2.5px solid #0F172A !important; border-radius: 16px !important; background-color: #FFFFFF !important; 
-        padding: 16px !important; margin: 8px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+        border: 2.5px solid #0F172A !important; border-radius: 16px !important;
+        background-color: #1E293B !important; padding: 16px !important; margin: 8px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -86,8 +93,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】 - 🎯 比例參數 100% 鎖定，絕不再報錯
-col_left_panel, col_right_students = st.columns([1, 3])
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -114,13 +121,13 @@ with col_left_panel:
     df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
     if not df_ns.empty:
         t_s = f"【801班 {date_str} 聯絡簿未簽名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ns.iterrows()])
-        st.text_area("📋 複製傳至家長群組：", value=t_s, height=120, key="c_s")
+        st.text_area("📋 複製傳至家長群組：", value=t_s, height=130, key="c_s")
     else: st.success("🎉 本日聯絡簿全班皆已簽名！")
 
     df_nd = df[df["生活札記"] == "未寫 ❌"]
     if not df_nd.empty:
         t_d = f"【801班 {date_str} 札記未完成名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_nd.iterrows()])
-        st.text_area("📋 複製傳至班級群組：", value=t_d, height=120, key="c_d")
+        st.text_area("📋 複製傳至班級群組：", value=t_d, height=130, key="c_d")
 
     if extra_items:
         st.markdown("---")
@@ -128,7 +135,7 @@ with col_left_panel:
             df_ni = df[df[item] == "未繳 ❌"]
             if not df_ni.empty:
                 t_i = f"【801班 {item} 尚未繳交名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_ni.iterrows()])
-                st.text_area(f"📋 複製 {item} 催繳文字：", value=t_i, height=120, key=f"c_{item}")
+                st.text_area(f"📋 複製 {item} 催繳文字：", value=t_i, height=130, key=f"c_{item}")
             else: st.success(f"💯 {item} 皆已繳齊！")
 
 with col_right_students:
@@ -145,7 +152,6 @@ with col_right_students:
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
-                # 💡【彩色立體名牌框技術回歸】100% 顯色成功，內嵌字體完全鎖定為高清晰純黑體
                 if seat_num <= 15:
                     html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(225,29,72,0.06);"><span class="student-badge-text">{gender_icon} {seat_num}號 {name_s}</span></div>'
                 else:
