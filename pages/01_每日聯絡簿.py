@@ -5,7 +5,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
 
-# 簡潔安全的 CSS
+# 精準 CSS 樣式，隱藏側邊欄並修正輸入框邊界
 st.markdown("""
     <style>
     html, body, [class*="st-"], .stApp {
@@ -32,7 +32,6 @@ if "page_contact_auth" not in st.session_state:
 if not st.session_state["page_contact_auth"]:
     st.write("### 🔒 教師安全驗證專區")
     with st.form("page_auth_form"):
-        # 移除 type="password"，徹底避免 Streamlit 密碼按鈕導致的 visibili 殘字 Bug
         p = st.text_input("請輸入 5 位數導師密碼：")
         if st.form_submit_button("確認通行"):
             if p.strip() == "12345":
@@ -57,11 +56,12 @@ FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
 
+# 完整 27 人名單（包含 9 號與 10 號同名同姓學生）
 student_names = [
     "王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", 
-    "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", 
-    "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", 
-    "董子以", "劉家佑", "魏辰恩"
+    "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", 
+    "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", 
+    "黃楙軒", "董子以", "劉家佑", "魏辰恩"
 ]
 seat_list = [int(i+1) for i in range(len(student_names))]
 
@@ -103,7 +103,7 @@ def save_long_term_status():
         except: pass
 
 def update_lt_status_callback(item_name, seat_num, key_name):
-    """即時更新狀態回調：點擊瞬間寫入 session_state 並自動重新渲染廣播台"""
+    """即時更新狀態回調：點擊瞬間寫入 session_state 並自動同步廣播台"""
     new_val = st.session_state[key_name]
     st.session_state["long_term_status"][item_name][seat_num] = new_val
     save_long_term_status()
@@ -216,7 +216,7 @@ with tab_daily:
                 if student_idx < len(student_names):
                     seat_num = seat_list[student_idx]
                     name_s = student_names[student_idx]
-                    gender_icon = "🌸" if seat_num <= 14 else "🍀"
+                    gender_icon = "🌸" if seat_num <= 15 else "🍀"
                     
                     with grid[idx_grid].container(border=True):
                         st.markdown(f'### <span style="white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span>', unsafe_allow_html=True)
@@ -278,16 +278,20 @@ with tab_history:
                 
         with col_h2:
             st.write("#### 👤 特定學生歷史紀錄追蹤")
-            search_student = st.selectbox("選擇學生姓名：", student_names)
             
-            if search_student:
-                student_seat = seat_list[student_names.index(search_student)]
-                st.write(f"##### 🔎 【{student_seat}號 {search_student}】歷史全紀錄：")
+            # 使用「座號+姓名」選單，避免同名同姓學生無法精準區分的問題
+            student_options = [f"{seat_list[i]}號 {student_names[i]}" for i in range(len(student_names))]
+            selected_student_opt = st.selectbox("選擇學生：", student_options)
+            
+            if selected_student_opt:
+                selected_seat = int(selected_student_opt.split("號")[0])
+                student_name = selected_student_opt.split(" ")[1]
+                st.write(f"##### 🔎 【{selected_seat}號 {student_name}】歷史全紀錄：")
                 
                 records = []
                 for d in all_dates:
                     df_tmp = load_daily_data(d)
-                    row_tmp = df_tmp[df_tmp["座號"] == student_seat]
+                    row_tmp = df_tmp[df_tmp["座號"] == selected_seat]
                     if not row_tmp.empty:
                         r = row_tmp.iloc[0]
                         records.append({
