@@ -148,7 +148,7 @@ with col_right_students:
     if current_view == "📝 每日聯絡簿與札記": st.write(f"### 📅 紀錄登記區：{date_str} 聯絡簿與札記")
     else:
         selected_item_name = current_view.replace("📋 ", "")
-        st.write(f"### 📋 長期長期催收登記區：{selected_item_name}")
+        st.write(f"### 📋 長期催收登記區：{selected_item_name}")
     st.write("")
 
     for i in range(0, len(student_names), 4):
@@ -161,11 +161,10 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
-                    if seat_num <= 15: st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
-                    else: st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
-                    st.write("")
-                    
                     if current_view == "📝 每日聯絡簿與札記":
+                        if seat_num <= 15: st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                        else: st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                        st.write("")
                         row_s = df_daily.iloc[student_idx]
                         ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=(0 if row_s["聯絡簿簽名"] == "已簽 📝" else 1), horizontal=True, key=f"s_{seat_num}_{date_str}")
                         nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
@@ -181,9 +180,17 @@ with col_right_students:
                     else:
                         selected_item_name = current_view.replace("📋 ", "")
                         current_status = long_term_status[selected_item_name].get(seat_num, "未繳 ❌")
+                        
+                        # 🎯【長期繳交綠色防呆大變身】如果勾選已繳，整塊卡片瞬間物理化為漂亮的溫柔綠色！
+                        if current_status == "已繳 ✅":
+                            st.markdown(f'<div style="background-color:#F0FDF4;border:2.5px solid #16A34A;border-radius:10px;padding:8px;text-align:center;"><span style="color:#166534;font-size:20px;font-weight:900;white-space:nowrap;">🍏 {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                        else:
+                            if seat_num <= 15: st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                            else: st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                        st.write("")
+                        
                         ni = st.radio(f"{selected_item_name}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if current_status == "已繳 ✅" else 1), horizontal=True, key=f"lt_{selected_item_name}_{seat_num}", label_visibility="collapsed")
                         if ni != current_status:
-                            # 🎯【終極核心鎖】在修改狀態的瞬間，同時覆蓋後台快取記憶，強制左側一秒立刻同步消失！
                             st.session_state["cached_lt_status"][selected_item_name][seat_num] = ni
                             save_long_term_status(st.session_state["cached_lt_status"])
                             st.rerun()
