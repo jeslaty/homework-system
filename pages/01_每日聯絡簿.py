@@ -9,7 +9,6 @@ st.markdown("""
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
-    /* 🛑【徹底消滅本頁所有原廠側邊欄選單與空白頁首】強迫釋放 100% 超寬敞全螢幕登記畫面 */
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"],
     button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { 
         display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important;
@@ -18,14 +17,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🎯【一鍵通記憶鎖】檢查老師是否已經在大廳登入過。如果沒登入，強制攔截導回首頁，確保安全！
+# 🎯【免頻繁登入保持鎖】檢查大廳登入狀態，只要登入過就維持永久通行
 if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
     st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
     if st.button("⬅️ 返回主控台登入頁面", use_container_width=True):
         st.switch_page("main.py")
     st.stop()
 
-# ----- 🎉 密碼大廳驗證成功，本分頁一秒直接安全通行，載入主功能 -----
 col_top_title, col_top_back = st.columns([0.82, 0.18])
 with col_top_title: st.write("# 📝 801每日聯絡簿管理網頁")
 with col_top_back: 
@@ -33,21 +31,44 @@ with col_top_back:
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
+student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "张品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
 seat_list = [int(x) for x in seats_str.split(",")]
 
+# 🚀 讀取資料邏輯改版：自動將新增的催收項目對齊到所有日期分頁中
 def load_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
+    
+    # 建立一個全域通用的催收欄位備份清單
+    global_extra_cols = []
+    if os.path.exists(FILE_NAME):
+        try:
+            xl = pd.ExcelFile(FILE_NAME)
+            for sheet in xl.sheet_names:
+                sheet_df = pd.read_excel(FILE_NAME, sheet_name=sheet)
+                for col in sheet_df.columns[5:]:
+                    if col not in global_extra_cols:
+                        global_extra_cols.append(col)
+        except: pass
+
     if not os.path.exists(FILE_NAME):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
-    try: return pd.read_excel(FILE_NAME, sheet_name=target_date)
+        
+    try:
+        df_current = pd.read_excel(FILE_NAME, sheet_name=target_date)
+        # 🎯 核心同步：如果別的日期有建立催收項目，今天的分頁也自動同步補上，達成跨日期獨立追蹤！
+        for col in global_extra_cols:
+            if col not in df_current.columns:
+                df_current[col] = "未繳 ❌"
+        return df_current
     except:
+        # 如果今天日期還沒有分頁，建立新分頁時也自動把之前存在的所有催收項目一併帶過來！
+        for col in global_extra_cols:
+            df_def[col] = "未繳 ❌"
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 補上鎖死！】
-col_left_panel, col_right_students = st.columns([1, 3])
+col_left_panel, col_right_students = st.columns([0.25, 0.75])
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -59,8 +80,8 @@ with col_left_panel:
     def save_data(updated_df, target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: updated_df.to_excel(w, sheet_name=target_date, index=False)
 
-    new_item = st.text_input("➕ 新增學校催收項目：", placeholder="例如：疫苗施打同意書", key="main_item")
-    if st.button("建立催收欄位", use_container_width=True):
+    new_item = st.text_input("➕ 新增獨立跨日催收項目：", placeholder="例如：疫苗施打同意書", key="main_item")
+    if st.button("建立長期催收欄位", use_container_width=True):
         if new_item and new_item not in df.columns:
             df[new_item] = "未繳 ❌"
             save_data(df, date_str); st.rerun()
@@ -118,11 +139,19 @@ with col_right_students:
                     
                     if extra_items:
                         for item in extra_items:
-                            st.write(f"📋 **學校收發：{item}**")
+                            st.markdown(f'<div class="item-label">📋 長期催收：{item}</div>', unsafe_allow_html=True)
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]:
                                 df.loc[df["座號"] == seat_num, item] = ni
-                                save_data(df, date_str); st.rerun()
+                                # 🎯 核心保存：繳交狀態會寫入 Excel 的所有日期頁面中，讓它跨日期同步！
+                                xl = pd.ExcelFile(FILE_NAME)
+                                with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w:
+                                    for sheet in xl.sheet_names:
+                                        sheet_df = pd.read_excel(FILE_NAME, sheet_name=sheet)
+                                        if item not in sheet_df.columns: sheet_df[item] = "未繳 ❌"
+                                        sheet_df.loc[sheet_df["座號"] == seat_num, item] = ni
+                                        sheet_df.to_excel(w, sheet_name=sheet, index=False)
+                                st.rerun()
                     
                     st.write("✍️ **隨手備註：**")
                     current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
@@ -132,5 +161,5 @@ with col_right_students:
                         save_data(df, date_str)
 
 st.markdown("---")
-st.write("### 📊 綜合班務總表（唯讀檢視）")
+st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 綜合班務總表（唯讀檢視）</h3>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
