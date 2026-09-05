@@ -5,47 +5,32 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
 
-# 精準 CSS 樣式，已修正文字屬性爆發衝突產生的殘字問題
+# 徹底修復密碼輸入框殘字（visibili）問題的專屬 CSS
 st.markdown("""
     <style>
-    /* 全域字體 */
+    /* 全域字體設定 */
     html, body, [class*="st-"], .stApp {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important;
     }
-    /* 隱藏側邊欄與頂部 Header */
+    
+    /* 精準隱藏側邊欄與頁首 Header */
     [data-testid="stSidebar"], 
     button[data-testid="collapsedControl"], 
     header[data-testid="stHeader"] {
         display: none !important;
     }
-    /* 核心修正：修復密碼輸入框按鈕顯示 overflow 導致的 visibili 殘字問題 */
-    button[aria-label*="password"], 
-    button[aria-label*="Password"],
-    div[data-baseweb="input"] button {
+    
+    /* 核心修復：強制隱藏密碼框右側引發殘字的按鈕文字與標籤 */
+    div[data-baseweb="input"] button,
+    div[data-baseweb="input"] button * {
+        font-size: 0px !important;
+        color: transparent !important;
+        visibility: hidden !important;
+        width: 0px !important;
+        height: 0px !important;
         overflow: hidden !important;
-        text-indent: -9999px !important;
-        white-space: nowrap !important;
     }
-    .item-label { 
-        color: #1E40AF !important; 
-        font-size: 15px !important; 
-        font-weight: 800 !important; 
-        margin-top: 10px !important; 
-    }
-    </style>
-""", unsafe_allow_html=True)
 
-    <style>
-    /* 修正全域字體，避開輸入框內部的隱藏屬性衝突 */
-    html, body, [class*="st-"], .stApp {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important;
-    }
-    /* 精準隱藏側邊欄與頁首，不破壞元件 */
-    [data-testid="stSidebar"], 
-    button[data-testid="collapsedControl"], 
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
     .item-label { 
         color: #1E40AF !important; 
         font-size: 15px !important; 
