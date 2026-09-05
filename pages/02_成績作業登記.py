@@ -1,186 +1,171 @@
 import os
 import pandas as pd
 import streamlit as st
+from datetime import datetime
 
-# 設定網頁標題與圖示
-st.set_page_config(page_title="國中學生作業管理系統", page_icon="🍎", layout="wide")
+st.set_page_config(page_title="02_每日作業登記專區", page_icon="📚", layout="wide")
 
-# 🎨 注入馬卡龍粉紅、粉藍與樣式美化
+# 精準 CSS 樣式，隱藏側邊欄
 st.markdown("""
     <style>
-    .stApp { background-color: #FFF0F2 !important; }
-    [data-testid="stSidebar"] { background-color: #E6F2FF !important; }
-    h1, h2, h3 { color: #4A4A4A !important; font-family: "Helvetica Neue", Arial, "Noto Sans TC", sans-serif; }
-    .stText, p, span, label { color: #333333 !important; }
+    html, body, [class*="st-"], .stApp {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important;
+    }
+    [data-testid="stSidebar"], 
+    button[data-testid="collapsedControl"], 
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# 🔑 帳號密碼設定（老師您可以在這裡修改成您想要的帳密）
-USER_USERNAME = "Tseng"
-USER_PASSWORD = "12345"
+# 驗證機制
+if "page_hw_auth" not in st.session_state:
+    st.session_state["page_hw_auth"] = False
 
-# 初始化登入狀態
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-
-# ----------------- 登入畫面 -----------------
-if not st.session_state["logged_in"]:
-    st.title("🔒 歡迎使用作業管理系統")
-    st.write("請輸入教師帳號與密碼以開始使用。")
-    
-    # 建立一個乾淨的登入區塊
-    with st.form("login_form"):
-        input_username = st.text_input("教師帳號：")
-        input_password = st.text_input("登入密碼：", type="password")
-        submit_button = st.form_submit_button("確認登入")
-        
-        if submit_button:
-            if input_username == USER_USERNAME and input_password == USER_PASSWORD:
-                st.session_state["logged_in"] = True
-                st.success("🎉 登入成功！")
+if not st.session_state["page_hw_auth"]:
+    st.write("### 🔒 教師安全驗證專區")
+    with st.form("hw_auth_form"):
+        p = st.text_input("請輸入 5 位數導師密碼：")
+        if st.form_submit_button("確認通行"):
+            if p.strip() == "12345":
+                st.session_state["page_hw_auth"] = True
                 st.rerun()
             else:
-                st.error("❌ 帳號或密碼錯誤，請重新輸入。")
-    st.stop() # 沒登入成功的話，程式就停在這裡，不顯示後面的名單
+                st.error("❌ 密碼錯誤。")
+    if st.button("⬅️ 返回管理主控台", use_container_width=True):
+        st.switch_page("main.py")
+    st.stop()
 
-# ----------------- 系統主畫面 (登入後才會顯示) -----------------
-st.title("🍎 國中學生作業管理系統")
+col_top_title, col_top_back = st.columns([0.80, 0.20])
+with col_top_title:
+    st.write("# 📚 801 每日各科作業與成績登記系統")
+with col_top_back: 
+    if st.button("🏛️ 返回管理主控台", use_container_width=True):
+        st.switch_page("main.py")
 
-# 提供登出按鈕在左側最上方
-if st.sidebar.button("🔒 安全登出"):
-    st.session_state["logged_in"] = False
-    st.rerun()
+FILE_HW_ITEMS = "作業催收清單.txt"
+FILE_HW_STATUS = "作業催收狀態紀錄.txt"
 
-# 純文字符號串接名單
-seats_801_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-seats_903_str = "1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29"
-seats_904_str = "1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26,27"
-seats_906_str = "1,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,31,32"
+# 完整 27 人名單
+student_names = [
+    "王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", 
+    "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", 
+    "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", 
+    "黃楙軒", "董子以", "劉家佑", "魏辰恩"
+]
+seat_list = [int(i+1) for i in range(len(student_names))]
 
-# 【內建全班學生名單資料庫】
-STUDENT_DATABASE = {
-    "801班": {
-        "座號": [int(x) for x in seats_801_str.split(",")],
-        "姓名": ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
-    },
-    "903班": {
-        "座號": [int(x) for x in seats_903_str.split(",")],
-        "姓名": ["張莘妍", "梁芯瑜", "吳佳錹", "許秧秧", "陳又綺", "高筱媗", "莊子玉", "吳愷昕", "陳以恩", "蕭妤柔", "吳璥齡", "魏品儀", "邱子恆", "張本維", "謝易宸", "游子宥", "吳宇曜", "吳嘉恩", "丁沛紳", "林子佑", "陳冠成", "徐國睿", "余冠憲", "黃家寶", "張瑋志", "方仲祺", "林昱嘉"]
-    },
-    "904班": {
-        "座號": [int(x) for x in seats_904_str.split(",")],
-        "姓名": ["戴嘉妤", "陳資晴", "傅詩穎", "張瞳恩", "黃宇婕", "吳沛媛", "李妍芯", "鄭羽恩", "林子桐", "許詠晴", "吳宸彤", "林品妍", "趙右群", "林定毅", "潘子堯", "郭羿楷", "張明哲", "吳宇曜", "魏永聖", "游承恩", "胡琮浩", "李柏沅", "許育政", "宗旻恩", "吳博硯"]
-    },
-    "906班": {
-        "座號": [int(x) for x in seats_906_str.split(",")],
-        "姓名": ["陳亮妤", "董宜洳", "林庭瑜", "許淯淳", "陳鈺軒", "林郁庭", "陳雅竹", "陳睿瑤", "楊淇暄", "陳雨萱", "江霈穎", "陳逸恩", "劉哲皓", "陳士愷", "李開哲", "林翊凱", "林晉宇", "林釉荏", "林均昊", "賴羿軒", "鄧仲喆", "吳羽翔", "林擎宇", "林旻勳", "鄭凱軒", "李秉叡", "曾群文", "吳立丞"]
-    }
-}
+def load_hw_items():
+    if not os.path.exists(FILE_HW_ITEMS): return ["國文作業", "數學講義"]
+    with open(FILE_HW_ITEMS, "r", encoding="utf-8") as f: 
+        items = [line.strip() for line in f.readlines() if line.strip()]
+        return items if items else ["國文作業", "數學講義"]
 
-# 1. 班級選擇（左側邊欄）
-st.sidebar.header("🏫 班級管理")
-class_list = list(STUDENT_DATABASE.keys())
-selected_class = st.sidebar.selectbox("請選擇班級：", class_list)
+def load_hw_status(items):
+    status_dict = {item: {seat: "未繳 ❌" for seat in seat_list} for item in items}
+    if not os.path.exists(FILE_HW_STATUS): return status_dict
+    try:
+        with open(FILE_HW_STATUS, "r", encoding="utf-8") as f:
+            for line in f.readlines():
+                if "," in line:
+                    parts = line.strip().split(",")
+                    if len(parts) == 3:
+                        item, seat_str_num, status = parts
+                        seat_num = int(seat_str_num)
+                        if item in status_dict and seat_num in status_dict[item]: 
+                            status_dict[item][seat_num] = status
+    except: pass
+    return status_dict
 
-FILE_NAME = f"學生作業紀錄_{selected_class}.xlsx"
+def save_hw_status():
+    if "hw_status" in st.session_state:
+        try:
+            with open(FILE_HW_STATUS, "w", encoding="utf-8") as f:
+                for item, seats in st.session_state["hw_status"].items():
+                    for seat, status in seats.items(): 
+                        f.write(f"{item},{seat},{status}\n")
+        except: pass
 
-# 2. 初始化該班級的 Excel 檔案
-def load_data():
-    if not os.path.exists(FILE_NAME):
-        default_data = {
-            "座號": STUDENT_DATABASE[selected_class]["座號"],
-            "姓名": STUDENT_DATABASE[selected_class]["姓名"],
-        }
-        df = pd.DataFrame(default_data)
-        df.to_excel(FILE_NAME, index=False)
-    return pd.read_excel(FILE_NAME)
+def on_hw_change(item_name, seat_num, widget_key):
+    new_val = st.session_state[widget_key]
+    st.session_state["hw_status"][item_name][seat_num] = new_val
+    save_hw_status()
 
-df = load_data()
+hw_items = load_hw_items()
 
-# 3. 功能區：新增作業
-st.sidebar.markdown("---")
-st.sidebar.subheader("➕ 新增作業項目")
-new_assignment = st.sidebar.text_input("輸入新作業名稱：", placeholder="例如：數學習作 P.10")
-if st.sidebar.button("建立作業欄位"):
-    if new_assignment:
-        if new_assignment in df.columns:
-            st.sidebar.error("⚠️ 該作業名稱已存在！")
-        else:
-            df[new_assignment] = "未繳"
-            df.to_excel(FILE_NAME, index=False)
-            st.sidebar.success(f"✅ 已成功新增：{new_assignment}")
-            st.rerun()
-    else:
-        st.sidebar.warning("⚠️ 請輸入作業名稱")
+if "hw_status" not in st.session_state:
+    st.session_state["hw_status"] = load_hw_status(hw_items)
 
-# 檢查是否有作業欄位
-has_assignments = len(df.columns) > 2
+col_left_panel, col_right_students = st.columns([0.28, 0.72])
 
-# 4. 主畫面：選擇要登記或查看的作業
-if has_assignments:
-    assignment_list = list(df.columns[2:])
-    current_assign = st.selectbox("🎯 請選擇要登記/查看的作業：", assignment_list)
-
-    col1, col_space, col2 = st.columns([5, 1, 4])
-
-    with col1:
-        st.subheader(f"📝 {selected_class} - 狀態點選登記")
-        st.caption("點選後系統會即時自動存檔")
-        st.write("") 
-
-        for index, row in df.iterrows():
-            seat = int(row["座號"])
-            name = row["姓名"]
-            current_status = row[current_assign]
-
-            options = ["未繳", "已繳", "缺交"]
-            try:
-                default_idx = options.index(current_status)
-            except ValueError:
-                default_idx = 0
-
-            c_seat, c_name, c_radio = st.columns([1, 2, 4])
-            c_seat.write(f"**{seat} 號**")
-            c_name.write(name)
-
-            new_status = c_radio.radio(
-                f"狀態_{seat}",
-                options,
-                index=default_idx,
-                horizontal=True,
-                label_visibility="collapsed",
-                key=f"radio_{seat}_{current_assign}",
-            )
-
-            if new_status != current_status:
-                df.loc[df["座號"] == seat, current_assign] = new_status
-                df.to_excel(FILE_NAME, index=False)
-                st.rerun()
-
-    with col2:
-        st.subheader("📋 催繳名單與統計")
-        st.write("") 
-
-        total_students = len(df)
-        paid_count = len(df[df[current_assign] == "已繳"])
-        st.metric(label="繳交進度", value=f"{paid_count} / {total_students} 人")
-
-        missing_df = df[df[current_assign].isin(["未繳", "缺交"])]
-
-        if missing_df.empty:
-            st.balloons()
-            st.success("🎉 太棒了！全班皆已繳齊！")
-        else:
-            st.error(f"❌ 尚未繳交名單 ({len(missing_df)} 人)：")
-            missing_text = f"【{selected_class} {current_assign} 未繳名單】\n"
-            for _, row in missing_df.iterrows():
-                missing_text += f"{int(row['座號'])}號 {row['姓名']} ({row[current_assign]})\n"
-
-            st.text_area("可直接複製文字傳至群組：", value=missing_text, height=250)
+with col_left_panel:
+    st.write("### 📌 作業與測驗項目選擇")
+    current_hw_view = st.selectbox("🎯 請選擇右側要登記的作業：", hw_items, key="hw_selector")
 
     st.markdown("---")
-    st.subheader("📊 全班作業總表（唯讀檢視）")
-    st.dataframe(df, use_container_width=True)
+    new_hw_item = st.text_input("➕ 新增作業/測驗項目：", placeholder="例如：國文L1小考、英文習作", key="new_hw_input")
+    if st.button("確認建立作業項目", use_container_width=True):
+        if new_hw_item and new_hw_item not in hw_items:
+            try:
+                with open(FILE_HW_ITEMS, "a", encoding="utf-8") as f: f.write(f"{new_hw_item}\n")
+                st.session_state["hw_status"][new_hw_item] = {seat: "未繳 ❌" for seat in seat_list}
+                save_hw_status()
+                st.rerun()
+            except: st.error("⚠️ 寫入失敗，請重試。")
 
-else:
-    st.info("💡 目前還沒有任何作業項目。請先在左側邊欄輸入名稱並點選「建立作業欄位」！")
+    st.markdown("---")
+    st.write("### 📢 作業缺交廣播台")
+    
+    item_status_map = st.session_state["hw_status"].get(current_hw_view, {})
+    unpaid_students = [seat for seat, status in item_status_map.items() if status == "未繳 ❌"]
+    
+    if unpaid_students:
+        t_i = f"【801班 {current_hw_view} 缺交名單】\n"
+        for seat in unpaid_students:
+            name = student_names[seat_list.index(seat)]
+            t_i += f"{seat}號 {name}\n"
+        st.text_area(
+            f"📋 複製 {current_hw_view} 催繳文字：", 
+            value=t_i, 
+            height=220, 
+            key=f"hw_broadcast_{current_hw_view}_{len(unpaid_students)}_{sum(unpaid_students)}"
+        )
+    else: 
+        st.success(f"💯 {current_hw_view} 全班皆已繳齊！")
+
+with col_right_students:
+    st.write(f"### 📋 作業與成績登記區：{current_hw_view}")
+    st.write("")
+
+    for i in range(0, len(student_names), 4):
+        grid = st.columns(4)
+        for idx_grid in range(4):
+            student_idx = i + idx_grid
+            if student_idx < len(student_names):
+                seat_num = seat_list[student_idx]
+                name_s = student_names[student_idx]
+                gender_icon = "🌸" if seat_num <= 15 else "🍀"
+                
+                with grid[idx_grid].container(border=True):
+                    st.markdown(f'### <span style="white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span>', unsafe_allow_html=True)
+                    st.write("")
+                    
+                    if current_hw_view not in st.session_state["hw_status"]:
+                        st.session_state["hw_status"][current_hw_view] = {seat: "未繳 ❌" for seat in seat_list}
+                    
+                    current_status = st.session_state["hw_status"][current_hw_view].get(seat_num, "未繳 ❌")
+                    r_key = f"r_hw_{current_hw_view}_{seat_num}"
+                    
+                    st.radio(
+                        f"{current_hw_view}_{seat_num}", 
+                        ["已繳 ✅", "未繳 ❌"], 
+                        index=(0 if current_status == "已繳 ✅" else 1), 
+                        horizontal=True, 
+                        key=r_key, 
+                        label_visibility="collapsed",
+                        on_change=on_hw_change,
+                        args=(current_hw_view, seat_num, r_key)
+                    )
+                    if st.session_state.get(r_key) and st.session_state[r_key] != current_status:
+                        st.rerun()
