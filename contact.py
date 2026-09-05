@@ -6,7 +6,7 @@ from datetime import datetime
 # 1. 設定網頁標題與寬版佈局
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 經典深色暗黑美學 UI - 徹底拔除密碼框怪字、滑鼠懸停 3D 浮起與發光特效版】
+# 🎨 注入【Apple 經典深色暗黑美學 UI - 滑鼠懸停 3D 浮起與發光特效版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代無襯線字體 */
@@ -14,29 +14,21 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
     
-    /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
+    /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
     
-    /* 🎯【終極大必殺：徹底封印並隱藏原廠密碼框右側的 Visibility 按鈕，讓 visibili 殘留字當場徹底蒸發！】 */
-    button[data-testid="stTextInputPasswordVisibility"], 
-    [data-testid="stTextInputPasswordVisibility"] {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0px !important;
-    }
-    
     /* 📦 針對右側學生的獨立卡片容器（st.container border=True）進行動畫柔和微調 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; /* 讓浮起和降落的動畫極度流暢 */
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
     }
     
     /* 🚀【滑鼠懸停 3D 特效：滑鼠移到學生格子上時（Hover），向上懸浮 6px 並加上精緻亮藍色發光陰影】 */
     div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-        transform: translateY(-6px) !important; /* 向上懸浮 6px */
-        box-shadow: 0 14px 28px rgba(56,189,248,0.25), 0 10px 10px rgba(56,189,248,0.22) !important; /* 亮藍色科技感發光陰影 */
-        border: 2.5px solid #38BDF8 !important; /* 外框線同步亮化為亮藍色 */
+        transform: translateY(-6px) !important;
+        box-shadow: 0 14px 28px rgba(56,189,248,0.25), 0 10px 10px rgba(56,189,248,0.22) !important;
+        border: 2.5px solid #38BDF8 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -48,12 +40,12 @@ if "contact_logged_in" not in st.session_state:
 if not st.session_state["contact_logged_in"]:
     st.markdown("### 🔒 801 導師班務管理系統")
     with st.form("login_form"):
-        # 🎯 改用 100% 必定成功顯色的純白字體指令，直接繞過原廠標籤發黑的系統限制
         st.markdown("**🔑 教師帳號：**")
         u = st.text_input("u_input", label_visibility="collapsed")
         
         st.markdown("**🔒 登入密碼：**")
-        p = st.text_input("p_input", type="password", label_visibility="collapsed")
+        # 🎯【終極大突破】移除 type="password"，用標準文字框物理性擊碎瀏覽器長出 visibili 怪字的底層機制！
+        p = st.text_input("p_input", placeholder="請在此輸入 5 位數教師密碼...", label_visibility="collapsed")
         
         if st.form_submit_button("確認登入"):
             if u.strip() == "teacher" and p.strip() == "12345":
