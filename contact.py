@@ -19,8 +19,8 @@ st.markdown("""
         display: none !important; visibility: hidden !important; 
     }
     
-    # 🌟【終極修正：強迫登入畫面標籤、主畫面大標題與全局提示文字一律轉為高清晰發光純白（#FFFFFF）！】
-    .apple-title, h3, h2, h1, label, p, span, .stText, [data-testid="stWidgetLabel"] p { 
+    /* 🌟【核心大修正：徹底移除多餘註解，強制登入畫面標籤、主標題與全局提示文字一律轉為發光純白（#FFFFFF）！】 */
+    .apple-title, h3, h2, h1, label, p, span, .stText, [data-testid="stWidgetLabel"] p, div[data-testid="stForm"] label { 
         color: #FFFFFF !important; font-weight: 800 !important;
     }
     .apple-title {
@@ -30,7 +30,7 @@ st.markdown("""
     /* 📋 學校項目與備註標籤：耀眼亮藍色 */
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     
-    /* 🎯【白底框黑字特徵】強制讓左欄與學生卡片內的所有白底輸入框、日期、點選選項一律鎖定為純黑色（#000000）！】 */
+    /* 🎯 【白底框黑字特徵】強制讓左欄與學生卡片內的所有白底輸入框、日期、點選選項一律鎖定為純黑色（#000000）！】 */
     input, select, textarea, button, div[data-baseweb="date-picker"] input, div[data-baseweb="input"] input,
     .stDateInput input, .stTextInput input, .stButton button p {
         color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important;
@@ -117,7 +117,7 @@ with col_left_panel:
         st.session_state["contact_logged_in"] = False; st.rerun()
 
     st.markdown("---")
-    st.write(f"### 📢 {date_str} 即時催繳廣播台")
+    st.write(f"### 📢 {date_str} 即時廣播台")
     
     df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
     if not df_ns.empty:
@@ -159,14 +159,14 @@ with col_right_students:
                     ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=["已簽 📝", "未簽 ❌"].index(row_s["聯絡簿簽名"]) if row_s["聯絡簿簽名"] in ["已簽 📝", "未簽 ❌"] else 0, horizontal=True, key=f"s_{seat_num}_{date_str}")
                     nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=["已寫 🗒️", "未寫 ❌"].index(row_s["生活札記"]) if row_s["生活札記"] in ["已寫 🗒️", "未寫 ❌"] else 0, horizontal=True, key=f"d_{seat_num}_{date_str}")
                     
-                    if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
+                    if ns != row_s["聯絡簿`簽名"] or nd != row_s["生活札記"]:
                         df.loc[df["座號"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
                         save_data(df, date_str); st.rerun()
                     
                     if extra_items:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
-                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["橫排 ✅", "已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
+                            ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=["已繳 ✅", "未繳 ❌"].index(row_s[item]) if row_s[item] in ["已繳 ✅", "未繳 ❌"] else 1, horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                     
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
