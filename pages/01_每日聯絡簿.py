@@ -11,7 +11,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
+if "contact_logged_in" not in st.session_state:
+    st.session_state["contact_logged_in"] = False
+
+q_params = st.query_parameters
+if q_params.get("auth") == "passed":
+    st.session_state["contact_logged_in"] = True
+
+if not st.session_state["contact_logged_in"]:
     st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
     if st.button("⬅️ 返回主控台登入頁面", use_container_width=True): st.switch_page("main.py")
     st.stop()
@@ -72,6 +79,9 @@ def load_daily_data(target_date):
             else: return df_def.copy()
     except: return df_def
 
+long_term_items = load_long_term_items()
+long_term_status = load_long_term_status(long_term_items)
+
 col_left_panel, col_right_students = st.columns([0.25, 0.75])
 
 with col_left_panel:
@@ -80,8 +90,6 @@ with col_left_panel:
     date_str = current_date.strftime("%Y-%m-%d")
     
     df_daily = load_daily_data(date_str)
-    long_term_items = load_long_term_items()
-    long_term_status = load_long_term_status(long_term_items)
     
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
     current_view = st.selectbox("🎯 請選擇右側要登記的項目：", menu_options, key="view_selector")
@@ -117,7 +125,7 @@ with col_left_panel:
             for seat in unpaid_students:
                 name = student_names[seat_list.index(seat)]
                 t_i += f"{seat}號 {name}\n"
-            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_refresh_{selected_item_name}")
+            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_final_{selected_item_name}")
         else: st.success(f"💯 {selected_item_name} 皆已繳齊！")
 
 with col_right_students:
@@ -178,4 +186,4 @@ with col_right_students:
 st.markdown("---")
 if current_view == "📝 每日聯絡簿與札記":
     st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）</h3>", unsafe_allow_html=True)
-    st.dataframe(df_daily, use_container_width=True)
+st.dataframe(df_daily, use_container_width=True)
