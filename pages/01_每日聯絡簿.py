@@ -146,7 +146,7 @@ with col_right_students:
     if current_view == "📝 每日聯絡簿與札記": st.write(f"### 📅 紀錄登記區：{date_str} 聯絡簿與札記")
     else:
         selected_item_name = current_view.replace("📋 ", "")
-        st.write(f"### 📋 長期長期催收登記區：{selected_item_name}")
+        st.write(f"### 📋 長期催收登記區：{selected_item_name}")
     st.write("")
 
     for i in range(0, len(student_names), 4):
