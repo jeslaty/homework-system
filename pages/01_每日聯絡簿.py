@@ -23,8 +23,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 2. 判斷是否從主控台傳入免密碼驗證參數
-query_params = st.query_params
-if query_params.get("auth") == "passed":
+if st.query_params.get("auth") == "passed":
     st.session_state["page_contact_auth"] = True
 
 if "page_contact_auth" not in st.session_state:
@@ -53,7 +52,7 @@ with col_top_back:
     if st.button("🏛️ 返回管理主控台", use_container_width=True):
         st.switch_page("main.py")
 
-# 4. 基礎資料與名單設定 (修正重複姓名問題)
+# 4. 基礎資料與名單設定
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
@@ -66,7 +65,7 @@ STUDENT_NAMES = [
 ]
 SEAT_LIST = list(range(1, len(STUDENT_NAMES) + 1))
 
-# 5. 檔案讀寫邏輯 (包含損毀自動修復機制)
+# 5. 檔案讀寫邏輯 (包含防損毀與自動修復機制)
 def load_long_term_items():
     if not os.path.exists(TXT_ITEM_FILE):
         return []
@@ -131,7 +130,6 @@ def load_daily_data(target_date):
             else:
                 return df_def.copy()
     except Exception:
-        # 當 Excel 損毀時自動救援重置，防範破壞性報錯
         if os.path.exists(FILE_NAME):
             os.remove(FILE_NAME)
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w:
