@@ -100,13 +100,6 @@ def save_long_term_status():
                         f.write(f"{item},{seat},{status}\n")
         except: pass
 
-def update_lt_status_callback(item_name, seat_num, key_name):
-    """即時更新狀態回調：寫入檔並強制重新渲染頁面，讓廣播台即時同步"""
-    new_val = st.session_state[key_name]
-    st.session_state["long_term_status"][item_name][seat_num] = new_val
-    save_long_term_status()
-    st.rerun()  # 💡 關鍵修正：強制即時刷新頁面廣播台
-
 def load_daily_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
     if not os.path.exists(FILE_NAME):
@@ -243,16 +236,20 @@ with tab_daily:
                             current_status = st.session_state["long_term_status"][selected_item_name].get(seat_num, "未繳 ❌")
                             radio_key = f"r_lt_{selected_item_name}_{seat_num}"
                             
-                            st.radio(
+                            # 直接取得勾選的值並比較，若改變立刻存檔並 rerun 刷新左側廣播台
+                            new_status = st.radio(
                                 f"{selected_item_name}_{seat_num}", 
                                 ["已繳 ✅", "未繳 ❌"], 
                                 index=(0 if current_status == "已繳 ✅" else 1), 
                                 horizontal=True, 
                                 key=radio_key, 
-                                label_visibility="collapsed",
-                                on_change=update_lt_status_callback,
-                                args=(selected_item_name, seat_num, radio_key)
+                                label_visibility="collapsed"
                             )
+                            
+                            if new_status != current_status:
+                                st.session_state["long_term_status"][selected_item_name][seat_num] = new_status
+                                save_long_term_status()
+                                st.rerun()
 
     st.markdown("---")
     if current_view == "📝 每日聯絡簿與札記":
