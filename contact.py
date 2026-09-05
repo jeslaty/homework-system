@@ -3,32 +3,27 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 經典深色暗黑美學 UI - 100% 鎖定深色背景、左欄黑字、姓名絕不換行】
+# 🎨 官方原生最精簡高對比暗黑樣式（極速瘦身，確保參數絕對不被吃掉）
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
-    }
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important; }
     .stApp { background-color: #1E293B !important; }
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { display: none !important; visibility: hidden !important; }
     .apple-title, h3, h2, h1, div[data-testid="stForm"] label { color: #FFFFFF !important; font-weight: 800 !important; }
     .apple-title { font-size: 32px !important; margin-bottom: 20px !important; border-bottom: 3px solid #334155; padding-bottom: 10px; }
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     
-    /* 🎯 左欄與白底輸入框文字強制純黑，黑白分明 */
+    /* 🎯 左欄與白底輸入框、日期、按鈕文字 100% 強制純黑，黑白分明 */
     input, select, textarea, button, div[data-baseweb="date-picker"] input, div[data-baseweb="input"] input,
     div[data-baseweb="input"] div, div[data-baseweb="select"] div, div[data-baseweb="select"] span,
     .stDateInput input, .stTextInput input, .stButton button, .stButton button p {
         color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 800 !important;
     }
-    ::placeholder, .stTextInput input::placeholder { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
     
     /* 👤 學生姓名特粗純黑且【絕對禁止換行切斷】 */
-    .student-badge-text { color: #000000 !important; font-size: 21px !important; font-weight: 900 !important; white-space: nowrap !important; letter-spacing: 0.5px !important; }
+    .student-badge-text { color: #000000 !important; font-size: 21px !important; font-weight: 900 !important; white-space: nowrap !important; }
     div[data-testid="stVerticalBlockBorderWrapper"] p, div[data-testid="stVerticalBlockBorderWrapper"] span, 
-    div[data-testid="stVerticalBlockBorderWrapper"] label, div[data-testid="stVerticalBlockBorderWrapper"] div { 
-        color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; 
-    }
+    div[data-testid="stVerticalBlockBorderWrapper"] label, div[data-testid="stVerticalBlockBorderWrapper"] div { color: #000000 !important; font-weight: 800 !important; font-size: 16px !important; }
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 2.5px solid #0F172A !important; border-radius: 16px !important; background-color: #FFFFFF !important; 
         padding: 16px !important; margin: 8px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
@@ -70,7 +65,7 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】 - 🎯 比例參數 100% 鎖定
 col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
@@ -93,7 +88,7 @@ with col_left_panel:
         st.session_state["contact_logged_in"] = False; st.rerun()
 
     st.markdown("---")
-    st.write(f"### 📢 {date_str} 即時廣播台")
+    st.write(f"### 📢 {date_str} 即時催繳廣播台")
     
     df_ns = df[df["聯絡簿簽名"] == "未簽 ❌"]
     if not df_ns.empty:
@@ -148,7 +143,7 @@ with col_right_students:
                         for item in extra_items:
                             st.markdown(f'<div class="item-label">📋 學校收發：{item}</div>', unsafe_allow_html=True)
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
-                            if ni != row_s[item]: df.loc[df["座号"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
+                            if ni != row_s[item]: df.loc[df["座號"] == seat_num, item] = ni; save_data(df, date_str); st.rerun()
                     
                     st.markdown('<div class="item-label">✍️ 隨手備註：</div>', unsafe_allow_html=True)
                     current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
