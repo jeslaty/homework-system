@@ -5,25 +5,15 @@ st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layo
 
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important; }
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", sans-serif !important; }
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important; }
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
-    div[data-testid="stTextInput"] button span, div[data-testid="stTextInput"] div div div { font-size: 0px !important; color: transparent !important; -webkit-text-fill-color: transparent !important; }
     </style>
 """, unsafe_allow_html=True)
 
-if "page_contact_auth" not in st.session_state:
-    st.session_state["page_contact_auth"] = False
-
-if not st.session_state["page_contact_auth"]:
-    st.write("### 🔒 教師安全驗證專區（此頁首次開啟需驗證）")
-    with st.form("page_auth_form"):
-        p = st.text_input("請輸入 5 位數導師密碼：", type="password", label_visibility="collapsed")
-        if st.form_submit_button("確認通行"):
-            if p.strip() == "12345":
-                st.session_state["page_contact_auth"] = True; st.rerun()
-            else: st.error("❌ 密碼錯誤。")
-    if st.button("⬅️ 返回管理主控台", use_container_width=True): st.switch_page("main.py")
+if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
+    st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
+    if st.button("⬅️ 返回主控台登入頁面", use_container_width=True): st.switch_page("main.py")
     st.stop()
 
 col_top_title, col_top_back = st.columns([0.82, 0.18])
@@ -35,9 +25,10 @@ FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
 
-names_str = "王喬昕,吳岢曈,李巧彤,岳昀軒,林晏以,林晨琳,林芮妘,林苡嫻,黃榆涵,黃榆涵,蔡可琳,戴彤竹,羅羽翎,羅昕彤,林禹彤,王楷文,王駿展,吳軒佑,李宇哲,林柏辰,張品御,陳正澤,陳秉玄,陳鼎硯,黃楙軒,董子以,劉家佑,魏辰恩"
+names_str = "王喬昕,吳岢曈,李巧彤,岳昀軒,林晏以,林晨琳,林芮妘,林苡嫻,黃榆涵,黃榆涵,蔡可琳,戴彤竹,羅羽翎,羅昕彤,林禹彤,王楷文,王駿展,吳軒佑,李宇哲,林柏辰,張品御,陳正澤,陳秉玄,陳鼎硯,黃楙軒", "董子以", "劉家佑", "魏辰恩"
 student_names = names_str.split(",")
 seat_list = [int(i+1) for i in range(28)]
+
 def load_long_term_items():
     if not os.path.exists(TXT_ITEM_FILE):
         try:
@@ -81,9 +72,6 @@ def load_daily_data(target_date):
             else: return df_def.copy()
     except: return df_def
 
-long_term_items = load_long_term_items()
-long_term_status = load_long_term_status(long_term_items)
-
 col_left_panel, col_right_students = st.columns([0.25, 0.75])
 
 with col_left_panel:
@@ -92,6 +80,8 @@ with col_left_panel:
     date_str = current_date.strftime("%Y-%m-%d")
     
     df_daily = load_daily_data(date_str)
+    long_term_items = load_long_term_items()
+    long_term_status = load_long_term_status(long_term_items)
     
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
     current_view = st.selectbox("🎯 請選擇右側要登記的項目：", menu_options, key="view_selector")
@@ -127,7 +117,7 @@ with col_left_panel:
             for seat in unpaid_students:
                 name = student_names[seat_list.index(seat)]
                 t_i += f"{seat}號 {name}\n"
-            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_final_{selected_item_name}")
+            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_{selected_item_name}")
         else: st.success(f"💯 {selected_item_name} 皆已繳齊！")
 
 with col_right_students:
@@ -146,7 +136,7 @@ with col_right_students:
     if current_view == "📝 每日聯絡簿與札記": st.write(f"### 📅 紀錄登記區：{date_str} 聯絡簿與札記")
     else:
         selected_item_name = current_view.replace("📋 ", "")
-        st.write(f"### 📋 長期催收登記區：{selected_item_name}")
+        st.write(f"### 📋 長期長期催收登記區：{selected_item_name}")
     st.write("")
 
     for i in range(0, len(student_names), 4):
@@ -187,5 +177,5 @@ with col_right_students:
 
 st.markdown("---")
 if current_view == "📝 每日聯絡簿與札記":
-    st.markdown(f"### 📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）")
+    st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）</h3>", unsafe_allow_html=True)
     st.dataframe(df_daily, use_container_width=True)
