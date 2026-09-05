@@ -5,7 +5,7 @@ st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layo
 
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", sans-serif !important; }
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important; }
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important; }
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     </style>
@@ -25,7 +25,7 @@ FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
 
-names_str = "王喬昕,吳岢曈,李巧彤,岳昀軒,林晏以,林晨琳,林芮妘,林苡嫻,黃榆涵,黃榆涵,蔡可琳,戴彤竹,羅羽翎,羅昕彤,林禹彤,王楷文,王駿展,吳軒佑,李宇哲,林柏辰,張品御,陳正澤,陳秉玄,陳鼎硯,黃楙軒", "董子以", "劉家佑", "魏辰恩"
+names_str = "王喬昕,吳岢曈,李巧彤,岳昀軒,林晏以,林晨琳,林芮妘,林苡嫻,黃榆涵,黃榆涵,蔡可琳,戴彤竹,羅羽翎,羅昕彤,林禹彤,王楷文,王駿展,吳軒佑,李宇哲,林柏辰,張品御,陳正澤,陳秉玄,陳鼎硯,黃楙軒,董子以,劉家佑,魏辰恩"
 student_names = names_str.split(",")
 seat_list = [int(i+1) for i in range(28)]
 
@@ -117,7 +117,7 @@ with col_left_panel:
             for seat in unpaid_students:
                 name = student_names[seat_list.index(seat)]
                 t_i += f"{seat}號 {name}\n"
-            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_{selected_item_name}")
+            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_refresh_{selected_item_name}")
         else: st.success(f"💯 {selected_item_name} 皆已繳齊！")
 
 with col_right_students:
