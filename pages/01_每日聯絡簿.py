@@ -1,39 +1,38 @@
-import os
-import pandas as pd
-import streamlit as st
+import os, pandas as pd, streamlit as st
 from datetime import datetime
 
-# 1. 設定網頁標題與寬版佈局
-st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
+st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layout="wide")
 
-# 🔑 帳號密碼登入機制
-if "contact_logged_in" not in st.session_state:
-    st.session_state["contact_logged_in"] = False
+# 🎨 注入全站字體優化與側邊欄封鎖指令
+st.markdown("""
+    <style>
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+    }
+    [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"],
+    button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { 
+        display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important;
+    }
+    .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
+    </style>
+""", unsafe_allow_html=True)
 
-if not st.session_state["contact_logged_in"]:
-    st.write("### 🔒 801 導師班務管理系統")
-    with st.form("login_form"):
-        st.write("**🔑 教師帳號：**")
-        u = st.text_input("u_input", label_visibility="collapsed")
-        
-        st.write("**🔒 登入密碼：**")
-        # 🎯【安全眼睛完美保留】採用官方最標準、完全不會噴出 visibili 錯字的無標籤隱密密碼框
-        p = st.text_input("p_input", type="password", label_visibility="collapsed")
-        
-        if st.form_submit_button("確認登入"):
-            if u.strip() == "teacher" and p.strip() == "12345":
-                st.session_state["contact_logged_in"] = True
-                st.rerun()
-            else:
-                st.error("❌ 帳號或密碼錯誤。")
+# 🎯【核心突破】檢查老師是否已經在大廳登入過。如果沒登入，強制攔截不准看，確保安全！
+if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
+    st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
+    if st.button("⬅️ 返回主控台登入頁面", use_container_width=True):
+        st.switch_page("main.py")
     st.stop()
 
-# ----------------- 系統主畫面 (登入後) -----------------
-st.write("# 📝 801聯絡簿系統")
+# ----- 🎉 密碼驗證成功，一秒直接安全通行，直接載入下方主畫面功能 -----
+col_top_title, col_top_back = st.columns([0.85, 0.15])
+with col_top_title: st.write("# 📝 801每日聯絡簿管理網頁")
+with col_top_back: 
+    if st.button("🏛️ 返回管理主控台", use_container_width=True): st.switch_page("main.py")
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
+student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎砚", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
 seat_list = [int(x) for x in seats_str.split(",")]
 
 def load_data(target_date):
@@ -46,8 +45,7 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 精準鎖定，絕不再漏字崩潰！】
-col_left_panel, col_right_students = st.columns([1, 3])
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -63,12 +61,7 @@ with col_left_panel:
     if st.button("建立催收欄位", use_container_width=True):
         if new_item and new_item not in df.columns:
             df[new_item] = "未繳 ❌"
-            save_data(df, date_str)
-            st.rerun()
-            
-    if st.button("🔒 安全登出系統", use_container_width=True):
-        st.session_state["contact_logged_in"] = False
-        st.rerun()
+            save_data(df, date_str); st.rerun()
 
     st.markdown("---")
     st.write(f"### 📢 {date_str} 即時催繳廣播台")
@@ -108,7 +101,6 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
-                    # 🎯 透過最標準相容的內嵌樣式，將名字鎖死在同一行不切斷，並套用粉紅與粉藍卡片
                     if seat_num <= 15:
                         st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
                     else:
@@ -120,8 +112,7 @@ with col_right_students:
                     
                     if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
                         df.loc[df["座號"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
-                        save_data(df, date_str)
-                        st.rerun()
+                        save_data(df, date_str); st.rerun()
                     
                     if extra_items:
                         for item in extra_items:
@@ -129,8 +120,7 @@ with col_right_students:
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]:
                                 df.loc[df["座號"] == seat_num, item] = ni
-                                save_data(df, date_str)
-                                st.rerun()
+                                save_data(df, date_str); st.rerun()
                     
                     st.write("✍️ **隨手備註：**")
                     current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
