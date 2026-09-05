@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Mac 經典深色暗黑模式 UI - 日期與輸入框文字 100% 完美純黑高對比版】
+# 🎨 注入【Mac 經典深色暗黑模式 UI - 終極日期文字 100% 強制純黑高對比版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
@@ -14,7 +14,7 @@ st.markdown("""
     /* 🍏 全局大背景加深：莫蘭迪深藍灰 */
     .stApp { background-color: #1E293B !important; }
     
-    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
+    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
@@ -38,15 +38,17 @@ st.markdown("""
         color: #FFFFFF !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 🎯【終極大必殺：強迫將日期選擇器、一般輸入框、選單內的所有隱藏文字一律鎖定為極深曜石黑（#0F172A）！】 */
+    /* 🎯【終極核心大必殺：穿透 Streamlit 官方深層加密外殼，強迫將日期選擇器、一般輸入框、選單內的所有隱藏文字一律鎖定為特粗曜石黑（#0F172A）！】 */
     input, select, textarea, button, 
     div[data-baseweb="date-picker"] input, 
     div[data-baseweb="input"] input,
+    div[data-baseweb="input"] div,
     div[data-baseweb="select"] div,
+    div[data-baseweb="select"] span,
     .stDateInput input, .stTextInput input,
     .stButton button p {
         color: #0F172A !important;
-        -webkit-text-fill-color: #0F172A !important; /* 強制解決手機 Safari/Chrome 的輸入框文字發白問題 */
+        -webkit-text-fill-color: #0F172A !important; /* 強制解決蘋果手機/平板瀏覽器的輸入框字體發白問題 */
         font-weight: 800 !important;
     }
     
@@ -109,7 +111,7 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 修正鎖定！】
+# 🏛 *【左右大版面分流配置：左直欄 25%, 右直欄 75% - 完美鎖定比例參數！】*
 col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
