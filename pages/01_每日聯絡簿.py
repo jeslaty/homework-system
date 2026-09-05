@@ -82,7 +82,9 @@ def load_daily_data(target_date):
     except: return df_def
 
 long_term_items = load_long_term_items()
-long_term_status = load_long_term_status(long_term_items)
+if "cached_lt_status" not in st.session_state:
+    st.session_state["cached_lt_status"] = load_long_term_status(long_term_items)
+long_term_status = st.session_state["cached_lt_status"]
 
 col_left_panel, col_right_students = st.columns([0.25, 0.75])
 
@@ -92,7 +94,6 @@ with col_left_panel:
     date_str = current_date.strftime("%Y-%m-%d")
     
     df_daily = load_daily_data(date_str)
-    
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
     current_view = st.selectbox("🎯 請選擇右側要登記的項目：", menu_options, key="view_selector")
 
@@ -102,6 +103,7 @@ with col_left_panel:
         if new_item and new_item not in long_term_items:
             try:
                 with open(TXT_ITEM_FILE, "a", encoding="utf-8") as f: f.write(f"{new_item}\n")
+                if "cached_lt_status" in st.session_state: del st.session_state["cached_lt_status"]
                 st.rerun()
             except: st.error("⚠️ 寫入系統發生衝突，請重試。")
 
@@ -181,8 +183,9 @@ with col_right_students:
                         current_status = long_term_status[selected_item_name].get(seat_num, "未繳 ❌")
                         ni = st.radio(f"{selected_item_name}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if current_status == "已繳 ✅" else 1), horizontal=True, key=f"lt_{selected_item_name}_{seat_num}", label_visibility="collapsed")
                         if ni != current_status:
-                            long_term_status[selected_item_name][seat_num] = ni
-                            save_long_term_status(long_term_status)
+                            # 🎯【終極核心鎖】在修改狀態的瞬間，同時覆蓋後台快取記憶，強制左側一秒立刻同步消失！
+                            st.session_state["cached_lt_status"][selected_item_name][seat_num] = ni
+                            save_long_term_status(st.session_state["cached_lt_status"])
                             st.rerun()
 
 st.markdown("---")
