@@ -3,12 +3,13 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layout="wide")
 
-# 🎨 注入全站字體優化與側邊欄封鎖指令
+# 🎨 注入全站字體優化、且【徹底物理性消滅本頁左側灰色選單、隱藏原廠頂部空白欄】最高優先權指令
 st.markdown("""
     <style>
     *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
     }
+    /* 🛑【徹底消滅本頁所有原廠側邊欄選單與空白頁首】強迫釋放 100% 超寬敞全螢幕登記畫面 */
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"],
     button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { 
         display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important;
@@ -17,22 +18,22 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🎯【核心突破】檢查老師是否已經在大廳登入過。如果沒登入，強制攔截不准看，確保安全！
+# 🎯【一鍵通記憶鎖】檢查老師是否已經在大廳登入過。如果沒登入，強制攔截導回首頁，確保安全！
 if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
     st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
     if st.button("⬅️ 返回主控台登入頁面", use_container_width=True):
         st.switch_page("main.py")
     st.stop()
 
-# ----- 🎉 密碼驗證成功，一秒直接安全通行，直接載入下方主畫面功能 -----
-col_top_title, col_top_back = st.columns([0.85, 0.15])
+# ----- 🎉 密碼大廳驗證成功，本分頁一秒直接安全通行，載入主功能 -----
+col_top_title, col_top_back = st.columns([0.82, 0.18])
 with col_top_title: st.write("# 📝 801每日聯絡簿管理網頁")
 with col_top_back: 
     if st.button("🏛️ 返回管理主控台", use_container_width=True): st.switch_page("main.py")
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
-student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎砚", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
+student_names = ["王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", "王駿展", "吳軒佑", "李宇哲", "林柏辰", "張品御", "陳正澤", "陳秉玄", "陳鼎硯", "黃楙軒", "董子以", "劉家佑", "魏辰恩"]
 seat_list = [int(x) for x in seats_str.split(",")]
 
 def load_data(target_date):
@@ -45,7 +46,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-col_left_panel, col_right_students = st.columns()
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 補上鎖死！】
+col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
