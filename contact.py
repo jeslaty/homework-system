@@ -6,7 +6,7 @@ from datetime import datetime
 # 1. 設定網頁標題與寬版佈局
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Apple 經典深色暗黑美學 UI - 滑鼠懸停 3D 浮起與發光特效版】
+# 🎨 注入【Apple 經典深色暗黑美學 UI - 徹底拔除密碼框怪字、滑鼠懸停 3D 浮起與發光特效版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代無襯線字體 */
@@ -17,6 +17,14 @@ st.markdown("""
     /* 🛑【徹底封鎖原廠側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
+    }
+    
+    /* 🎯【終極大必殺：徹底封印並隱藏原廠密碼框右側的 Visibility 按鈕，讓 visibili 殘留字當場徹底蒸發！】 */
+    button[data-testid="stTextInputPasswordVisibility"], 
+    [data-testid="stTextInputPasswordVisibility"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0px !important;
     }
     
     /* 📦 針對右側學生的獨立卡片容器（st.container border=True）進行動畫柔和微調 */
@@ -45,7 +53,6 @@ if not st.session_state["contact_logged_in"]:
         u = st.text_input("u_input", label_visibility="collapsed")
         
         st.markdown("**🔒 登入密碼：**")
-        # 🛠️ 徹底清除原先殘留的 visibili 錯字，改用官方標準 label_visibility
         p = st.text_input("p_input", type="password", label_visibility="collapsed")
         
         if st.form_submit_button("確認登入"):
