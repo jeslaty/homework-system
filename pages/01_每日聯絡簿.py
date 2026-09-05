@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
+st.set_page_config(page_title="01_聯絡簿登錄系統", page_icon="📝", layout="wide")
 
 st.markdown("""
     <style>
