@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Mac 經典深色暗黑模式 UI - 終極日期文字 100% 強制純黑高對比版】
+# 🎨 注入【Apple 級極致白金高對比：日期框物理深色化、姓名特粗純黑】頂級 UI 設計
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
@@ -14,7 +14,7 @@ st.markdown("""
     /* 🍏 全局大背景加深：莫蘭迪深藍灰 */
     .stApp { background-color: #1E293B !important; }
     
-    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar */
+    /* 🛑【徹底封鎖與拔除側邊欄】全站不使用 sidebar，怪字發源地直接消失 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"] { 
         display: none !important; visibility: hidden !important; 
     }
@@ -38,22 +38,26 @@ st.markdown("""
         color: #FFFFFF !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 🎯【終極核心大必殺：穿透 Streamlit 官方深層加密外殼，強迫將日期選擇器、一般輸入框、選單內的所有隱藏文字一律鎖定為特粗曜石黑（#0F172A）！】 */
-    input, select, textarea, button, 
-    div[data-baseweb="date-picker"] input, 
-    div[data-baseweb="input"] input,
-    div[data-baseweb="input"] div,
-    div[data-baseweb="select"] div,
-    div[data-baseweb="select"] span,
-    .stDateInput input, .stTextInput input,
-    .stButton button p {
-        color: #0F172A !important;
-        -webkit-text-fill-color: #0F172A !important; /* 強制解決蘋果手機/平板瀏覽器的輸入框字體發白問題 */
+    /* 🎯【物理高對比絕招：強迫將日期選擇器的外殼底色染成曜石深黑，強迫灰白色的日期數字完美發光跳出來！】 */
+    .stDateInput div[data-baseweb="input"], 
+    .stDateInput input {
+        background-color: #0F172A !important; /* 🌟 物理硬改：日期輸入框換上曜石深黑底色 */
+        color: #FFFFFF !important;            /* 強制字體呈現發光純白 */
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 800 !important;
+        border: 2px solid #38BDF8 !important;  /* 加上一圈清爽亮藍外框 */
+        border-radius: 8px !important;
+    }
+    
+    /* 🎯 學校催收項目的一般輸入框與按鈕，維持最好讀的白底黑字、高對比配置 */
+    .stTextInput input, .stButton button p, .stButton button {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         font-weight: 800 !important;
     }
     
-    /* 針對輸入框內預設提示文字（Placeholder）也強制加深，拒絕隱形字 */
-    ::placeholder, .stTextInput input::placeholder, input::placeholder {
+    /* 針對一般輸入框內預設提示文字（Placeholder）強制加深 */
+    ::placeholder, .stTextInput input::placeholder {
         color: #555555 !important;
         -webkit-text-fill-color: #555555 !important;
         font-weight: 700 !important;
@@ -111,8 +115,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛 *【左右大版面分流配置：左直欄 25%, 右直欄 75% - 完美鎖定比例參數！】*
-col_left_panel, col_right_students = st.columns([1, 3])
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -166,7 +170,7 @@ with col_right_students:
             student_idx = i + idx_grid
             if student_idx < len(df):
                 row_s = df.iloc[student_idx]
-                seat_num = int(row_s["座號"])
+                seat_num = int(row_s["box_2d"] if "box_2d" in row_s else row_s["座號"])
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
@@ -196,6 +200,3 @@ with col_right_students:
                     nm = st.text_input(f"備註_{seat_num}", value=current_memo, placeholder="輸入日常備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}")
                     if nm != current_memo: df.loc[df["座號"] == seat_num, "備註事項"] = nm; save_data(df, date_str)
 
-st.markdown("---")
-st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 綜合班務總表（唯讀檢視）</h3>", unsafe_allow_html=True)
-st.dataframe(df, use_container_width=True)
