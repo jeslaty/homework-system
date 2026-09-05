@@ -5,19 +5,25 @@ from datetime import datetime
 
 st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
 
+# 精準 CSS 樣式，已修正文字屬性爆發衝突產生的殘字問題
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { 
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important; 
+    /* 修正全域字體，避開輸入框內部的隱藏屬性衝突 */
+    html, body, [class*="st-"], .stApp {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important;
     }
-    [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"], 
-    button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { 
-        display: none !important; 
-        visibility: hidden !important; 
-        width: 0px !important; 
-        height: 0px !important; 
+    /* 精準隱藏側邊欄與頁首，不破壞元件 */
+    [data-testid="stSidebar"], 
+    button[data-testid="collapsedControl"], 
+    header[data-testid="stHeader"] {
+        display: none !important;
     }
-    .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
+    .item-label { 
+        color: #1E40AF !important; 
+        font-size: 15px !important; 
+        font-weight: 800 !important; 
+        margin-top: 10px !important; 
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -98,7 +104,7 @@ def save_long_term_status():
         except: pass
 
 def update_lt_status_callback(item_name, seat_num, key_name):
-    """即時更新長期催收（如HPV同意書）狀態"""
+    """即時更新狀態回調：點擊瞬間寫入 session_state 並自動重新渲染廣播台"""
     new_val = st.session_state[key_name]
     st.session_state["long_term_status"][item_name][seat_num] = new_val
     save_long_term_status()
