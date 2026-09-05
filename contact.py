@@ -3,7 +3,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
-# 🎨 注入【Mac 經典深色暗黑模式 UI - 左欄輸入框全面純黑字高對比版】
+# 🎨 注入【Mac 經典深色暗黑模式 UI - 日期與輸入框文字 100% 完美純黑高對比版】
 st.markdown("""
     <style>
     /* 🍏 全局強制使用現代、不嚴肅的微軟正黑體與蘋方字體 */
@@ -38,14 +38,22 @@ st.markdown("""
         color: #FFFFFF !important; font-weight: 800 !important; font-size: 16px !important; 
     }
     
-    /* 🎯【最關鍵修正：強制讓左欄所有輸入框內文字、日期、提示文字、按鈕文字一律鎖定為純黑色（#000000）！】 */
-    input, select, textarea, button, [data-baseweb="input"] input, .stButton button p {
-        color: #000000 !important;
+    /* 🎯【終極大必殺：強迫將日期選擇器、一般輸入框、選單內的所有隱藏文字一律鎖定為極深曜石黑（#0F172A）！】 */
+    input, select, textarea, button, 
+    div[data-baseweb="date-picker"] input, 
+    div[data-baseweb="input"] input,
+    div[data-baseweb="select"] div,
+    .stDateInput input, .stTextInput input,
+    .stButton button p {
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important; /* 💡 強制解決手機 Safari/Chrome 的輸入框文字發白問題 */
         font-weight: 800 !important;
     }
+    
     /* 針對輸入框內預設提示文字（Placeholder）也強制加深，拒絕隱形字 */
-    ::placeholder, .stTextInput input::placeholder {
+    ::placeholder, .stTextInput input::placeholder, input::placeholder {
         color: #555555 !important;
+        -webkit-text-fill-color: #555555 !important;
         font-weight: 700 !important;
     }
     
@@ -102,7 +110,7 @@ def load_data(target_date):
         return df_def
 
 # 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75%】
-col_left_panel, col_right_students = st.columns([1, 3])
+col_left_panel, col_right_students = st.columns()
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
