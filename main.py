@@ -19,13 +19,11 @@ st.markdown("""
 
 st.write("# 🏛️ 801 班級事務管理主控台")
 st.write("---")
-st.write("### 📅 請選擇今日要處理的獨立班務項目：")
+st.write("### 📅 請選擇要處理或查閱的班務項目：")
 
-# 點擊按鈕後進行相容性跳頁，徹底解決 StreamlitPageNotFoundError
-if st.button("📝 01_每日聯絡簿管理系統", use_container_width=True):
+if st.button("📝 01_每日聯絡簿與歷史紀錄查詢系統", use_container_width=True):
     st.session_state["page_contact_auth"] = True
     
-    # 依序嘗試所有可能的頁面路徑，確保一定能成功跳轉
     possible_pages = [
         "pages/每日聯絡簿.py",
         "pages/01_每日聯絡簿.py",
