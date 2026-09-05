@@ -5,13 +5,20 @@ st.set_page_config(page_title="01_每日聯絡簿管理", page_icon="📝", layo
 
 st.markdown("""
     <style>
-    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", sans-serif !important; }
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea { font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", sans-serif !important; }
     [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarContent"], button[data-testid="collapsedControl"], [data-testid="stSidebarCollapse"], #MainMenu, header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; width: 0px !important; height: 0px !important; }
     .item-label { color: #1E40AF !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 10px !important; }
     </style>
 """, unsafe_allow_html=True)
 
-if "contact_logged_in" not in st.session_state or not st.session_state["contact_logged_in"]:
+if "contact_logged_in" not in st.session_state:
+    st.session_state["contact_logged_in"] = False
+
+q_params = st.query_parameters
+if q_params.get("auth") == "passed":
+    st.session_state["contact_logged_in"] = True
+
+if not st.session_state["contact_logged_in"]:
     st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
     if st.button("⬅️ 返回主控台登入頁面", use_container_width=True): st.switch_page("main.py")
     st.stop()
@@ -72,6 +79,9 @@ def load_daily_data(target_date):
             else: return df_def.copy()
     except: return df_def
 
+long_term_items = load_long_term_items()
+long_term_status = load_long_term_status(long_term_items)
+
 col_left_panel, col_right_students = st.columns([0.25, 0.75])
 
 with col_left_panel:
@@ -80,8 +90,6 @@ with col_left_panel:
     date_str = current_date.strftime("%Y-%m-%d")
     
     df_daily = load_daily_data(date_str)
-    long_term_items = load_long_term_items()
-    long_term_status = load_long_term_status(long_term_items)
     
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
     current_view = st.selectbox("🎯 請選擇右側要登記的項目：", menu_options, key="view_selector")
@@ -117,7 +125,7 @@ with col_left_panel:
             for seat in unpaid_students:
                 name = student_names[seat_list.index(seat)]
                 t_i += f"{seat}號 {name}\n"
-            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_refresh_{selected_item_name}")
+            st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_final_{selected_item_name}")
         else: st.success(f"💯 {selected_item_name} 皆已繳齊！")
 
 with col_right_students:
@@ -149,14 +157,13 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
-                    if seat_num <= 15: st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
-                    else: st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'### <span style="white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span>', unsafe_allow_html=True)
                     st.write("")
                     
                     if current_view == "📝 每日聯絡簿與札記":
                         row_s = df_daily.iloc[student_idx]
                         ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=(0 if row_s["聯絡簿簽名"] == "已簽 📝" else 1), horizontal=True, key=f"s_{seat_num}_{date_str}")
-                        nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
+                        nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "Macro已寫 🗒️" or row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
                         if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
                             df_daily.loc[df_daily["座號"] == seat_num, "聯絡簿簽名"], df_daily.loc[df_daily["座號"] == seat_num, "生活札記"] = ns, nd
                             save_daily_data(df_daily, date_str); st.rerun()
@@ -177,5 +184,5 @@ with col_right_students:
 
 st.markdown("---")
 if current_view == "📝 每日聯絡簿與札記":
-    st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）</h3>", unsafe_allow_html=True)
+    st.markdown(f"### 📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）")
     st.dataframe(df_daily, use_container_width=True)
