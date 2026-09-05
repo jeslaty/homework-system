@@ -11,16 +11,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-if "contact_logged_in" not in st.session_state:
-    st.session_state["contact_logged_in"] = False
+if "page_contact_auth" not in st.session_state:
+    st.session_state["page_contact_auth"] = False
 
-q_params = st.query_parameters
-if q_params.get("auth") == "passed":
-    st.session_state["contact_logged_in"] = True
-
-if not st.session_state["contact_logged_in"]:
-    st.error("🔒 安全提示：請先回到主控台首頁進行教師身分登入。")
-    if st.button("⬅️ 返回主控台登入頁面", use_container_width=True): st.switch_page("main.py")
+if not st.session_state["page_contact_auth"]:
+    st.write("### 🔒 教師安全驗證專區（此頁首次開啟需驗證）")
+    with st.form("page_auth_form"):
+        p = st.text_input("請輸入 5 位數導師密碼：", type="password")
+        if st.form_submit_button("確認通行"):
+            if p.strip() == "12345":
+                st.session_state["page_contact_auth"] = True; st.rerun()
+            else: st.error("❌ 密碼錯誤。")
+    if st.button("⬅️ 返回管理主控台", use_container_width=True): st.switch_page("main.py")
     st.stop()
 
 col_top_title, col_top_back = st.columns([0.82, 0.18])
@@ -88,7 +90,6 @@ with col_left_panel:
     st.write("### 📅 班務管理與項目切換")
     current_date = st.date_input("選擇聯絡簿登記日期：", datetime.now(), key="main_date")
     date_str = current_date.strftime("%Y-%m-%d")
-    
     df_daily = load_daily_data(date_str)
     
     menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
@@ -157,8 +158,7 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
-                    if seat_num <= 15: st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
-                    else: st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'### <span style="white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span>', unsafe_allow_html=True)
                     st.write("")
                     
                     if current_view == "📝 每日聯絡簿與札記":
@@ -185,5 +185,5 @@ with col_right_students:
 
 st.markdown("---")
 if current_view == "📝 每日聯絡簿與札記":
-    st.markdown(f"<h3 style='color:#FFFFFF;'>📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）</h3>", unsafe_allow_html=True)
-st.dataframe(df_daily, use_container_width=True)
+    st.markdown(f"### 📊 801班 {date_str} 每日聯絡簿總表（唯讀檢視）")
+    st.dataframe(df_daily, use_container_width=True)
