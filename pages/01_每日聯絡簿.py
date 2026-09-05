@@ -54,7 +54,7 @@ FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
 
-# 完整 27 人名單（包含 9 號與 10 號同名同姓學生）
+# 完整 27 人名單
 student_names = [
     "王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", 
     "黃榆涵", "黃榆涵", "蔡可琳", "戴彤竹", "羅羽翎", "羅昕彤", "林禹彤", "王楷文", 
@@ -134,6 +134,12 @@ def save_daily_data(updated_df, target_date):
                 s_df.to_excel(w, sheet_name=sheet, index=False)
     except: pass
 
+# --- 回調函式：精準處理廣播台即時連動 ---
+def on_lt_change(item_name, seat_num, widget_key):
+    new_val = st.session_state[widget_key]
+    st.session_state["long_term_status"][item_name][seat_num] = new_val
+    save_long_term_status()
+
 tab_daily, tab_history = st.tabs(["📝 每日登記 / 歷史補登", "🔍 歷史總覽與個人查詢"])
 
 long_term_items = load_long_term_items()
@@ -182,6 +188,8 @@ with tab_daily:
         else:
             selected_item_name = current_view.replace("📋 ", "")
             item_status_map = st.session_state["long_term_status"].get(selected_item_name, {})
+            
+            # 從最新的 session_state 計算未繳名單
             unpaid_students = [seat for seat, status in item_status_map.items() if status == "未繳 ❌"]
             
             if unpaid_students:
@@ -189,7 +197,13 @@ with tab_daily:
                 for seat in unpaid_students:
                     name = student_names[seat_list.index(seat)]
                     t_i += f"{seat}號 {name}\n"
-                st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=180, key=f"c_broadcast_{selected_item_name}")
+                # 利用動態 key 讓每當名單變化時，TextArea 必被強制刷出最新內容
+                st.text_area(
+                    f"📋 複製 {selected_item_name} 催繳文字：", 
+                    value=t_i, 
+                    height=180, 
+                    key=f"broadcast_{selected_item_name}_{len(unpaid_students)}_{sum(unpaid_students)}"
+                )
             else: 
                 st.success(f"💯 {selected_item_name} 皆已繳齊！")
 
@@ -234,21 +248,21 @@ with tab_daily:
                                 st.session_state["long_term_status"][selected_item_name] = {seat: "未繳 ❌" for seat in seat_list}
                             
                             current_status = st.session_state["long_term_status"][selected_item_name].get(seat_num, "未繳 ❌")
-                            radio_key = f"r_lt_{selected_item_name}_{seat_num}"
+                            r_key = f"r_lt_{selected_item_name}_{seat_num}"
                             
-                            # 直接取得勾選的值並比較，若改變立刻存檔並 rerun 刷新左側廣播台
-                            new_status = st.radio(
+                            # 關鍵修正：透過 on_change Callback + st.rerun() 強制整個頁面從頭重繪
+                            st.radio(
                                 f"{selected_item_name}_{seat_num}", 
                                 ["已繳 ✅", "未繳 ❌"], 
                                 index=(0 if current_status == "已繳 ✅" else 1), 
                                 horizontal=True, 
-                                key=radio_key, 
-                                label_visibility="collapsed"
+                                key=r_key, 
+                                label_visibility="collapsed",
+                                on_change=on_lt_change,
+                                args=(selected_item_name, seat_num, r_key)
                             )
-                            
-                            if new_status != current_status:
-                                st.session_state["long_term_status"][selected_item_name][seat_num] = new_status
-                                save_long_term_status()
+                            # 如果點擊造成狀態不一致，觸發整頁 rerun
+                            if st.session_state.get(r_key) and st.session_state[r_key] != current_status:
                                 st.rerun()
 
     st.markdown("---")
