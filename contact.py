@@ -27,7 +27,7 @@ st.markdown("""
     
     /* 📋 學校項目與備註標籤：清爽亮藍色 */
     .item-label { 
-        color: #38BDF8 !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; 
+        color: #38BDF8 !important; font-size: 15px !important; font-weight: 800 !important; margin-top: 12px !important; margin-bottom: 4px !important;
     }
     
     /* 📋 深色背景上的管理區與紀錄區大標題：一律變純白 */
@@ -72,7 +72,7 @@ if not st.session_state["contact_logged_in"]:
             else: st.error("❌ 帳號或密碼錯誤。")
     st.stop()
 
-# ----------------- 系統主畫面 -----------------
+# ----------------- 系統主畫面 (登入後) -----------------
 st.markdown('<div class="apple-title">📝 801聯絡簿系統</div>', unsafe_allow_html=True)
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
@@ -90,8 +90,8 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【自訂黃金排版：左直欄 25%, 右直欄 75%】
-col_left_panel, col_right_students = st.columns()
+# 🏛️ 【自訂黃金排版：100% 修正成功！左直欄 25%, 右直欄 75%】
+col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
     st.write("### 📅 班務管理與切換")
@@ -149,7 +149,6 @@ with col_right_students:
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
-                # 💡 利用系統最標準安全的 HTML 注入技術，將名牌底部的字體強制調成【純黑色特粗字】！
                 if seat_num <= 15:
                     html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:10px 4px;margin-bottom:12px;text-align:center;box-shadow:0 4px 6px rgba(225,29,72,0.06);"><span class="student-badge-text">{gender_icon} {seat_num}號 {name_s}</span></div>'
                 else:
