@@ -82,12 +82,13 @@ dash_grid = st.columns(2)
 p1_small, p1_big = "pages/01_每日聯絡簿.py", "Pages/01_每日聯絡簿.py"
 p2_small, p2_big = "pages/02_成績作業登記.py", "Pages/02_成績作業登記.py"
 
-with dash_grid:
+# 🎯【100% 正確指定欄位索引：[0]與[1]】整塊大格子就是最乾淨、最直覺的跨頁傳送門！
+with dash_grid[0]:
     if os.path.exists(p1_small): st.page_link(p1_small, label="📝 01_聯絡簿管理", use_container_width=True)
     elif os.path.exists(p1_big): st.page_link(p1_big, label="📝 01_聯絡簿管理", use_container_width=True)
     else: st.warning("⚠️ 提示：請確認您的聯絡簿代碼確實上傳在 pages 資料夾中。")
 
-with dash_grid:
+with dash_grid[1]:
     if os.path.exists(p2_small): st.page_link(p2_small, label="📊 02_作業登錄系統", use_container_width=True)
     elif os.path.exists(p2_big): st.page_link(p2_big, label="📊 02_作業登錄系統", use_container_width=True)
     else: st.info("💡 提示：此模組已預留，等您將 02_成績作業登記.py 上傳後將自動啟用。")
