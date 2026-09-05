@@ -6,6 +6,28 @@ from datetime import datetime
 # 1. 設定網頁標題與寬版佈局
 st.set_page_config(page_title="801聯絡簿管理系統", page_icon="📝", layout="wide")
 
+# 🎨 專屬核心微調：在原廠規格中精準注入「滑鼠懸停時格子 3D 浮起與發光」的頂級手感
+st.markdown("""
+    <style>
+    /* 🍏 全局字體強制優化 */
+    *, .stApp, p, span, label, div, h1, h2, h3, input, button, textarea {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+    }
+    
+    /* 📦 針對右側學生的獨立卡片容器（st.container border=True）進行原廠樣式微調 */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; /* 💡 讓浮起和降落的動畫極度流暢不生硬 */
+    }
+    
+    /* 🚀【核心功能：當滑鼠移到格子上時（Hover），物理性向上懸浮 6px 並加上精緻發光陰影】 */
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        transform: translateY(-6px) !important; /* 🌟 向上優雅懸浮 6px */
+        box-shadow: 0 14px 28px rgba(56,189,248,0.25), 0 10px 10px rgba(56,189,248,0.22) !important; /* 🌟 卡片背後泛起一圈亮藍色科技感發光陰影 */
+        border: 2.5px solid #38BDF8 !important; /* 外框線同步亮化為清爽亮藍色，對焦感極強 */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # 🔑 帳號密碼登入機制
 if "contact_logged_in" not in st.session_state:
     st.session_state["contact_logged_in"] = False
@@ -41,7 +63,7 @@ def load_data(target_date):
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl", mode="a", if_sheet_exists="replace") as w: df_def.to_excel(w, sheet_name=target_date, index=False)
         return df_def
 
-# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 鎖定，絕不再漏字崩潰！】
+# 🏛️ 【左右大版面分流配置：左直欄 25%, 右直欄 75% - 🎯 比例參數 100% 穩定放行！】
 col_left_panel, col_right_students = st.columns([1, 3])
 
 with col_left_panel:
@@ -103,7 +125,7 @@ with col_right_students:
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
                 with grid[idx_grid].container(border=True):
-                    # 🎯 透過原廠 markdown 不換行標籤，名字絕對同一行不切斷，且套用精緻名牌外框
+                    # 🎯 完美保留老師最愛的粉紅、粉藍立體名牌框，姓名維持 100% 同一行不切斷
                     if seat_num <= 15:
                         st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
                     else:
