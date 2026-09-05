@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 
 st.set_page_config(page_title="801班務管理主控台", page_icon="🏛️", layout="wide")
@@ -22,12 +21,28 @@ st.write("# 🏛️ 801 班級事務管理主控台")
 st.write("---")
 st.write("### 📅 請選擇今日要處理的獨立班務項目：")
 
-# 嘗試自動偵測子頁面檔名與位置
-target_page = "pages/01_聯絡簿管理.py"
-if not os.path.exists(target_page):
-    target_page = "01_聯絡簿管理.py"
-
-if st.button("📝 01_聯絡簿管理系統", use_container_width=True):
-    # 傳送已驗證狀態給目標頁面
-    st.query_params["auth"] = "passed"
-    st.switch_page(target_page)
+# 點擊按鈕後進行相容性跳頁，徹底解決 StreamlitPageNotFoundError
+if st.button("📝 01_每日聯絡簿管理系統", use_container_width=True):
+    st.session_state["page_contact_auth"] = True
+    
+    # 依序嘗試所有可能的頁面路徑，確保一定能成功跳轉
+    possible_pages = [
+        "pages/每日聯絡簿.py",
+        "pages/01_每日聯絡簿.py",
+        "pages/01_聯絡簿管理.py",
+        "pages/每日聯絡簿管理.py",
+        "01_聯絡簿管理.py",
+        "每日聯絡簿.py"
+    ]
+    
+    switched = False
+    for p in possible_pages:
+        try:
+            st.switch_page(p)
+            switched = True
+            break
+        except Exception:
+            continue
+            
+    if not switched:
+        st.error("⚠️ 找不到聯絡簿頁面檔案，請確認 pages/ 資料夾內的 Python 檔名。")
