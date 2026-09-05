@@ -101,10 +101,11 @@ def save_long_term_status():
         except: pass
 
 def update_lt_status_callback(item_name, seat_num, key_name):
-    """即時更新狀態回調：點擊瞬間寫入 session_state 並自動同步廣播台"""
+    """即時更新狀態回調：寫入檔並強制重新渲染頁面，讓廣播台即時同步"""
     new_val = st.session_state[key_name]
     st.session_state["long_term_status"][item_name][seat_num] = new_val
     save_long_term_status()
+    st.rerun()  # 💡 關鍵修正：強制即時刷新頁面廣播台
 
 def load_daily_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
