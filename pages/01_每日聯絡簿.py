@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="01_每日聯絡簿與歷史查詢", page_icon="📝", layout="wide")
+st.set_page_config(page_title="01_每日聯絡簿與作業催收", page_icon="📝", layout="wide")
 
 st.markdown("""
     <style>
@@ -21,7 +21,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 驗證機制
+# 教師驗證機制
 if "page_contact_auth" not in st.session_state:
     st.session_state["page_contact_auth"] = False
 
@@ -40,17 +40,21 @@ if not st.session_state["page_contact_auth"]:
         except: st.switch_page("app.py")
     st.stop()
 
+# 標頭與返回按鈕
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
-    st.write("# 📝 801 每日聯絡簿與歷史紀錄系統")
+    st.write("# 📝 801 每日聯絡簿、作業與催收管理系統")
 with col_top_back: 
     if st.button("🏛️ 返回管理主控台", use_container_width=True):
         try: st.switch_page("main.py")
         except: st.switch_page("app.py")
 
+# 檔案路徑設定
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 TXT_ITEM_FILE = "長期催收清單.txt"
 TXT_STATUS_FILE = "長期催收狀態紀錄.txt"
+TXT_HW_ITEM_FILE = "每日作業清單.txt"
+TXT_HW_STATUS_FILE = "每日作業狀態紀錄.txt"
 
 student_names = [
     "王喬昕", "吳岢曈", "李巧彤", "岳昀軒", "林晏以", "林晨琳", "林芮妘", "林苡嫻", 
@@ -60,27 +64,17 @@ student_names = [
 ]
 seat_list = [int(i+1) for i in range(len(student_names))]
 
-def get_all_history_dates():
-    if not os.path.exists(FILE_NAME):
-        return []
-    try:
-        with pd.ExcelFile(FILE_NAME, engine="openpyxl") as xl:
-            return sorted(xl.sheet_names, reverse=True)
-    except:
-        return []
-
-def load_long_term_items():
-    if not os.path.exists(TXT_ITEM_FILE):
-        return []
-    with open(TXT_ITEM_FILE, "r", encoding="utf-8") as f: 
+# 讀寫通用工具函式
+def load_list_from_file(filepath):
+    if not os.path.exists(filepath): return []
+    with open(filepath, "r", encoding="utf-8") as f:
         return [line.strip() for line in f.readlines() if line.strip()]
 
-def load_long_term_status(items):
+def load_status_from_file(filepath, items):
     status_dict = {item: {seat: "未繳 ❌" for seat in seat_list} for item in items}
-    if not os.path.exists(TXT_STATUS_FILE):
-        return status_dict
+    if not os.path.exists(filepath): return status_dict
     try:
-        with open(TXT_STATUS_FILE, "r", encoding="utf-8") as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 if "," in line:
                     parts = line.strip().split(",")
@@ -92,13 +86,23 @@ def load_long_term_status(items):
     except: pass
     return status_dict
 
-def save_long_term_status(status_dict):
+def save_status_to_file(filepath, status_dict):
     try:
-        with open(TXT_STATUS_FILE, "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             for item, seats in status_dict.items():
                 for seat, status in seats.items(): 
                     f.write(f"{item},{seat},{status}\n")
     except: pass
+
+# 回調函數（即時寫入狀態與觸發廣播台更新）
+def update_item_status_callback(category, item_name, seat_num, key_name):
+    new_val = st.session_state[key_name]
+    if category == "lt":
+        st.session_state["long_term_status"][item_name][seat_num] = new_val
+        save_status_to_file(TXT_STATUS_FILE, st.session_state["long_term_status"])
+    elif category == "hw":
+        st.session_state["hw_status"][item_name][seat_num] = new_val
+        save_status_to_file(TXT_HW_STATUS_FILE, st.session_state["hw_status"])
 
 def load_daily_data(target_date):
     df_def = pd.DataFrame({"座號": seat_list, "姓名": student_names, "聯絡簿簽名": "已簽 📝", "生活札記": "已寫 🗒️", "備註事項": ""})
@@ -117,9 +121,6 @@ def load_daily_data(target_date):
             else: 
                 return df_def.copy()
     except: 
-        if os.path.exists(FILE_NAME):
-            try: os.remove(FILE_NAME)
-            except: pass
         return df_def.copy()
 
 def save_daily_data(updated_df, target_date):
@@ -131,48 +132,69 @@ def save_daily_data(updated_df, target_date):
                     for sheet in xl.sheet_names:
                         if sheet != target_date: 
                             sheets_data[sheet] = pd.read_excel(xl, sheet_name=sheet)
-            except:
-                sheets_data = {}
+            except: sheets_data = {}
         sheets_data[target_date] = updated_df
         with pd.ExcelWriter(FILE_NAME, engine="openpyxl") as w:
             for sheet, s_df in sheets_data.items(): 
                 s_df.to_excel(w, sheet_name=sheet, index=False)
     except: pass
 
-tab_daily, tab_history = st.tabs(["📝 每日登記 / 歷史補登", "🔍 歷史總覽與個人查詢"])
+def get_all_history_dates():
+    if not os.path.exists(FILE_NAME): return []
+    try:
+        with pd.ExcelFile(FILE_NAME, engine="openpyxl") as xl:
+            return sorted(xl.sheet_names, reverse=True)
+    except: return []
 
-long_term_items = load_long_term_items()
-# 保持最新狀態
+# 初始化記憶體狀態
+long_term_items = load_list_from_file(TXT_ITEM_FILE)
+hw_items = load_list_from_file(TXT_HW_ITEM_FILE)
+
 if "long_term_status" not in st.session_state:
-    st.session_state["long_term_status"] = load_long_term_status(long_term_items)
+    st.session_state["long_term_status"] = load_status_from_file(TXT_STATUS_FILE, long_term_items)
 
-long_term_status = st.session_state["long_term_status"]
+if "hw_status" not in st.session_state:
+    st.session_state["hw_status"] = load_status_from_file(TXT_HW_STATUS_FILE, hw_items)
+
+tab_daily, tab_history = st.tabs(["📝 每日登記與催收廣播", "🔍 歷史總覽與個人查詢"])
 
 with tab_daily:
-    col_left_panel, col_right_students = st.columns([0.25, 0.75])
+    col_left_panel, col_right_students = st.columns([0.28, 0.72])
 
     with col_left_panel:
-        st.write("### 📅 日期與項目選擇")
+        st.write("### 📅 選擇登記項目")
         current_date = st.date_input("選擇聯絡簿登記/補登日期：", datetime.now(), key="main_date")
         date_str = current_date.strftime("%Y-%m-%d")
         df_daily = load_daily_data(date_str)
         
-        menu_options = ["📝 每日聯絡簿與札記"] + [f"📋 {item}" for item in long_term_items]
+        # 下拉選單整合：聯絡簿、作業、長期催收
+        menu_options = ["📝 每日聯絡簿與札記"] + [f"📚 作業：{i}" for i in hw_items] + [f"📋 催收：{i}" for i in long_term_items]
         current_view = st.selectbox("🎯 請選擇右側要登記的項目：", menu_options, key="view_selector")
 
         st.markdown("---")
-        new_item = st.text_input("➕ 新增獨立長期催收項目：", placeholder="例如：HPV同意書、註冊費", key="main_item")
-        if st.button("確認建立催收項目", use_container_width=True):
-            if new_item and new_item not in long_term_items:
-                try:
-                    with open(TXT_ITEM_FILE, "a", encoding="utf-8") as f: f.write(f"{new_item}\n")
-                    st.session_state.pop("long_term_status", None) # 重新讀取
+        st.write("### ➕ 新增追蹤項目")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            new_hw = st.text_input("新增日常作業：", placeholder="如: 數學習作", key="input_hw")
+            if st.button("確認新增作業", use_container_width=True):
+                if new_hw and new_hw not in hw_items:
+                    with open(TXT_HW_ITEM_FILE, "a", encoding="utf-8") as f: f.write(f"{new_hw}\n")
+                    st.session_state["hw_status"][new_hw] = {seat: "未繳 ❌" for seat in seat_list}
+                    save_status_to_file(TXT_HW_STATUS_FILE, st.session_state["hw_status"])
                     st.rerun()
-                except: st.error("⚠️ 寫入系統發生衝突，請重試。")
+        with col_b:
+            new_item = st.text_input("新增長期催收：", placeholder="如: HPV同意書", key="input_lt")
+            if st.button("確認新增催收", use_container_width=True):
+                if new_item and new_item not in long_term_items:
+                    with open(TXT_ITEM_FILE, "a", encoding="utf-8") as f: f.write(f"{new_item}\n")
+                    st.session_state["long_term_status"][new_item] = {seat: "未繳 ❌" for seat in seat_list}
+                    save_status_to_file(TXT_STATUS_FILE, st.session_state["long_term_status"])
+                    st.rerun()
 
         st.markdown("---")
         st.write("### 📢 即時催繳廣播台")
         
+        # 廣播台核心邏輯
         if current_view == "📝 每日聯絡簿與札記":
             df_ns = df_daily[df_daily["聯絡簿簽名"] == "未簽 ❌"]
             if not df_ns.empty:
@@ -185,26 +207,42 @@ with tab_daily:
                 t_d = f"【801班 {date_str} 札記未完成名單】\n" + "".join([f"{int(r['座號'])}號 {r['姓名']}\n" for _, r in df_nd.iterrows()])
                 st.text_area("📋 複製傳至班級群組：", value=t_d, height=110, key="c_d")
             else: st.success("🎉 本日生活札記全班皆已完成！")
-        else:
-            selected_item_name = current_view.replace("📋 ", "")
-            item_status_map = long_term_status.get(selected_item_name, {})
+            
+        elif current_view.startswith("📚 作業："):
+            selected_hw_name = current_view.replace("📚 作業：", "")
+            item_status_map = st.session_state["hw_status"].get(selected_hw_name, {})
             unpaid_students = [seat for seat, status in item_status_map.items() if status == "未繳 ❌"]
             
             if unpaid_students:
-                t_i = f"【801班 {selected_item_name} 尚未繳交名單】\n"
+                t_i = f"【801班 {selected_hw_name} 尚未繳交名單】\n"
                 for seat in unpaid_students:
                     name = student_names[seat_list.index(seat)]
                     t_i += f"{seat}號 {name}\n"
-                st.text_area(f"📋 複製 {selected_item_name} 催繳文字：", value=t_i, height=150, key=f"c_final_{selected_item_name}")
+                st.text_area(f"📋 複製 {selected_hw_name} 催繳文字：", value=t_i, height=180, key=f"c_bc_hw_{selected_hw_name}")
             else: 
-                st.success(f"💯 {selected_item_name} 皆已繳齊！")
+                st.success(f"💯 {selected_hw_name} 全班皆已繳齊！")
+
+        elif current_view.startswith("📋 催收："):
+            selected_lt_name = current_view.replace("📋 催收：", "")
+            item_status_map = st.session_state["long_term_status"].get(selected_lt_name, {})
+            unpaid_students = [seat for seat, status in item_status_map.items() if status == "未繳 ❌"]
+            
+            if unpaid_students:
+                t_i = f"【801班 {selected_lt_name} 尚未繳交名單】\n"
+                for seat in unpaid_students:
+                    name = student_names[seat_list.index(seat)]
+                    t_i += f"{seat}號 {name}\n"
+                st.text_area(f"📋 複製 {selected_lt_name} 催繳文字：", value=t_i, height=180, key=f"c_bc_lt_{selected_lt_name}")
+            else: 
+                st.success(f"💯 {selected_lt_name} 全班皆已繳齊！")
 
     with col_right_students:
         if current_view == "📝 每日聯絡簿與札記": 
             st.write(f"### 📅 紀錄登記區：{date_str} 聯絡簿與札記")
+        elif current_view.startswith("📚 作業："):
+            st.write(f"### 📚 作業繳交登記：{current_view.replace('📚 作業：', '')}")
         else:
-            selected_item_name = current_view.replace("📋 ", "")
-            st.write(f"### 📋 長期催收登記區：{selected_item_name}")
+            st.write(f"### 📋 長期催收登記：{current_view.replace('📋 催收：', '')}")
         st.write("")
 
         for i in range(0, len(student_names), 4):
@@ -228,36 +266,47 @@ with tab_daily:
                                 df_daily.loc[df_daily["座號"] == seat_num, "聯絡簿簽名"], df_daily.loc[df_daily["座號"] == seat_num, "生活札記"] = ns, nd
                                 save_daily_data(df_daily, date_str)
                                 st.rerun()
-                            st.write("✍️ **隨手備註：**")
                             current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
-                            nm = st.text_input(f"備註_{seat_num}", value=current_memo, placeholder="輸入日常備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}")
+                            nm = st.text_input(f"備註_{seat_num}", value=current_memo, placeholder="隨手備註...", label_visibility="collapsed", key=f"m_{seat_num}_{date_str}")
                             if nm != current_memo:
                                 df_daily.loc[df_daily["座號"] == seat_num, "備註事項"] = nm
                                 save_daily_data(df_daily, date_str)
-                        else:
-                            selected_item_name = current_view.replace("📋 ", "")
-                            if selected_item_name not in long_term_status:
-                                long_term_status[selected_item_name] = {seat: "未繳 ❌" for seat in seat_list}
+                        
+                        elif current_view.startswith("📚 作業："):
+                            hw_name = current_view.replace("📚 作業：", "")
+                            if hw_name not in st.session_state["hw_status"]:
+                                st.session_state["hw_status"][hw_name] = {seat: "未繳 ❌" for seat in seat_list}
                             
-                            current_status = long_term_status[selected_item_name].get(seat_num, "未繳 ❌")
-                            ni = st.radio(
-                                f"{selected_item_name}_{seat_num}", 
-                                ["已繳 ✅", "未繳 ❌"], 
-                                index=(0 if current_status == "已繳 ✅" else 1), 
-                                horizontal=True, 
-                                key=f"lt_{selected_item_name}_{seat_num}", 
-                                label_visibility="collapsed"
+                            curr_st = st.session_state["hw_status"][hw_name].get(seat_num, "未繳 ❌")
+                            r_key = f"r_hw_{hw_name}_{seat_num}"
+                            
+                            st.radio(
+                                f"hw_{hw_name}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
+                                index=(0 if curr_st == "已繳 ✅" else 1), horizontal=True,
+                                key=r_key, label_visibility="collapsed",
+                                on_change=update_item_status_callback,
+                                args=("hw", hw_name, seat_num, r_key)
                             )
-                            if ni != current_status:
-                                # 即時更新記憶體與檔案並強制重新渲染畫面
-                                long_term_status[selected_item_name][seat_num] = ni
-                                st.session_state["long_term_status"] = long_term_status
-                                save_long_term_status(long_term_status)
-                                st.rerun()
+                            
+                        elif current_view.startswith("📋 催收："):
+                            lt_name = current_view.replace("📋 催收：", "")
+                            if lt_name not in st.session_state["long_term_status"]:
+                                st.session_state["long_term_status"][lt_name] = {seat: "未繳 ❌" for seat in seat_list}
+                            
+                            curr_st = st.session_state["long_term_status"][lt_name].get(seat_num, "未繳 ❌")
+                            r_key = f"r_lt_{lt_name}_{seat_num}"
+                            
+                            st.radio(
+                                f"lt_{lt_name}_{seat_num}", ["已繳 ✅", "未繳 ❌"],
+                                index=(0 if curr_st == "已繳 ✅" else 1), horizontal=True,
+                                key=r_key, label_visibility="collapsed",
+                                on_change=update_item_status_callback,
+                                args=("lt", lt_name, seat_num, r_key)
+                            )
 
     st.markdown("---")
     if current_view == "📝 每日聯絡簿與札記":
-        st.markdown(f"### 📊 801班 {date_str} 聯絡簿總表（可即時檢視與修改）")
+        st.markdown(f"### 📊 801班 {date_str} 聯絡簿總表")
         st.dataframe(df_daily, use_container_width=True)
 
 with tab_history:
