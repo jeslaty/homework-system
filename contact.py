@@ -40,11 +40,12 @@ if "contact_logged_in" not in st.session_state:
 if not st.session_state["contact_logged_in"]:
     st.markdown("### 🔒 801 導師班務管理系統")
     with st.form("login_form"):
-        # 🎯【核心突破】改用 100% 必定成功顯色的純白字體指令，直接繞過原廠標籤發黑的系統限制
+        # 🎯 改用 100% 必定成功顯色的純白字體指令，直接繞過原廠標籤發黑的系統限制
         st.markdown("**🔑 教師帳號：**")
         u = st.text_input("u_input", label_visibility="collapsed")
         
         st.markdown("**🔒 登入密碼：**")
+        # 🛠️ 徹底清除原先殘留的 visibili 錯字，改用官方標準 label_visibility
         p = st.text_input("p_input", type="password", label_visibility="collapsed")
         
         if st.form_submit_button("確認登入"):
@@ -56,7 +57,7 @@ if not st.session_state["contact_logged_in"]:
     st.stop()
 
 # ----------------- 系統主畫面 (登入後) -----------------
-st.write("# 📝 801聯絡簿系統")
+st.markdown('<div class="apple-title">📝 801聯絡簿系統</div>', unsafe_allow_html=True)
 
 FILE_NAME = "801班_導師班務紀錄總表.xlsx"
 seats_str = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28"
@@ -90,12 +91,10 @@ with col_left_panel:
     if st.button("建立催收欄位", use_container_width=True):
         if new_item and new_item not in df.columns:
             df[new_item] = "未繳 ❌"
-            save_data(df, date_str)
-            st.rerun()
+            save_data(df, date_str); st.rerun()
             
     if st.button("🔒 安全登出系統", use_container_width=True):
-        st.session_state["contact_logged_in"] = False
-        st.rerun()
+        st.session_state["contact_logged_in"] = False; st.rerun()
 
     st.markdown("---")
     st.write(f"### 📢 {date_str} 即時催繳廣播台")
@@ -134,20 +133,21 @@ with col_right_students:
                 name_s = row_s["姓名"]
                 gender_icon = "🌸" if seat_num <= 15 else "🍀"
                 
+                if seat_num <= 15:
+                    html_badge = f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>'
+                else:
+                    html_badge = f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>'
+
                 with grid[idx_grid].container(border=True):
-                    if seat_num <= 15:
-                        st.markdown(f'<div style="background-color:#FFF1F2;border:2.5px solid #E11D48;border-radius:10px;padding:8px;text-align:center;"><span style="color:#991B1B;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div style="background-color:#F0F7FF;border:2.5px solid #2563EB;border-radius:10px;padding:8px;text-align:center;"><span style="color:#1E40AF;font-size:20px;font-weight:900;white-space:nowrap;">{gender_icon} {seat_num}號 {name_s}</span></div>', unsafe_allow_html=True)
+                    st.markdown(html_badge, unsafe_allow_html=True)
                     st.write("")
                     
                     ns = st.radio(f"聯絡簿_{seat_num}", ["已簽 📝", "未簽 ❌"], index=(0 if row_s["聯絡簿簽名"] == "已簽 📝" else 1), horizontal=True, key=f"s_{seat_num}_{date_str}")
                     nd = st.radio(f"札記_{seat_num}", ["已寫 🗒️", "未寫 ❌"], index=(0 if row_s["生活札記"] == "已寫 🗒️" else 1), horizontal=True, key=f"d_{seat_num}_{date_str}")
                     
                     if ns != row_s["聯絡簿簽名"] or nd != row_s["生活札記"]:
-                        df.loc[df["座={號}"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
-                        save_data(df, date_str)
-                        st.rerun()
+                        df.loc[df["座號"] == seat_num, "聯絡簿簽名"], df.loc[df["座號"] == seat_num, "生活札記"] = ns, nd
+                        save_data(df, date_str); st.rerun()
                     
                     if extra_items:
                         for item in extra_items:
@@ -155,8 +155,7 @@ with col_right_students:
                             ni = st.radio(f"{item}_{seat_num}", ["已繳 ✅", "未繳 ❌"], index=(0 if row_s[item] == "已繳 ✅" else 1), horizontal=True, key=f"i_{item}_{seat_num}_{date_str}", label_visibility="collapsed")
                             if ni != row_s[item]:
                                 df.loc[df["座號"] == seat_num, item] = ni
-                                save_data(df, date_str)
-                                st.rerun()
+                                save_data(df, date_str); st.rerun()
                     
                     st.write("✍️ **隨手備註：**")
                     current_memo = "" if pd.isna(row_s["備註事項"]) else str(row_s["備註事項"])
