@@ -1,116 +1,157 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="導師與各科班務管理主控台", 
-    page_icon="🏫", 
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="導師班級管理主控台", page_icon="🏫", layout="wide")
 
-# 自訂美化樣式 (CSS)
+# CSS 視覺美化：馬卡龍色系與卡片化點擊效果
 st.markdown("""
     <style>
-    /* 全局字體 */
-    html, body, [class*="st-"], .stApp {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Helvetica Neue", sans-serif !important;
-    }
-    
-    /* 隱藏預設側邊欄與頁首 */
+    /* 隱藏側邊欄與頁首 */
     [data-testid="stSidebar"], 
     button[data-testid="collapsedControl"], 
     header[data-testid="stHeader"] {
         display: none !important;
     }
     
-    /* 主標題樣式 */
-    .main-title {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #1E293B;
-        margin-bottom: 0.2rem;
-    }
-    .sub-title {
-        font-size: 1.05rem;
-        color: #64748B;
-        margin-bottom: 2rem;
+    /* 頁面整體字體與背景 */
+    .stApp {
+        background-color: #FAFAFC;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
     
-    /* 區塊卡片美化 */
-    .card-box {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
+    /* 主標題 Banner */
+    .main-title-banner {
+        background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
         padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s ease;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        margin-bottom: 28px;
     }
-    .card-box:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        transform: translateY(-2px);
+    .main-title-banner h1 {
+        color: #4A4A4A !important;
+        font-size: 2.1rem !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
     }
-    
-    .card-icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.8rem;
-    }
-    
-    .card-title {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #0F172A;
-        margin-bottom: 0.5rem;
+    .main-title-banner p {
+        color: #666666 !important;
+        margin-top: 8px !important;
+        font-size: 1rem;
     }
     
-    .card-desc {
-        font-size: 0.95rem;
-        color: #475569;
-        line-height: 1.6;
-        min-height: 3.2rem;
-        margin-bottom: 1.2rem;
+    /* 馬卡龍大卡片按鈕（覆蓋 Streamlit 原生按鈕） */
+    div.macaron-card > div.stButton > button {
+        height: 180px !important;
+        width: 100% !important;
+        border: none !important;
+        border-radius: 20px !important;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.05) !important;
+        transition: all 0.25s ease-in-out !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px !important;
+        white-space: pre-wrap !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* 懸浮效果：放大與微升 */
+    div.macaron-card > div.stButton > button:hover {
+        transform: translateY(-6px) scale(1.02) !important;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* 5 種馬卡龍專屬色彩配置 */
+    /* 1. 柔粉色 (聯絡簿) */
+    div.card-pink > div.stButton > button {
+        background-color: #FFE5EC !important;
+        color: #9E2A2B !important;
+    }
+    div.card-pink > div.stButton > button:hover {
+        background-color: #FFC2D1 !important;
+    }
+    
+    /* 2. 薄荷綠 (作業登記) */
+    div.card-green > div.stButton > button {
+        background-color: #E8F5E9 !important;
+        color: #2E7D32 !important;
+    }
+    div.card-green > div.stButton > button:hover {
+        background-color: #C8E6C9 !important;
+    }
+    
+    /* 3. 奶油黃 (座位表) */
+    div.card-yellow > div.stButton > button {
+        background-color: #FFF9C4 !important;
+        color: #F57F17 !important;
+    }
+    div.card-yellow > div.stButton > button:hover {
+        background-color: #FFF59D !important;
+    }
+    
+    /* 4. 晴空藍 (抽籤輪播) */
+    div.card-blue > div.stButton > button {
+        background-color: #E1F5FE !important;
+        color: #0277BD !important;
+    }
+    div.card-blue > div.stButton > button:hover {
+        background-color: #B3E5FC !important;
+    }
+    
+    /* 5. 丁香紫 (倒數計時) */
+    div.card-purple > div.stButton > button {
+        background-color: #F3E5F5 !important;
+        color: #7B1FA2 !important;
+    }
+    div.card-purple > div.stButton > button:hover {
+        background-color: #E1BEE7 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 頁頭視覺
-st.markdown('<div class="main-title">🏫 班務與教學管理主控台</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">整合導師班務日常、長期催收與全校各科作業登記系統</div>', unsafe_allow_html=True)
+# 頂部迎賓 Banner
+st.markdown("""
+    <div class="main-title-banner">
+        <h1>🏫 導師智慧班級管理主控台</h1>
+        <p>點擊下方任一功能卡片，即可快速進入管理系統</p>
+    </div>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
-
-# 主要功能區塊
-col1, col2 = st.columns(2, gap="large")
+# 第一排：3 個功能卡片格子
+col1, col2, col3 = st.columns(3, gap="large")
 
 with col1:
-    st.markdown("""
-        <div class="card-box">
-            <div class="card-icon">📝</div>
-            <div class="card-title">801 導師班務與聯絡簿專區</div>
-            <div class="card-desc">
-                專屬 801 導師管理功能。<br>
-                涵蓋：每日聯絡簿簽名、生活札記、隨手備註，以及行政同意書等長期催收廣播。
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("🚀 前往導師班務專區", key="btn_contact", use_container_width=True, type="primary"):
-        st.switch_page("pages/01_每日聯絡簿.py")
+    st.markdown('<div class="macaron-card card-pink">', unsafe_allow_html=True)
+    if st.button("📖\n\n班級聯絡簿\n(801導師專屬)", key="btn_p1", use_container_width=True):
+        st.switch_page("pages/01_班級聯絡簿.py")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    st.markdown("""
-        <div class="card-box">
-            <div class="card-icon">📚</div>
-            <div class="card-title">跨班作業登記專區</div>
-            <div class="card-desc">
-                適用於任教班級作業管理。<br>
-                支援：<b>801、903、904、906 班</b> 各科作業催收，即時產生家長群組廣播文字。
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("🚀 前往作業登記專區", key="btn_hw", use_container_width=True, type="primary"):
+    st.markdown('<div class="macaron-card card-green">', unsafe_allow_html=True)
+    if st.button("📚\n\n作業登記專區\n(全校各科)", key="btn_p2", use_container_width=True):
         st.switch_page("pages/02_作業登記.py")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("---")
+with col3:
+    st.markdown('<div class="macaron-card card-yellow">', unsafe_allow_html=True)
+    if st.button("🪑\n\n座位表管理\n(排座位/印表)", key="btn_p3", use_container_width=True):
+        st.switch_page("pages/03_座位表.py")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# 底部提醒
-st.info("💡 系統各分頁皆已設有安全密碼驗證（預設為 5 位數導師密碼：12345）。資料變更時會自動儲存，並支援即時一鍵複製廣播文字。")
+st.write("") # 增加上下間距
+
+# 第二排：2 個功能卡片格子
+col4, col5 = st.columns(2, gap="large")
+
+with col4:
+    st.markdown('<div class="macaron-card card-blue">', unsafe_allow_html=True)
+    if st.button("🎲\n\n學生抽籤與輪播\n(課堂互動工具)", key="btn_p4", use_container_width=True):
+        st.switch_page("pages/04_抽籤與輪播.py")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col5:
+    st.markdown('<div class="macaron-card card-purple">', unsafe_allow_html=True)
+    if st.button("⏳\n\n考試倒數計時器\n(班級公播畫面)", key="btn_p5", use_container_width=True):
+        st.switch_page("pages/05_倒數計時器.py")
+    st.markdown('</div>', unsafe_allow_html=True)
