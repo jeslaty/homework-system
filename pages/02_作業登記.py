@@ -15,28 +15,34 @@ st.markdown("""
         color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px;
     }
     .title-banner h1 { color: #FFFFFF !important; font-size: 1.6rem !important; margin: 0 !important; }
-    .control-card { background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    
+    /* 按鈕美化 */
+    .stButton > button {
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# 密碼驗證
+# 密碼驗證機制（加入 type="password" 實現小眼睛隱藏密碼功能）
 if "page_hw_auth" not in st.session_state:
     st.session_state["page_hw_auth"] = False
 
 if not st.session_state["page_hw_auth"]:
     st.write("### 🔒 教師安全驗證專區")
     with st.form("hw_auth_form"):
-        p = st.text_input("請輸入 5 位數導師密碼：")
-        if st.form_submit_button("確認通行"):
+        p = st.text_input("請輸入 5 位數導師密碼：", type="password", placeholder="請在此輸入密碼")
+        if st.form_submit_button("確認通行", type="primary", use_container_width=True):
             if p.strip() == "12345":
                 st.session_state["page_hw_auth"] = True
                 st.rerun()
-            else: st.error("❌ 密碼錯誤。")
+            else:
+                st.error("❌ 密碼錯誤。")
     if st.button("⬅️ 返回管理主控台", use_container_width=True):
         st.switch_page("main.py")
     st.stop()
 
-# 頁頭
+# 頁頭 Banner
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
     st.markdown('<div class="title-banner"><h1>📚 全校各科作業登記系統</h1></div>', unsafe_allow_html=True)
@@ -72,17 +78,15 @@ def save_class_df(class_name, df):
     df.to_csv(path, index=False, encoding="utf-8-sig")
 
 # 介面配置
-col_control, col_table = st.columns([0.30, 0.70], gap="medium")
+col_control, col_table = st.columns([0.32, 0.68], gap="medium")
 
 with col_control:
-    st.markdown('<div class="control-card">', unsafe_allow_html=True)
     st.write("### 🏫 選擇班級")
     selected_class = st.selectbox("請選擇班級：", list(CLASSES_DATA.keys()), key="sel_class")
-    st.markdown('</div>', unsafe_allow_html=True)
     
     df_current = load_class_df(selected_class)
 
-    st.markdown('<div class="control-card">', unsafe_allow_html=True)
+    st.markdown("---")
     st.write("### ➕ 新增作業欄位")
     placeholder_text = "例如：國文聯絡簿" if selected_class == "801班" else "例如：英文雜誌 L3"
     new_hw_title = st.text_input("輸入新作業名稱：", placeholder=placeholder_text, key=f"new_hw_{selected_class}")
@@ -96,9 +100,8 @@ with col_control:
                 save_class_df(selected_class, df_current)
                 st.success(f"已成功新增【{title}】！")
                 st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="control-card">', unsafe_allow_html=True)
+    st.markdown("---")
     st.write("### 📢 缺交廣播複製區")
     hw_columns = [col for col in df_current.columns if col not in ["座號", "姓名"]]
     if hw_columns:
@@ -111,21 +114,25 @@ with col_control:
             st.text_area("📋 一鍵複製 LINE 催繳文字：", value=broadcast_text, height=180)
         else:
             st.success(f"💯 【{selected_class}】{target_hw} 全班皆已繳齊！")
-    else: st.info("💡 目前尚無作業欄位。")
-    st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.info("💡 目前尚無作業欄位。")
 
 with col_table:
-    st.write(f"### 📋 【{selected_class}】作業登記總表")
+    tag_color = "#3B82F6" if selected_class == "801班" else "#10B981"
+    tag_role = "👑 導師班級" if selected_class == "801班" else "📖 任教英文班級"
+    
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <h3 style="margin: 0; color: #1E293B;">📋 【{selected_class}】作業登記總表</h3>
+            <span style="background-color: {tag_color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.88rem; font-weight: 600;">{tag_role}</span>
+        </div>
+    """, unsafe_allow_html=True)
     
     # 核心智慧功能：表格檢視過濾器
     hw_columns = [col for col in df_current.columns if col not in ["座號", "姓名"]]
-    
-    # 自動偵測有哪些作業已經「全班繳齊 (全 True)」
     completed_hws = [col for col in hw_columns if df_current[col].all()]
     
-    filter_col1, filter_col2 = st.columns([0.6, 0.4])
-    with filter_col1:
-        hide_completed = st.checkbox("🙈 自動隱藏全班已繳齊的作業", value=True)
+    hide_completed = st.checkbox("🙈 自動隱藏全班已繳齊的作業", value=True)
     
     # 決定要呈現的欄位
     display_columns = ["座號", "姓名"]
@@ -136,7 +143,7 @@ with col_table:
 
     st.caption("💡 提示：點擊勾選框 ☑️ 表示【已繳】。全班繳齊且勾選「隱藏」後，該欄位會自動收合保持介面乾淨。")
 
-    # 設定欄位寬度（加大寬度避免文字擠壓）
+    # 設定欄位寬度
     column_config = {
         "座號": st.column_config.NumberColumn("座號", disabled=True, width=70),
         "姓名": st.column_config.TextColumn("姓名", disabled=True, width=110),
@@ -147,10 +154,9 @@ with col_table:
             col,
             help="點擊打勾代表已繳交",
             default=False,
-            width=130  # 設定固定適中寬度，修復標頭選單重疊問題
+            width=130
         )
             
-    # 只顯示過濾後的資料欄位
     df_display = df_current[display_columns]
 
     edited_display_df = st.data_editor(
@@ -158,13 +164,12 @@ with col_table:
         column_config=column_config,
         hide_index=True,
         use_container_width=True,
-        height=500,
+        height=520,
         key=f"editor_{selected_class}"
     )
     
     st.write("")
     if st.button("💾 儲存變更", use_container_width=True, type="primary"):
-        # 將修改後的過濾資料回寫至原始完整的 DataFrame
         for col in edited_display_df.columns:
             df_current[col] = edited_display_df[col]
         save_class_df(selected_class, df_current)
