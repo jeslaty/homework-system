@@ -24,24 +24,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 密碼驗證機制（加入 type="password" 實現小眼睛隱藏密碼功能）
-if "page_hw_auth" not in st.session_state:
-    st.session_state["page_hw_auth"] = False
+# 驗證機制（改為全域驗證檢查）
+if "auth" in st.query_params and st.query_params["auth"] == "true":
+    st.session_state["authenticated"] = True
 
-if not st.session_state["page_hw_auth"]:
-    st.write("### 🔒 教師安全驗證專區")
-    with st.form("hw_auth_form"):
-        p = st.text_input("請輸入 5 位數導師密碼：", type="password", placeholder="請在此輸入密碼")
-        if st.form_submit_button("確認通行", type="primary", use_container_width=True):
-            if p.strip() == "12345":
-                st.session_state["page_hw_auth"] = True
-                st.rerun()
-            else:
-                st.error("❌ 密碼錯誤。")
-    if st.button("⬅️ 返回管理主控台", use_container_width=True):
-        st.switch_page("main.py")
-    st.stop()
-
+if not st.session_state.get("authenticated", False):
+    st.switch_page("main.py")
 # 頁頭 Banner
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
