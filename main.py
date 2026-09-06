@@ -132,7 +132,7 @@ if not st.session_state["authenticated"]:
         st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
-# 3. 驗證通過：左圖形式 + 右圖配色的主控台
+# 3. 驗證通過：主控台（使用原生按鈕保持登入狀態）
 st.markdown("""
     <div class="header-banner">
         <div class="main-title">🏫 班級經營主控台</div>
@@ -140,77 +140,74 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 第一排 3 個大方格 (左圖排版 + 右圖馬卡龍色)
+# 第一排 3 個大方格
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-        <a href="/每日聯絡簿" target="_self" class="card-link">
-            <div class="card card-pink">
-                <div class="card-icon">📖</div>
-                <div class="card-title">班級聯絡簿</div>
-                <div class="card-subtitle">(801導師專屬)</div>
-            </div>
-        </a>
+        <div class="card card-pink">
+            <div class="card-icon">📖</div>
+            <div class="card-title">班級聯絡簿</div>
+            <div class="card-subtitle">(801導師專屬)</div>
+        </div>
     """, unsafe_allow_html=True)
+    if st.button("點擊進入 ➔", key="btn_01", use_container_width=True):
+        st.switch_page("pages/01_每日聯絡簿.py")  # 👈 請確認檔名與路徑一致
 
 with col2:
     st.markdown("""
-        <a href="/作業登記" target="_self" class="card-link">
-            <div class="card card-blue">
-                <div class="card-icon">📚</div>
-                <div class="card-title">作業登記專區</div>
-                <div class="card-subtitle">(全校各科)</div>
-            </div>
-        </a>
+        <div class="card card-blue">
+            <div class="card-icon">📚</div>
+            <div class="card-title">作業登記專區</div>
+            <div class="card-subtitle">(全校各科)</div>
+        </div>
     """, unsafe_allow_html=True)
+    if st.button("點擊進入 ➔", key="btn_02", use_container_width=True):
+        st.switch_page("pages/02_作業登記.py")
 
 with col3:
     st.markdown("""
-        <a href="/座位表" target="_self" class="card-link">
-            <div class="card card-purple">
-                <div class="card-icon">🪑</div>
-                <div class="card-title">座位表管理</div>
-                <div class="card-subtitle">(排座位/印表)</div>
-            </div>
-        </a>
+        <div class="card card-purple">
+            <div class="card-icon">🪑</div>
+            <div class="card-title">座位表管理</div>
+            <div class="card-subtitle">(排座位/印表)</div>
+        </div>
     """, unsafe_allow_html=True)
+    if st.button("點擊進入 ➔", key="btn_03", use_container_width=True):
+        st.switch_page("pages/03_座位表.py")
 
-# 第二排 3 個擴充大方格 (左圖下半部)
+# 第二排 3 個擴充大方格
 col4, col5, col6 = st.columns(3)
 
 with col4:
     st.markdown("""
-        <a href="#" class="card-link">
-            <div class="card card-blue">
-                <div class="card-icon">🎲</div>
-                <div class="card-title">學生抽籤學輪播</div>
-                <div class="card-subtitle">(課堂互動/提問)</div>
-            </div>
-        </a>
+        <div class="card card-blue">
+            <div class="card-icon">🎲</div>
+            <div class="card-title">學生抽籤學輪播</div>
+            <div class="card-subtitle">(課堂互動/提問)</div>
+        </div>
     """, unsafe_allow_html=True)
+    st.button("點擊進入 ➔", key="btn_04", use_container_width=True, disabled=True)
 
 with col5:
     st.markdown("""
-        <a href="#" class="card-link">
-            <div class="card card-pink">
-                <div class="card-icon">⏳</div>
-                <div class="card-title">考試倒數計時器</div>
-                <div class="card-subtitle">(段考/倒數提醒)</div>
-            </div>
-        </a>
+        <div class="card card-pink">
+            <div class="card-icon">⏳</div>
+            <div class="card-title">考試倒數計時器</div>
+            <div class="card-subtitle">(段考/倒數提醒)</div>
+        </div>
     """, unsafe_allow_html=True)
+    st.button("點擊進入 ➔", key="btn_05", use_container_width=True, disabled=True)
 
 with col6:
     st.markdown("""
-        <a href="#" class="card-link">
-            <div class="card card-purple">
-                <div class="card-icon">➕</div>
-                <div class="card-title">新增功能預留區</div>
-                <div class="card-subtitle">(點擊可擴充)</div>
-            </div>
-        </a>
+        <div class="card card-purple">
+            <div class="card-icon">➕</div>
+            <div class="card-title">新增功能預留區</div>
+            <div class="card-subtitle">(點擊可擴充)</div>
+        </div>
     """, unsafe_allow_html=True)
+    st.button("點擊進入 ➔", key="btn_06", use_container_width=True, disabled=True)
 
 st.write("")
 
