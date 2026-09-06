@@ -41,31 +41,32 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 初始化登入狀態
+# 初始化全域登入狀態
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# 檢查是否已驗證，若未驗證則顯示登入畫面
+# ----------------- 未登入：顯示 帳號 + 密碼 驗證畫面 -----------------
 if not st.session_state["authenticated"]:
     st.markdown('<div class="main-title">🔒 801 導師安全驗證專區</div>', unsafe_allow_html=True)
     
-    col_a, col_b, col_c = st.columns([1, 2, 1])
+    col_a, col_b, col_c = st.columns([1, 1.2, 1])
     with col_b:
-        with st.form("login_form"):
-            password = st.text_input("請輸入 5 位數導師密碼：", type="password")
-            submit = st.form_submit_button("確認通行", use_container_width=True)
-            
-            if submit:
-                # 這裡設定您的密碼 (預設以 12345 為例，可自行修改)
-                if password == "12345":
-                    st.session_state["authenticated"] = True
-                    st.success("驗證成功！即將進入主控台...")
-                    st.rerun()
-                else:
-                    st.error("密碼錯誤，請重新輸入！")
+        username = st.text_input("請輸入導師帳號：", placeholder="例如：teacher801")
+        # type="password" 會預設附帶小眼睛開關，點擊可切換顯示/隱藏
+        password = st.text_input("請輸入導師密碼：", type="password", placeholder="請輸入密碼")
+        
+        st.write("")
+        if st.button("確認通行", use_container_width=True, type="primary"):
+            # 在此設定您的帳號與密碼（可依需求替換）
+            if username == "801" and password == "12345":
+                st.session_state["authenticated"] = True
+                st.success("驗證成功！即將進入主控台...")
+                st.rerun()
+            else:
+                st.error("帳號或密碼錯誤，請重新輸入！")
     st.stop()
 
-# ----------------- 驗證成功後顯示的主控台內容 -----------------
+# ----------------- 驗證成功：顯示完整主控台 -----------------
 
 st.markdown('<div class="main-title">🏫 801 導師班級管理系統</div>', unsafe_allow_html=True)
 
@@ -109,7 +110,9 @@ with col3:
 
 st.write("")
 st.write("")
-# 提供登出按鈕
-if st.button("🔒 登出系統", use_container_width=False):
-    st.session_state["authenticated"] = False
-    st.rerun()
+# 右下角提供登出選項
+col_l, col_r = st.columns([0.85, 0.15])
+with col_r:
+    if st.button("🔒 登出系統", use_container_width=True):
+        st.session_state["authenticated"] = False
+        st.rerun()
