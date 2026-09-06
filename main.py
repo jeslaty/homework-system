@@ -51,7 +51,7 @@ if not st.session_state["authenticated"]:
     
     col_a, col_b, col_c = st.columns([1, 1.2, 1])
     with col_b:
-        username = st.text_input("請輸入導師帳號：")
+        username = st.text_input("請輸入導師帳號：", placeholder="請輸入帳號")
         # type="password" 會預設附帶小眼睛開關，點擊可切換顯示/隱藏
         password = st.text_input("請輸入導師密碼：", type="password", placeholder="請輸入密碼")
         
