@@ -6,7 +6,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS 樣式：美化 page_link 為整張馬卡龍卡片，徹底消除下方按鈕
+# 注入 CSS 樣式：美化按鈕，讓它變透明融入卡片
 st.markdown("""
     <style>
     /* 隱藏預設選單與頁首 */
@@ -14,7 +14,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* 漸層背景 */
+    /* 背景漸層 */
     .stApp {
         background: linear-gradient(135deg, #FFF0F5 0%, #F0F4FF 50%, #F5F0FF 100%);
     }
@@ -33,62 +33,58 @@ st.markdown("""
     .main-title { font-size: 2.2rem; font-weight: 800; color: #334155; margin-bottom: 8px; }
     .sub-title { font-size: 1rem; color: #64748B; font-weight: 500; }
 
-    /* 關鍵：將 st.page_link 改造為整張懸浮馬卡龍卡片 */
-    [data-testid="stPageLink-NavLink"] {
-        height: 220px !important;
-        border-radius: 24px !important;
-        padding: 20px !important;
-        text-align: center !important;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border: 2px solid transparent !important;
+    /* 馬卡龍卡片樣式 */
+    .card {
+        border-radius: 24px;
+        padding: 36px 20px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+    .card:hover { transform: translateY(-6px); }
+
+    .card-pink {
+        background: #FFF0F5;
+        border: 2px solid #FFD1DC;
+        box-shadow: 0 8px 20px rgba(255, 182, 193, 0.25);
+    }
+    .card-blue {
+        background: #F0F8FF;
+        border: 2px solid #BAE6FD;
+        box-shadow: 0 8px 20px rgba(173, 216, 230, 0.25);
+    }
+    .card-purple {
+        background: #F5F0FF;
+        border: 2px solid #DDD6FE;
+        box-shadow: 0 8px 20px rgba(221, 160, 221, 0.25);
     }
 
-    [data-testid="stPageLink-NavLink"]:hover {
-        transform: translateY(-8px) scale(1.02) !important;
-    }
-
-    /* 三色配色設定 */
-    .pink-link [data-testid="stPageLink-NavLink"] {
-        background: #FFF0F5 !important;
-        border-color: #FFD1DC !important;
-        box-shadow: 0 8px 20px rgba(255, 182, 193, 0.25) !important;
-    }
-    .pink-link [data-testid="stPageLink-NavLink"]:hover {
-        box-shadow: 0 16px 30px rgba(255, 182, 193, 0.45) !important;
-    }
-
-    .blue-link [data-testid="stPageLink-NavLink"] {
-        background: #F0F8FF !important;
-        border-color: #BAE6FD !important;
-        box-shadow: 0 8px 20px rgba(173, 216, 230, 0.25) !important;
-    }
-    .blue-link [data-testid="stPageLink-NavLink"]:hover {
-        box-shadow: 0 16px 30px rgba(173, 216, 230, 0.45) !important;
-    }
-
-    .purple-link [data-testid="stPageLink-NavLink"] {
-        background: #F5F0FF !important;
-        border-color: #DDD6FE !important;
-        box-shadow: 0 8px 20px rgba(221, 160, 221, 0.25) !important;
-    }
-    .purple-link [data-testid="stPageLink-NavLink"]:hover {
-        box-shadow: 0 16px 30px rgba(221, 160, 221, 0.45) !important;
-    }
-
-    /* 隱藏 page_link 內內建的預設圖示，改用自訂卡片內容 */
-    [data-testid="stPageLink-NavLink"] p {
-        font-size: 1.35rem !important;
-        font-weight: 800 !important;
-        color: #1E293B !important;
-    }
-
-    .card-icon { font-size: 3.2rem; margin-bottom: 8px; }
-    .card-title { font-size: 1.35rem; font-weight: 800; color: #1E293B; margin-bottom: 4px; }
+    .card-icon { font-size: 3.2rem; margin-bottom: 12px; }
+    .card-title { font-size: 1.35rem; font-weight: 800; color: #1E293B; margin-bottom: 6px; }
     .card-subtitle { font-size: 0.9rem; color: #64748B; font-weight: 600; }
+
+    /* 關鍵美化：將 st.button 改造為乾淨優雅的膠囊按鈕，不再白慘慘 */
+    .stButton > button {
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #475569 !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 16px !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important;
+    }
+    .stButton > button:hover {
+        background-color: #FFFFFF !important;
+        color: #1E293B !important;
+        border-color: #CBD5E1 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        transform: translateY(-2px) !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -96,7 +92,7 @@ st.markdown("""
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# 2. 未登入：顯示一次性驗證
+# 2. 未登入：一次性驗證
 if not st.session_state["authenticated"]:
     st.markdown("""
         <div class="header-banner">
@@ -120,7 +116,7 @@ if not st.session_state["authenticated"]:
         st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
-# 3. 驗證通過：純大方格主控台
+# 3. 驗證通過：與右圖 100% 相同的精美畫面
 st.markdown("""
     <div class="header-banner">
         <div class="main-title">🏫 班級經營主控台</div>
@@ -132,64 +128,72 @@ st.markdown("""
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown('<div class="pink-link">', unsafe_allow_html=True)
-    st.page_link(
-        "pages/01_每日聯絡簿.py",
-        label="📖\n班級聯絡簿\n(801導師專屬)",
-        use_container_width=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-pink">
+            <div class="card-icon">📖</div>
+            <div class="card-title">班級聯絡簿</div>
+            <div class="card-subtitle">(801導師專屬)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    if st.button("進入聯絡簿 ➔", key="btn_01", use_container_width=True):
+        st.switch_page("pages/01_每日聯絡簿.py")
 
 with col2:
-    st.markdown('<div class="blue-link">', unsafe_allow_html=True)
-    st.page_link(
-        "pages/02_作業登記.py",
-        label="📚\n作業登記專區\n(全校各科)",
-        use_container_width=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-blue">
+            <div class="card-icon">📚</div>
+            <div class="card-title">作業登記專區</div>
+            <div class="card-subtitle">(全校各科)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    if st.button("進入作業登記 ➔", key="btn_02", use_container_width=True):
+        st.switch_page("pages/02_作業登記.py")
 
 with col3:
-    st.markdown('<div class="purple-link">', unsafe_allow_html=True)
-    st.page_link(
-        "pages/03_座位表.py",
-        label="🪑\n座位表管理\n(排座位/印表)",
-        use_container_width=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-purple">
+            <div class="card-icon">🪑</div>
+            <div class="card-title">座位表管理</div>
+            <div class="card-subtitle">(排座位/印表)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    if st.button("進入座位表 ➔", key="btn_03", use_container_width=True):
+        st.switch_page("pages/03_座位表.py")
+
+st.write("")
 
 # 第二排 3 個擴充大方格
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    st.markdown('<div class="blue-link">', unsafe_allow_html=True)
-    st.page_link(
-        "main.py",
-        label="🎲\n學生抽籤學輪播\n(課堂互動/提問)",
-        use_container_width=True,
-        disabled=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-blue">
+            <div class="card-icon">🎲</div>
+            <div class="card-title">學生抽籤學輪播</div>
+            <div class="card-subtitle">(課堂互動/提問)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.button("功能開發中", key="btn_04", use_container_width=True, disabled=True)
 
 with col5:
-    st.markdown('<div class="pink-link">', unsafe_allow_html=True)
-    st.page_link(
-        "main.py",
-        label="⏳\n考試倒數計時器\n(段考/倒數提醒)",
-        use_container_width=True,
-        disabled=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-pink">
+            <div class="card-icon">⏳</div>
+            <div class="card-title">考試倒數計時器</div>
+            <div class="card-subtitle">(段考/倒數提醒)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.button("功能開發中", key="btn_05", use_container_width=True, disabled=True)
 
 with col6:
-    st.markdown('<div class="purple-link">', unsafe_allow_html=True)
-    st.page_link(
-        "main.py",
-        label="➕\n新增功能預留區\n(點擊可擴充)",
-        use_container_width=True,
-        disabled=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="card card-purple">
+            <div class="card-icon">➕</div>
+            <div class="card-title">新增功能預留區</div>
+            <div class="card-subtitle">(點擊可擴充)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.button("功能開發中", key="btn_06", use_container_width=True, disabled=True)
 
 st.write("")
 st.write("")
