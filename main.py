@@ -6,7 +6,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 馬卡龍風美化 CSS 與隱藏預設元件
+# 馬卡龍風美化 CSS (含懸浮動畫) 與隱藏預設元件
 st.markdown("""
     <style>
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], header[data-testid="stHeader"] {
@@ -25,34 +25,66 @@ st.markdown("""
         text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
     }
     
-    .card-macaron-1 {
+    /* 馬卡龍卡片基礎與懸浮效果 */
+    .card-macaron-pink {
         background: #FFF0F5;
         border-radius: 20px;
-        padding: 24px 16px 12px 16px;
-        box-shadow: 0 8px 20px rgba(255, 182, 193, 0.3);
+        padding: 24px 16px 16px 16px;
+        box-shadow: 0 6px 16px rgba(255, 182, 193, 0.3);
         border: 2px solid #FFD1DC;
         text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .card-macaron-2 {
+    .card-macaron-pink:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(255, 182, 193, 0.5);
+    }
+
+    .card-macaron-blue {
         background: #F0F8FF;
         border-radius: 20px;
-        padding: 24px 16px 12px 16px;
-        box-shadow: 0 8px 20px rgba(173, 216, 230, 0.3);
+        padding: 24px 16px 16px 16px;
+        box-shadow: 0 6px 16px rgba(173, 216, 230, 0.3);
         border: 2px solid #BAE6FD;
         text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .card-macaron-3 {
+    .card-macaron-blue:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(173, 216, 230, 0.5);
+    }
+
+    .card-macaron-purple {
         background: #F5F0FF;
         border-radius: 20px;
-        padding: 24px 16px 12px 16px;
-        box-shadow: 0 8px 20px rgba(221, 160, 221, 0.3);
+        padding: 24px 16px 16px 16px;
+        box-shadow: 0 6px 16px rgba(221, 160, 221, 0.3);
         border: 2px solid #DDD6FE;
         text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .card-macaron-purple:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(221, 160, 221, 0.5);
+    }
+
+    .card-macaron-yellow {
+        background: #FEFCE8;
+        border-radius: 20px;
+        padding: 24px 16px 16px 16px;
+        box-shadow: 0 6px 16px rgba(254, 240, 138, 0.4);
+        border: 2px solid #FEF08A;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .card-macaron-yellow:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(250, 204, 21, 0.4);
     }
     
     .card-icon { font-size: 3.5rem; margin-bottom: 8px; }
     .card-title { font-size: 1.4rem; font-weight: 800; color: #2D3748; margin-bottom: 4px; }
-    .card-subtitle { font-size: 0.95rem; color: #718096; font-weight: 600; margin-bottom: 12px; }
+    .card-subtitle { font-size: 0.95rem; color: #718096; font-weight: 600; margin-bottom: 8px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -83,7 +115,7 @@ if not st.session_state["authenticated"]:
         st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
-# ----------------- 驗證成功：馬卡龍風主控台 -----------------
+# ----------------- 驗證成功：馬卡龍懸浮風主控台 -----------------
 
 st.markdown('<div class="main-title">🏫 801 導師班級管理系統</div>', unsafe_allow_html=True)
 
@@ -91,7 +123,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-        <div class="card-macaron-1">
+        <div class="card-macaron-pink">
             <div class="card-icon">📖</div>
             <div class="card-title">班級聯絡簿</div>
             <div class="card-subtitle">（801導師專屬）</div>
@@ -103,7 +135,7 @@ with col1:
 
 with col2:
     st.markdown("""
-        <div class="card-macaron-2">
+        <div class="card-macaron-blue">
             <div class="card-icon">📋</div>
             <div class="card-title">作業登記專區</div>
             <div class="card-subtitle">（任教班作業）</div>
@@ -115,7 +147,7 @@ with col2:
 
 with col3:
     st.markdown("""
-        <div class="card-macaron-3">
+        <div class="card-macaron-purple">
             <div class="card-icon">🪑</div>
             <div class="card-title">班級座位表</div>
             <div class="card-subtitle">（座位安排與列印）</div>
@@ -127,6 +159,8 @@ with col3:
 
 st.write("")
 st.write("")
+
+# 登出按鈕
 col_l, col_r = st.columns([0.85, 0.15])
 with col_r:
     if st.button("🔒 登出系統", use_container_width=True):
