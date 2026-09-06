@@ -27,38 +27,32 @@ st.markdown("""
     
     .card-macaron-1 {
         background: #FFF0F5;
-        border-radius: 24px;
-        padding: 32px 24px;
+        border-radius: 20px;
+        padding: 24px 16px 12px 16px;
         box-shadow: 0 8px 20px rgba(255, 182, 193, 0.3);
         border: 2px solid #FFD1DC;
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
     }
     .card-macaron-2 {
         background: #F0F8FF;
-        border-radius: 24px;
-        padding: 32px 24px;
+        border-radius: 20px;
+        padding: 24px 16px 12px 16px;
         box-shadow: 0 8px 20px rgba(173, 216, 230, 0.3);
         border: 2px solid #BAE6FD;
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
     }
     .card-macaron-3 {
         background: #F5F0FF;
-        border-radius: 24px;
-        padding: 32px 24px;
+        border-radius: 20px;
+        padding: 24px 16px 12px 16px;
         box-shadow: 0 8px 20px rgba(221, 160, 221, 0.3);
         border: 2px solid #DDD6FE;
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card-macaron-1:hover, .card-macaron-2:hover, .card-macaron-3:hover {
-        transform: translateY(-6px);
     }
     
-    .card-icon { font-size: 3.8rem; margin-bottom: 12px; }
-    .card-title { font-size: 1.5rem; font-weight: 800; color: #2D3748; margin-bottom: 6px; }
-    .card-subtitle { font-size: 1rem; color: #718096; font-weight: 600; margin-bottom: 16px; }
+    .card-icon { font-size: 3.5rem; margin-bottom: 8px; }
+    .card-title { font-size: 1.4rem; font-weight: 800; color: #2D3748; margin-bottom: 4px; }
+    .card-subtitle { font-size: 0.95rem; color: #718096; font-weight: 600; margin-bottom: 12px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -72,23 +66,21 @@ if not st.session_state["authenticated"]:
     
     col_a, col_b, col_c = st.columns([1, 1.2, 1])
     with col_b:
-        st.markdown("""
-            <div style="background: #FFFFFF; padding: 28px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #FFE4E6;">
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="background: #FFFFFF; padding: 28px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #FFE4E6;">', unsafe_allow_html=True)
         
         username = st.text_input("👤 請輸入導師帳號：", placeholder="例如：801")
         password = st.text_input("🔑 請輸入導師密碼：", type="password", placeholder="請輸入密碼")
         
         st.write("")
         if st.button("✨ 確認通行", use_container_width=True, type="primary"):
-            if username == "Jeslaty" and password == "12345":
+            if username == "801" and password == "12345":
                 st.session_state["authenticated"] = True
                 st.success("驗證成功！即將進入主控台...")
                 st.rerun()
             else:
                 st.error("帳號或密碼錯誤，請重新輸入！")
         
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
 # ----------------- 驗證成功：馬卡龍風主控台 -----------------
@@ -106,7 +98,7 @@ with col1:
         </div>
     """, unsafe_allow_html=True)
     st.write("")
-    if st.button("進入聯絡簿", key="btn_contact", use_container_width=True):
+    if st.button("進入聯絡簿 ➔", key="btn_contact", use_container_width=True):
         st.switch_page("pages/01_每日聯絡簿.py")
 
 with col2:
@@ -118,7 +110,7 @@ with col2:
         </div>
     """, unsafe_allow_html=True)
     st.write("")
-    if st.button("進入作業登記", key="btn_homework", use_container_width=True):
+    if st.button("進入作業登記 ➔", key="btn_homework", use_container_width=True):
         st.switch_page("pages/02_作業登記.py")
 
 with col3:
@@ -130,7 +122,7 @@ with col3:
         </div>
     """, unsafe_allow_html=True)
     st.write("")
-    if st.button("進入座位表", key="btn_seating", use_container_width=True):
+    if st.button("進入座位表 ➔", key="btn_seating", use_container_width=True):
         st.switch_page("pages/03_座位表.py")
 
 st.write("")
