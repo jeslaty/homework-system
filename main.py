@@ -51,14 +51,14 @@ if not st.session_state["authenticated"]:
     
     col_a, col_b, col_c = st.columns([1, 1.2, 1])
     with col_b:
-        username = st.text_input("請輸入導師帳號：", placeholder="例如：teacher801")
+        username = st.text_input("請輸入導師帳號：")
         # type="password" 會預設附帶小眼睛開關，點擊可切換顯示/隱藏
         password = st.text_input("請輸入導師密碼：", type="password", placeholder="請輸入密碼")
         
         st.write("")
         if st.button("確認通行", use_container_width=True, type="primary"):
             # 在此設定您的帳號與密碼（可依需求替換）
-            if username == "801" and password == "12345":
+            if username == "Jeslaty" and password == "12345":
                 st.session_state["authenticated"] = True
                 st.success("驗證成功！即將進入主控台...")
                 st.rerun()
