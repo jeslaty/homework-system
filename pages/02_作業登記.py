@@ -36,7 +36,7 @@ if not st.session_state["page_hw_auth"]:
 # 頂部導覽
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
-    st.write("# 📚 全校各科作業與測驗登記系統")
+    st.write("# 📚 全校各科作業登記系統")
 with col_top_back: 
     if st.button("🏛️ 返回管理主控台", use_container_width=True):
         st.switch_page("main.py")
@@ -176,7 +176,7 @@ with col_left_panel:
         st.success(f"💯 【{selected_class}】{current_hw_view} 全班皆已繳齊！")
 
 with col_right_students:
-    st.write(f"### 📋 【{selected_class}】作業與成績登記區：{current_hw_view}")
+    st.write(f"### 📋 【{selected_class}】作業登記區：{current_hw_view}")
     st.write("")
 
     for i in range(0, len(student_info), 4):
