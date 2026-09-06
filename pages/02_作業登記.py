@@ -4,13 +4,64 @@ import streamlit as st
 
 st.set_page_config(page_title="02_作業登記專區", page_icon="📚", layout="wide")
 
-# CSS 隱藏側邊欄
+# 視覺美化與字體放大 CSS
 st.markdown("""
     <style>
+    /* 隱藏預設側邊欄與頁首 */
     [data-testid="stSidebar"], 
     button[data-testid="collapsedControl"], 
     header[data-testid="stHeader"] {
         display: none !important;
+    }
+    
+    /* 全局字體放大與圓潤化 */
+    html, body, [class*="st-"], .stApp {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+        font-size: 1.05rem !important;
+    }
+    
+    /* 標題樣式 */
+    .title-banner {
+        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        color: white;
+        padding: 18px 24px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        margin-bottom: 20px;
+    }
+    .title-banner h1 {
+        color: #FFFFFF !important;
+        font-size: 1.8rem !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
+    }
+    
+    /* 表格元件字體放大與美化 */
+    div[data-testid="stDataEditor"] {
+        font-size: 1.15rem !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    /* 按鈕美化 */
+    .stButton > button {
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* 控制區塊卡片美化 */
+    .control-card {
+        background-color: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -33,11 +84,16 @@ if not st.session_state["page_hw_auth"]:
         st.switch_page("main.py")
     st.stop()
 
-# 頂部頁頭
+# 頂部頁頭 Banner
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
-    st.write("# 📚 全校各科作業登記系統（Excel 表格模式）")
+    st.markdown("""
+        <div class="title-banner">
+            <h1>📚 全校各科作業登記系統</h1>
+        </div>
+    """, unsafe_allow_html=True)
 with col_top_back: 
+    st.write("")
     if st.button("🏛️ 返回管理主控台", use_container_width=True):
         st.switch_page("main.py")
 
@@ -58,18 +114,22 @@ def load_class_df(class_name):
     if os.path.exists(path):
         try:
             df = pd.read_csv(path)
-            # 確保座號欄位型態正確
             df['座號'] = df['座號'].astype(int)
             return df
         except:
             pass
-    # 若檔案不存在，預設建立包含「座號」、「姓名」、「國文作業」欄位的 DataFrame
+    
+    # 預設建置：801 導師班無預設作業，903/904/906 班預設為【英文作業】
     student_info = CLASSES_DATA[class_name]
-    df = pd.DataFrame({
+    data = {
         "座號": [s[0] for s in student_info],
-        "姓名": [s[1] for s in student_info],
-        "國文作業": [False] * len(student_info)
-    })
+        "姓名": [s[1] for s in student_info]
+    }
+    
+    if class_name != "801班":
+        data["英文作業"] = [False] * len(student_info)
+        
+    df = pd.DataFrame(data)
     return df
 
 def save_class_df(class_name, df):
@@ -77,38 +137,42 @@ def save_class_df(class_name, df):
     df.to_csv(path, index=False, encoding="utf-8-sig")
 
 # --- 主介面 ---
-col_control, col_table = st.columns([0.30, 0.70])
+col_control, col_table = st.columns([0.32, 0.68], gap="medium")
 
 with col_control:
-    st.write("### 🏫 班級與作業設定")
+    st.markdown('<div class="control-card">', unsafe_allow_html=True)
+    st.write("### 🏫 選擇班級")
     selected_class = st.selectbox("請選擇班級：", list(CLASSES_DATA.keys()), key="sel_class")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # 載入當前班級資料
     df_current = load_class_df(selected_class)
 
-    st.markdown("---")
+    st.markdown('<div class="control-card">', unsafe_allow_html=True)
     st.write("### ➕ 新增作業欄位")
-    new_hw_title = st.text_input("新增作業名稱：", placeholder="例如：數學講義 p.15", key=f"new_hw_{selected_class}")
-    if st.button("新增作業欄位", use_container_width=True, type="primary"):
+    placeholder_text = "例如：國文聯絡簿" if selected_class == "801班" else "例如：英文雜誌 L3"
+    new_hw_title = st.text_input("輸入新作業名稱：", placeholder=placeholder_text, key=f"new_hw_{selected_class}")
+    
+    if st.button("✨ 建立作業欄位", use_container_width=True, type="primary"):
         if new_hw_title.strip():
             title = new_hw_title.strip()
             if title in df_current.columns:
-                st.warning("⚠️ 該作業欄位已存在！")
+                st.warning("⚠️ 該作業名稱已存在！")
             else:
-                df_current[title] = False  # 預設為未勾選 (False)
+                df_current[title] = False
                 save_class_df(selected_class, df_current)
-                st.success(f"已新增【{title}】欄位！")
+                st.success(f"已成功新增【{title}】！")
                 st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown('<div class="control-card">', unsafe_allow_html=True)
     st.write("### 📢 缺交廣播複製區")
     
-    # 取得作業欄位清單（扣除座號、姓名）
     hw_columns = [col for col in df_current.columns if col not in ["座號", "姓名"]]
     if hw_columns:
-        target_hw = st.selectbox("選擇要複製缺交名單的作業：", hw_columns)
+        target_hw = st.selectbox("選擇要催繳的作業：", hw_columns)
         
-        # 抓出未勾選 (False) 的學生
+        # 篩選未勾選 (False) 者
         unpaid_df = df_current[df_current[target_hw] == False]
         
         if len(unpaid_df) > 0:
@@ -116,37 +180,49 @@ with col_control:
             for _, row in unpaid_df.iterrows():
                 broadcast_text += f"{int(row['座號'])}號 {row['姓名']}\n"
             
-            st.text_area("📋 一鍵複製廣播文字：", value=broadcast_text, height=180)
+            st.text_area("📋 一鍵複製 LINE 催繳文字：", value=broadcast_text, height=180)
         else:
             st.success(f"💯 【{selected_class}】{target_hw} 全班皆已繳齊！")
     else:
-        st.info("目前尚無作業欄位，請先新增作業名稱。")
+        st.info("💡 目前尚無作業欄位，請在上方新增作業名稱。")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_table:
-    st.write(f"### 📋 【{selected_class}】作業登記總表")
-    st.caption("💡 提示：打勾 ☑️ 表示【已繳】，空白 ☐ 表示【未繳】。修改後請點擊下方「💾 儲存變更」。")
+    # 班級身份標籤
+    tag_color = "#3B82F6" if selected_class == "801班" else "#10B981"
+    tag_role = "👑 導師班級" if selected_class == "801班" else "📖 任教英文班級"
     
-    # 設定表格欄位屬性
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <h3 style="margin: 0; color: #1E293B;">📋 【{selected_class}】作業登記總表</h3>
+            <span style="background-color: {tag_color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.88rem; font-weight: 600;">{tag_role}</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.caption("💡 操作提示：點擊勾選框 ☑️ 表示【已繳】，空白 ☐ 表示【未繳】。登記完畢請點擊下方「💾 儲存變更」。")
+    
+    # 欄位屬性設定
     column_config = {
         "座號": st.column_config.NumberColumn("座號", disabled=True, width="small"),
         "姓名": st.column_config.TextColumn("姓名", disabled=True, width="medium"),
     }
     
-    # 所有作業欄位設置為勾選框 (Checkbox)
     for col in df_current.columns:
         if col not in ["座號", "姓名"]:
             column_config[col] = st.column_config.CheckboxColumn(
                 col,
-                help="點擊勾選代表已繳交",
-                default=False
+                help="點擊打勾代表已繳交",
+                default=False,
+                width="medium"
             )
             
-    # 可編輯的 Excel 表格元件
+    # 呈現點擊打勾的表格
     edited_df = st.data_editor(
         df_current,
         column_config=column_config,
         hide_index=True,
         use_container_width=True,
+        height=520,
         key=f"editor_{selected_class}"
     )
     
