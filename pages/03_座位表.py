@@ -136,12 +136,13 @@ html_code = f"""
         margin-bottom: 14px;
     }}
     .cadre-title-head {{
-        font-weight: 800; color: #334155; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+        font-weight: 800; color: #334155; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;
     }}
     .cadre-grid-top {{
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         gap: 6px;
+        margin-top: 10px;
     }}
     .cadre-card-top {{
         background: #FFFFFF;
@@ -181,6 +182,7 @@ html_code = f"""
         .right-panel {{ width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; }}
         body {{ background: white; margin: 0; padding: 0; }}
         .cadre-section {{ border: 1px solid #000 !important; background: white !important; }}
+        #cadreTopGrid {{ display: grid !important; }}
         .cadre-card-top {{ border: 1px solid #ccc !important; border-left: 3px solid #000 !important; }}
         .seat-box {{ border: 1.5px solid #000 !important; height: 80px !important; }}
         .col-header {{ border: 1.5px solid #000; background: #eee !important; color: #000; }}
@@ -205,8 +207,11 @@ html_code = f"""
         </div>
 
         <div class="cadre-section">
-            <div class="cadre-title-head">🎖️ 801 班級幹部與小老師一覽</div>
-            <div class="cadre-grid-top" id="cadreTopGrid"></div>
+            <div class="cadre-title-head" onclick="toggleCadres()">
+                <span>🎖️ 801 班級幹部與小老師一覽</span>
+                <span id="toggleIcon">🔽 點擊展開</span>
+            </div>
+            <div class="cadre-grid-top" id="cadreTopGrid" style="display: none;"></div>
         </div>
 
         <div id="topPodium" class="podium" style="display:none;">📺 黑板 / 教師講台區（學生視角：面向講台）</div>
@@ -229,6 +234,18 @@ function init() {{
     renderTopCadres();
     renderGrid();
     renderStudentPool();
+}}
+
+function toggleCadres() {{
+    const grid = document.getElementById('cadreTopGrid');
+    const icon = document.getElementById('toggleIcon');
+    if (grid.style.display === 'none') {{
+        grid.style.display = 'grid';
+        icon.innerText = '🔼 點擊收合';
+    }} else {{
+        grid.style.display = 'none';
+        icon.innerText = '🔽 點擊展開';
+    }}
 }}
 
 function renderTopCadres() {{
@@ -355,4 +372,4 @@ window.onload = init;
 </html>
 """
 
-components.html(html_code, height=900, scrolling=False)
+components.html(html_code, height=820, scrolling=False)
