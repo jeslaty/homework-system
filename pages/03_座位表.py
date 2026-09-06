@@ -53,7 +53,7 @@ CADRES_LIST = [
 # 頂部控制欄與標頭
 col1, col2 = st.columns([0.8, 0.2])
 with col1:
-    st.title("🪑 801 班級座位表管理系統")
+    st.title("🪑 801 班級座位表管理系統（拖拉排位版）")
 with col2:
     if st.button("🏛️ 返回主控台", use_container_width=True):
         st.switch_page("main.py")
