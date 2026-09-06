@@ -1,80 +1,122 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="801 導師班級管理系統",
+    page_title="班級經營管理系統",
     page_icon="🏫",
     layout="wide"
 )
 
-# 馬卡龍風美化 CSS 與隱藏預設元件
+# 隱藏預設選單與頁首，並注入完美結合的 CSS 樣式
 st.markdown("""
     <style>
+    /* 隱藏 Streamlit 預設側邊欄與頁首 */
     [data-testid="stSidebar"], button[data-testid="collapsedControl"], header[data-testid="stHeader"] {
         display: none !important;
     }
+    
+    /* 右圖漸層背景 */
     .stApp {
-        background: linear-gradient(135deg, #FFF5F5 0%, #F0F4FF 50%, #F5F3FF 100%);
+        background: linear-gradient(135deg, #FFF0F5 0%, #F0F4FF 50%, #F5F0FF 100%);
     }
     
-    .main-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #4A5568;
+    /* 左圖圓角頂部 Banner (配右圖溫和底色) */
+    .header-banner {
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 24px;
+        padding: 24px;
         text-align: center;
         margin-bottom: 2rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+    .sub-title {
+        font-size: 1rem;
+        color: #64748B;
+        font-weight: 500;
+    }
+
+    /* 左圖卡片形式 + 右圖馬卡龍配色與懸浮效果 */
+    .card-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
     }
     
-    .card-macaron-1 {
+    .card {
+        border-radius: 24px;
+        padding: 36px 20px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: pointer;
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+    }
+
+    /* 右圖馬卡龍三色 + 擴充色 */
+    .card-pink {
         background: #FFF0F5;
-        border-radius: 24px;
-        padding: 32px 24px;
-        box-shadow: 0 8px 20px rgba(255, 182, 193, 0.3);
         border: 2px solid #FFD1DC;
-        text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 8px 20px rgba(255, 182, 193, 0.25);
     }
-    .card-macaron-2 {
+    .card-pink:hover {
+        box-shadow: 0 16px 30px rgba(255, 182, 193, 0.45);
+    }
+
+    .card-blue {
         background: #F0F8FF;
-        border-radius: 24px;
-        padding: 32px 24px;
-        box-shadow: 0 8px 20px rgba(173, 216, 230, 0.3);
         border: 2px solid #BAE6FD;
-        text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 8px 20px rgba(173, 216, 230, 0.25);
     }
-    .card-macaron-3 {
+    .card-blue:hover {
+        box-shadow: 0 16px 30px rgba(173, 216, 230, 0.45);
+    }
+
+    .card-purple {
         background: #F5F0FF;
-        border-radius: 24px;
-        padding: 32px 24px;
-        box-shadow: 0 8px 20px rgba(221, 160, 221, 0.3);
         border: 2px solid #DDD6FE;
-        text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 8px 20px rgba(221, 160, 221, 0.25);
     }
-    .card-macaron-1:hover, .card-macaron-2:hover, .card-macaron-3:hover {
-        transform: translateY(-6px);
+    .card-purple:hover {
+        box-shadow: 0 16px 30px rgba(221, 160, 221, 0.45);
     }
-    
-    .card-icon { font-size: 3.8rem; margin-bottom: 12px; }
-    .card-title { font-size: 1.5rem; font-weight: 800; color: #2D3748; margin-bottom: 6px; }
-    .card-subtitle { font-size: 1rem; color: #718096; font-weight: 600; margin-bottom: 16px; }
+
+    /* 文字與圖示樣式 */
+    .card-icon { font-size: 3.2rem; margin-bottom: 12px; }
+    .card-title { font-size: 1.35rem; font-weight: 800; color: #1E293B; margin-bottom: 6px; }
+    .card-subtitle { font-size: 0.9rem; color: #64748B; font-weight: 600; }
     </style>
 """, unsafe_allow_html=True)
 
-# 初始化全域登入狀態
+# 1. 初始化登入狀態
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-# ----------------- 未登入：馬卡龍登入驗證關卡 -----------------
+# 2. 未登入：顯示帳號密碼驗證
 if not st.session_state["authenticated"]:
-    st.markdown('<div class="main-title">🔒 801 導師安全驗證專區</div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="header-banner">
+            <div class="main-title">🔒 801 導師安全驗證專區</div>
+            <div class="sub-title">請輸入帳號與密碼以進入班級管理系統</div>
+        </div>
+    """, unsafe_allow_html=True)
     
     col_a, col_b, col_c = st.columns([1, 1.2, 1])
     with col_b:
-        st.markdown("""
-            <div style="background: #FFFFFF; padding: 28px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #FFE4E6;">
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="background: rgba(255,255,255,0.8); padding: 28px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #E2E8F0;">', unsafe_allow_html=True)
         
         username = st.text_input("👤 請輸入導師帳號：", placeholder="例如：801")
         password = st.text_input("🔑 請輸入導師密碼：", type="password", placeholder="請輸入密碼")
@@ -83,58 +125,96 @@ if not st.session_state["authenticated"]:
         if st.button("✨ 確認通行", use_container_width=True, type="primary"):
             if username == "801" and password == "12345":
                 st.session_state["authenticated"] = True
-                st.success("驗證成功！即將進入主控台...")
                 st.rerun()
             else:
                 st.error("帳號或密碼錯誤，請重新輸入！")
         
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
-# ----------------- 驗證成功：馬卡龍風主控台 -----------------
+# 3. 驗證通過：左圖形式 + 右圖配色的主控台
+st.markdown("""
+    <div class="header-banner">
+        <div class="main-title">🏫 班級經營主控台</div>
+        <div class="sub-title">點擊下方任一功能大方格，即可快速進入管理系統</div>
+    </div>
+""", unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🏫 801 導師班級管理系統</div>', unsafe_allow_html=True)
-
+# 第一排 3 個大方格 (左圖排版 + 右圖馬卡龍色)
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-        <div class="card-macaron-1">
-            <div class="card-icon">📖</div>
-            <div class="card-title">班級聯絡簿</div>
-            <div class="card-subtitle">（801導師專屬）</div>
-        </div>
+        <a href="/每日聯絡簿" target="_self" class="card-link">
+            <div class="card card-pink">
+                <div class="card-icon">📖</div>
+                <div class="card-title">班級聯絡簿</div>
+                <div class="card-subtitle">(801導師專屬)</div>
+            </div>
+        </a>
     """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("進入聯絡簿", key="btn_contact", use_container_width=True):
-        st.switch_page("pages/01_每日聯絡簿.py")
 
 with col2:
     st.markdown("""
-        <div class="card-macaron-2">
-            <div class="card-icon">📋</div>
-            <div class="card-title">作業登記專區</div>
-            <div class="card-subtitle">（任教班作業）</div>
-        </div>
+        <a href="/作業登記" target="_self" class="card-link">
+            <div class="card card-blue">
+                <div class="card-icon">📚</div>
+                <div class="card-title">作業登記專區</div>
+                <div class="card-subtitle">(全校各科)</div>
+            </div>
+        </a>
     """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("進入作業登記", key="btn_homework", use_container_width=True):
-        st.switch_page("pages/02_作業登記.py")
 
 with col3:
     st.markdown("""
-        <div class="card-macaron-3">
-            <div class="card-icon">🪑</div>
-            <div class="card-title">班級座位表</div>
-            <div class="card-subtitle">（座位安排與列印）</div>
-        </div>
+        <a href="/座位表" target="_self" class="card-link">
+            <div class="card card-purple">
+                <div class="card-icon">🪑</div>
+                <div class="card-title">座位表管理</div>
+                <div class="card-subtitle">(排座位/印表)</div>
+            </div>
+        </a>
     """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("進入座位表", key="btn_seating", use_container_width=True):
-        st.switch_page("pages/03_座位表.py")
+
+# 第二排 3 個擴充大方格 (左圖下半部)
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    st.markdown("""
+        <a href="#" class="card-link">
+            <div class="card card-blue">
+                <div class="card-icon">🎲</div>
+                <div class="card-title">學生抽籤學輪播</div>
+                <div class="card-subtitle">(課堂互動/提問)</div>
+            </div>
+        </a>
+    """, unsafe_allow_html=True)
+
+with col5:
+    st.markdown("""
+        <a href="#" class="card-link">
+            <div class="card card-pink">
+                <div class="card-icon">⏳</div>
+                <div class="card-title">考試倒數計時器</div>
+                <div class="card-subtitle">(段考/倒數提醒)</div>
+            </div>
+        </a>
+    """, unsafe_allow_html=True)
+
+with col6:
+    st.markdown("""
+        <a href="#" class="card-link">
+            <div class="card card-purple">
+                <div class="card-icon">➕</div>
+                <div class="card-title">新增功能預留區</div>
+                <div class="card-subtitle">(點擊可擴充)</div>
+            </div>
+        </a>
+    """, unsafe_allow_html=True)
 
 st.write("")
-st.write("")
+
+# 登出按鈕
 col_l, col_r = st.columns([0.85, 0.15])
 with col_r:
     if st.button("🔒 登出系統", use_container_width=True):
