@@ -159,7 +159,7 @@ with col2:
             <div class="card card-blue">
                 <div class="card-icon">📚</div>
                 <div class="card-title">作業登記專區</div>
-                <div class="card-subtitle">(全校各科)</div>
+                <div class="card-subtitle">(各任課班級)</div>
             </div>
         </a>
     """, unsafe_allow_html=True)
