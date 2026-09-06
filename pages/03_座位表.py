@@ -50,8 +50,8 @@ with col1:
     st.title("🪑 801 班級座位表")
 
 with col2:
-    st.page_link("main.py", label="🏛️ 返回主控台", use_container_width=True)
-
+    # 使用 query_params 參數，確保返回時網址帶上 auth=true
+    st.page_link("main.py", label="🏛️ 返回主控台", use_container_width=True, query_params={"auth": "true"})
 html_code = f"""
 <!DOCTYPE html>
 <html>
