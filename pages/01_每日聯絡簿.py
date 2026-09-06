@@ -24,24 +24,13 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+# 驗證機制（改為全域驗證檢查）
+if not st.session_state.get("authenticated", False):
+    st.switch_page("main.py")
 
-# 驗證機制
-if "page_contact_auth" not in st.session_state:
-    st.session_state["page_contact_auth"] = False
+if st.button("⬅️ 返回管理主控台"):
+    st.switch_page("main.py")
 
-if not st.session_state["page_contact_auth"]:
-    st.write("### 🔒 教師安全驗證專區")
-    with st.form("page_auth_form"):
-        p = st.text_input("請輸入 5 位數導師密碼：")
-        if st.form_submit_button("確認通行"):
-            if p.strip() == "12345":
-                st.session_state["page_contact_auth"] = True
-                st.rerun()
-            else:
-                st.error("❌ 密碼錯誤。")
-    if st.button("⬅️ 返回管理主控台", use_container_width=True):
-        st.switch_page("main.py")
-    st.stop()
 
 col_top_title, col_top_back = st.columns([0.80, 0.20])
 with col_top_title:
