@@ -64,6 +64,8 @@ st.markdown("""
         </div>
     </a>
 """, unsafe_allow_html=True)
+    </a>
+""", unsafe_allow_html=True)
 
 html_code = f"""
 <!DOCTYPE html>
