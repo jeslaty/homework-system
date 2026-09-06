@@ -25,9 +25,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 # 驗證機制（改為全域驗證檢查）
+if "auth" in st.query_params and st.query_params["auth"] == "true":
+    st.session_state["authenticated"] = True
+
 if not st.session_state.get("authenticated", False):
     st.switch_page("main.py")
-
 if st.button("⬅️ 返回管理主控台"):
     st.switch_page("main.py")
 
