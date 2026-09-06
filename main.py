@@ -119,7 +119,7 @@ with col1:
         </div>
     """, unsafe_allow_html=True)
     if st.button("p1", key="btn_p1", use_container_width=True):
-        st.switch_page("pages/01_班級聯絡簿.py")
+        st.switch_page("pages/01_每日聯絡簿.py")
 
 with col2:
     st.markdown("""
