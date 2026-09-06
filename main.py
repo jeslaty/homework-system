@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="班級經營主控台", page_icon="🏫", layout="wide")
 
-# CSS 視覺美化：淺藍馬卡龍色九宮格大卡片
+# CSS 視覺美化：莫蘭迪灰背景 + 淺粉馬卡龍大方格
 st.markdown("""
     <style>
     /* 隱藏側邊欄與頁首 */
@@ -12,43 +12,45 @@ st.markdown("""
         display: none !important;
     }
     
-    /* 頁面整體背景 */
+    /* 頁面整體背景：深莫蘭迪灰色 */
     .stApp {
-        background-color: #F8FAFC;
+        background-color: #3A404A !important;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
     
-    /* 頁頭 Banner */
+    /* 頂部 Header Banner */
     .main-title-banner {
-        background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+        background-color: #4A515D;
         padding: 24px;
         border-radius: 20px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        margin-bottom: 30px;
+        border: 1px solid #5A6270;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        margin-bottom: 35px;
     }
     .main-title-banner h1 {
-        color: #0369A1 !important;
-        font-size: 2.2rem !important;
+        color: #F8FAFC !important;
+        font-size: 2.3rem !important;
         font-weight: 800 !important;
         margin: 0 !important;
+        letter-spacing: 1px;
     }
     .main-title-banner p {
-        color: #0284C7 !important;
+        color: #CBD5E1 !important;
         margin-top: 8px !important;
         font-size: 1.05rem;
-        font-weight: 500;
+        font-weight: 400;
     }
     
-    /* 淺藍馬卡龍九宮格大卡片按鈕 */
+    /* 淺粉馬卡龍大方格卡片按鈕 */
     div.macaron-grid-card > div.stButton > button {
-        height: 210px !important;  /* 拉高卡片高度，形成大格子 */
+        height: 260px !important;            /* 大大幅拉高高度，呈現俐落大方格 */
         width: 100% !important;
-        background-color: #E0F2FE !important; /* 淺藍馬卡龍色 */
-        color: #0369A1 !important;           /* 深藍文字顏色 */
-        border: 2px solid #E2E8F0 !important;
-        border-radius: 24px !important;
-        box-shadow: 0 6px 16px rgba(186, 230, 253, 0.3) !important;
+        background-color: #FFE5EC !important; /* 格子本身：淺粉馬卡龍色 */
+        color: #8C2F39 !important;           /* 質感深紅/粉棕色文字 */
+        border: none !important;
+        border-radius: 28px !important;      /* 加大圓角 */
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
         transition: all 0.25s ease-in-out !important;
         display: flex !important;
         flex-direction: column !important;
@@ -56,17 +58,17 @@ st.markdown("""
         justify-content: center !important;
         padding: 24px !important;
         white-space: pre-wrap !important;
-        font-size: 1.25rem !important;
-        font-weight: 700 !important;
+        font-size: 1.35rem !important;
+        font-weight: 800 !important;
         line-height: 1.6 !important;
     }
     
     /* 懸浮效果：放大與變色 */
     div.macaron-grid-card > div.stButton > button:hover {
-        background-color: #BAE6FD !important;
+        background-color: #FFC2D1 !important; /* 懸浮時顯色柔粉 */
         transform: translateY(-8px) scale(1.02) !important;
-        box-shadow: 0 14px 28px rgba(56, 189, 248, 0.25) !important;
-        border-color: #7DD3FC !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3) !important;
+        color: #6B1D26 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -75,11 +77,11 @@ st.markdown("""
 st.markdown("""
     <div class="main-title-banner">
         <h1>🏫 班級經營主控台</h1>
-        <p>點擊下方任一功能格子，即可快速進入管理系統</p>
+        <p>點擊下方任一功能大方格，即可快速進入管理系統</p>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 九宮格第一排 (3個格子) ---
+# --- 九宮格第一排 (3個大方格) ---
 col1, col2, col3 = st.columns(3, gap="large")
 
 with col1:
@@ -102,7 +104,7 @@ with col3:
 
 st.write("") # 上下排間距
 
-# --- 九宮格第二排 (3個格子) ---
+# --- 九宮格第二排 (3個大方格) ---
 col4, col5, col6 = st.columns(3, gap="large")
 
 with col4:
@@ -119,7 +121,6 @@ with col5:
 
 with col6:
     st.markdown('<div class="macaron-grid-card">', unsafe_allow_html=True)
-    # 預留未來的九宮格擴充空間
     if st.button("➕\n\n新增功能預留區\n(未來擴充)", key="btn_p6", use_container_width=True):
         st.toast("💡 此功能尚未開放，敬請期待！", icon="✨")
     st.markdown('</div>', unsafe_allow_html=True)
