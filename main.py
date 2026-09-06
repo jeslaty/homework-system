@@ -6,13 +6,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# 1. 處理網址參數（透過 URL 帶入登入狀態，確保點擊 HTML 連結切換頁面時「絕對不會被登出」）
+# 1. 關鍵修復：優先讀取 URL 參數，還原登入狀態（防止 switch_page 時狀態丟失）
 if "auth" in st.query_params and st.query_params["auth"] == "true":
     st.session_state["authenticated"] = True
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
-
 # CSS 樣式：畫面 100% 還原，乾乾淨淨，沒有任何多餘按鈕
 st.markdown("""
     <style>
