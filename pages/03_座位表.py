@@ -17,7 +17,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 801 班級學生資料
+# 801 班級學生資料 (28人)
 STUDENTS_801 = [
     {"id": 1, "name": "王喬昕"}, {"id": 2, "name": "吳岢曈"}, {"id": 3, "name": "李巧彤"},
     {"id": 4, "name": "岳昀軒"}, {"id": 5, "name": "林晏以"}, {"id": 6, "name": "林晨琳"},
@@ -31,7 +31,7 @@ STUDENTS_801 = [
     {"id": 28, "name": "魏辰恩"}
 ]
 
-# 幹部對照資料
+# 幹部對照資料（已加入 23 陳秉玄）
 CADRES_LIST = [
     {"cadre": "班長", "id": 5, "name": "林晏以"}, {"cadre": "副班長", "id": 3, "name": "李巧彤"},
     {"cadre": "風紀股長", "id": 20, "name": "林柏辰"}, {"cadre": "學藝股長", "id": 13, "name": "羅羽翎"},
@@ -47,18 +47,18 @@ CADRES_LIST = [
     {"cadre": "綜合(一)輔導", "id": 12, "name": "戴彤竹"}, {"cadre": "綜合(二)童軍", "id": 13, "name": "羅羽翎"},
     {"cadre": "綜合(三)家政", "id": 1, "name": "王喬昕"}, {"cadre": "資訊小老師", "id": 28, "name": "魏辰恩"},
     {"cadre": "生科小老師", "id": 20, "name": "林柏辰"}, {"cadre": "本土語小老師", "id": 26, "name": "董子以"},
-    {"cadre": "美感幾何", "id": 22, "name": "陳正澤"}
+    {"cadre": "美感幾何", "id": 22, "name": "陳正澤"}, {"cadre": "協助小老師", "id": 23, "name": "陳秉玄"}
 ]
 
-# 頂部控制欄與標頭
+# 頂部控制欄
 col1, col2 = st.columns([0.8, 0.2])
 with col1:
-    st.title("🪑 801 班級座位表管理系統（拖拉排位版）")
+    st.title("🪑 801 班級座位表管理系統（直覺拖拉版）")
 with col2:
     if st.button("🏛️ 返回主控台", use_container_width=True):
         st.switch_page("main.py")
 
-# HTML + JavaScript 核心元件 (支援 Drag & Drop 與 Print)
+# HTML + JavaScript 核心元件
 html_code = f"""
 <!DOCTYPE html>
 <html>
@@ -73,35 +73,37 @@ html_code = f"""
     .container {{
         display: flex;
         gap: 20px;
+        align-items: flex-start;
     }}
     .left-panel {{
-        width: 28%;
+        width: 32%;
         background: #FFFFFF;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 18px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         border: 1px solid #E2E8F0;
     }}
     .right-panel {{
-        width: 70%;
+        width: 66%;
         background: #FFFFFF;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 18px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         border: 1px solid #E2E8F0;
     }}
     .btn-group {{
         display: flex;
         gap: 8px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
     }}
     button {{
         cursor: pointer;
-        padding: 8px 12px;
+        padding: 9px 14px;
         border-radius: 8px;
         border: none;
         font-weight: bold;
-        font-size: 0.85rem;
+        font-size: 0.88rem;
         transition: all 0.2s;
     }}
     .btn-primary {{ background-color: #0284C7; color: white; }}
@@ -113,31 +115,61 @@ html_code = f"""
     .btn-secondary {{ background-color: #64748B; color: white; }}
     
     /* 頁籤 */
+    .tab-nav {{ display: flex; gap: 6px; margin-bottom: 12px; }}
     .tab-btn {{
-        background: #E2E8F0; color: #475569; padding: 6px 12px; border-radius: 6px 6px 0 0;
+        flex: 1; background: #F1F5F9; color: #64748B; padding: 8px; border-radius: 8px; text-align: center;
     }}
     .tab-btn.active {{
         background: #0284C7; color: white;
     }}
-    .tab-content {{ display: none; margin-top: 10px; max-height: 480px; overflow-y: auto; }}
+    .tab-content {{ display: none; }}
     .tab-content.active {{ display: block; }}
 
-    /* 學生拖拉卡片 */
+    /* 左側學生名單：雙欄 Grid 展示，不需捲軸 */
+    .student-grid {{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }}
     .student-card {{
         background: #F0F9FF;
         border: 1.5px solid #BAE6FD;
-        border-radius: 8px;
+        border-radius: 10px;
         padding: 8px 10px;
-        margin-bottom: 8px;
         cursor: grab;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-weight: bold;
+        font-size: 0.9rem;
         color: #0369A1;
         user-select: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }}
+    .student-card:hover {{
+        background: #E0F2FE;
+        border-color: #0284C7;
     }}
     .student-card:active {{ cursor: grabbing; }}
+
+    /* 幹部小老師精緻卡片網格 */
+    .cadre-grid {{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        max-height: 750px;
+        overflow-y: auto;
+    }}
+    .cadre-card {{
+        background: #FFF7ED;
+        border: 1.5px solid #FFEDD5;
+        border-radius: 10px;
+        padding: 8px 10px;
+        display: flex;
+        flex-direction: column;
+    }}
+    .cadre-title {{ font-size: 0.75rem; color: #EA580C; font-weight: 800; }}
+    .cadre-user {{ font-size: 0.9rem; color: #7C2D12; font-weight: 700; margin-top: 2px; }}
     
     /* 座位網格布局 */
     .grid-container {{
@@ -151,32 +183,34 @@ html_code = f"""
         background: #E0F2FE;
         color: #0284C7;
         font-weight: bold;
-        padding: 6px;
-        border-radius: 6px;
-        font-size: 0.85rem;
+        padding: 7px;
+        border-radius: 8px;
+        font-size: 0.9rem;
     }}
     .seat-box {{
         background: #F8FAFC;
         border: 2px dashed #CBD5E1;
-        border-radius: 10px;
-        height: 72px;
+        border-radius: 12px;
+        height: 78px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        transition: background 0.2s;
+        transition: all 0.2s;
     }}
     .seat-box.drag-over {{
         background: #E0F2FE;
         border-color: #0284C7;
+        transform: scale(1.02);
     }}
     .seat-occupied {{
         background: #FFFFFF;
         border: 2px solid #38BDF8;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.04);
+        cursor: grab;
     }}
-    .seat-id {{ font-size: 0.75rem; color: #64748B; }}
-    .seat-name {{ font-size: 1.05rem; font-weight: bold; color: #0F172A; margin-top: 2px; }}
+    .seat-id {{ font-size: 0.78rem; color: #64748B; font-weight: 600; }}
+    .seat-name {{ font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-top: 2px; }}
     .walkway {{
         background: transparent;
         border: none;
@@ -184,7 +218,8 @@ html_code = f"""
         justify-content: center;
         align-items: center;
         color: #94A3B8;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
+        font-weight: bold;
     }}
     
     .podium {{
@@ -192,54 +227,46 @@ html_code = f"""
         color: white;
         text-align: center;
         padding: 10px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-weight: bold;
         margin: 12px 0;
         letter-spacing: 1px;
     }}
 
-    /* 幹部列表樣式 */
-    table {{ width: 100%; border-collapse: collapse; font-size: 0.85rem; }}
-    th, td {{ border: 1px solid #E2E8F0; padding: 6px 8px; text-align: left; }}
-    th {{ background-color: #F1F5F9; color: #334155; }}
-
-    /* A4 列印列印模式對應控制 */
+    /* A4 列印模式對應控制 */
     @media print {{
-        .left-panel, .btn-group, .view-toggle-bar, button {{ display: none !important; }}
+        .left-panel, .btn-group, button {{ display: none !important; }}
         .right-panel {{ width: 100% !important; border: none !important; box-shadow: none !important; }}
         body {{ background: white; margin: 0; padding: 0; }}
-        .seat-box {{ border: 1px solid #000 !important; height: 80px !important; }}
-        .col-header {{ border: 1px solid #000; background: #eee !important; color: #000; }}
-        .podium {{ border: 1px solid #000; background: #ddd !important; color: #000; }}
+        .seat-box {{ border: 1.5px solid #000 !important; height: 85px !important; }}
+        .col-header {{ border: 1.5px solid #000; background: #eee !important; color: #000; }}
+        .podium {{ border: 1.5px solid #000; background: #ddd !important; color: #000; }}
     }}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 左側面板：學生名單/幹部頁籤 -->
+    <!-- 左側面板：學生名單/幹部小老師 -->
     <div class="left-panel">
-        <div style="display: flex; gap: 4px;">
-            <button class="tab-btn active" onclick="switchTab('unassignedTab', this)">🎒 待安排名單</button>
-            <button class="tab-btn" onclick="switchTab('cadreTab', this)">🎖️ 幹部職務表</button>
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('unassignedTab', this)">🎒 待安排學生</button>
+            <button class="tab-btn" onclick="switchTab('cadreTab', this)">🎖️ 幹部小老師</button>
         </div>
 
         <div id="unassignedTab" class="tab-content active">
-            <div id="studentPool"></div>
+            <div id="studentPool" class="student-grid"></div>
         </div>
 
         <div id="cadreTab" class="tab-content">
-            <table id="cadreTable">
-                <thead><tr><th>職務</th><th>座號</th><th>姓名</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div id="cadreGrid" class="cadre-grid"></div>
         </div>
     </div>
 
-    <!-- 右側面板：座位表核心區域 -->
+    <!-- 右側面板：座位表 -->
     <div class="right-panel">
         <div class="btn-group">
-            <button class="btn-primary" onclick="autoAssign()">🎲 隨機一鍵排位</button>
+            <button class="btn-primary" onclick="autoAssign()">🎲 一鍵隨機排位</button>
             <button class="btn-danger" onclick="resetSeats()">🗑️ 清空重置座位</button>
             <button class="btn-success" onclick="window.print()">🖨️ 列印座位表</button>
             <button class="btn-secondary" onclick="toggleView()" id="viewBtn">🔄 切換為學生視角</button>
@@ -259,10 +286,10 @@ const studentsData = {json.dumps(STUDENTS_801)};
 const cadresData = {json.dumps(CADRES_LIST)};
 
 let seatsMap = {{}}; // posKey -> studentId
-let isTeacherView = true; // true: 老師視角, false: 學生視角
+let isTeacherView = true;
 
 function init() {{
-    renderCadres();
+    renderCadreCards();
     renderGrid();
     renderStudentPool();
 }}
@@ -274,9 +301,14 @@ function switchTab(tabId, btn) {{
     btn.classList.add('active');
 }}
 
-function renderCadres() {{
-    const tbody = document.querySelector('#cadreTable tbody');
-    tbody.innerHTML = cadresData.map(c => `<tr><td>${{c.cadre}}</td><td>${{c.id}}</td><td>${{c.name}}</td></tr>`).join('');
+function renderCadreCards() {{
+    const container = document.getElementById('cadreGrid');
+    container.innerHTML = cadresData.map(c => `
+        <div class="cadre-card">
+            <div class="cadre-title">🏷️ ${{c.cadre}}</div>
+            <div class="cadre-user">${{c.id}}號 ${{c.name}}</div>
+        </div>
+    `).join('');
 }}
 
 function renderStudentPool() {{
@@ -284,11 +316,18 @@ function renderStudentPool() {{
     pool.innerHTML = '';
     const assignedIds = new Set(Object.values(seatsMap));
 
-    studentsData.filter(s => !assignedIds.has(s.id)).forEach(s => {{
+    const unassigned = studentsData.filter(s => !assignedIds.has(s.id));
+    
+    if(unassigned.length === 0) {{
+        pool.innerHTML = '<div style="grid-column: span 2; text-align:center; color:#10B981; font-weight:bold; padding:20px 0;">🎉 全班同學皆已指派入座！</div>';
+        return;
+    }}
+
+    unassigned.forEach(s => {{
         const card = document.createElement('div');
         card.className = 'student-card';
         card.draggable = true;
-        card.innerHTML = `<span>${{s.id}}號 ${{s.name}}</span> <span>⋮⋮</span>`;
+        card.innerHTML = `<span>${{s.id}}號 ${{s.name}}</span> <span style="opacity:0.4;">⋮⋮</span>`;
         card.ondragstart = (e) => e.dataTransfer.setData('text/plain', s.id);
         pool.appendChild(card);
     }});
@@ -306,7 +345,7 @@ function renderGrid() {{
         headerContainer.innerHTML += `<div class="col-header">第 ${{colNum}} 列</div>`;
     }}
 
-    // 排數渲染：老師視角（5排到1排從上到下），學生視角（1排到5排從上到下）
+    // 排數渲染：老師視角（5排往下到1排），學生視角（1排往後到5排）
     const rowOrder = isTeacherView ? [4, 3, 2, 1, 0] : [0, 1, 2, 3, 4];
 
     rowOrder.forEach(r => {{
@@ -314,7 +353,6 @@ function renderGrid() {{
             const realC = isTeacherView ? c : (5 - c);
             const box = document.createElement('div');
             
-            // 第6列(realC=5) 的第4,5排(r=3,4)為走道
             if (realC === 5 && r >= 3) {{
                 box.className = 'seat-box walkway';
                 box.innerHTML = '🚫 走道';
@@ -330,7 +368,7 @@ function renderGrid() {{
                     box.ondragstart = (e) => e.dataTransfer.setData('text/plain', stu.id);
                 }} else {{
                     box.className = 'seat-box';
-                    box.innerHTML = `<div class="seat-id">第 ${{r+1}} 排</div><div style="color:#CBD5E1;">空位</div>`;
+                    box.innerHTML = `<div class="seat-id">第 ${{r+1}} 排</div><div style="color:#CBD5E1; font-weight:600;">空位</div>`;
                 }}
 
                 box.ondragover = (e) => {{ e.preventDefault(); box.classList.add('drag-over'); }};
@@ -340,7 +378,6 @@ function renderGrid() {{
                     box.classList.remove('drag-over');
                     const droppedId = parseInt(e.dataTransfer.getData('text/plain'));
                     if (droppedId) {{
-                        // 清除該生舊位置
                         Object.keys(seatsMap).forEach(k => {{ if (seatsMap[k] === droppedId) delete seatsMap[k]; }});
                         seatsMap[posKey] = droppedId;
                         renderGrid();
@@ -390,4 +427,4 @@ window.onload = init;
 </html>
 """
 
-components.html(html_code, height=720, scrolling=False)
+components.html(html_code, height=800, scrolling=False)
