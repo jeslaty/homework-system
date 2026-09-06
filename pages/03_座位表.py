@@ -48,9 +48,22 @@ CADRES_LIST = [
 col1, col2 = st.columns([0.8, 0.2])
 with col1:
     st.title("🪑 801 班級座位表")
-if st.button("🏛️ 返回主控台", use_container_width=True):
-    st.query_params["auth"] = "true"  # 確保返回時帶著驗證標記
-    st.switch_page("main.py")
+st.markdown("""
+    <a href="/?auth=true" target="_self" style="text-decoration: none;">
+        <div style="
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            color: #475569;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;">
+            🏛️ 返回主控台
+        </div>
+    </a>
+""", unsafe_allow_html=True)
 
 html_code = f"""
 <!DOCTYPE html>
